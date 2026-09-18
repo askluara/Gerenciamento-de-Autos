@@ -3,9 +3,24 @@
 const express = require('express');
 const path = require('path');
 const fs = require('fs');
+const session = require('express-session');
 
 const app = express();
 const PORT = 3000;
+
+//cria sessão do usuario
+//importante para segurança
+
+app.use(session({
+  secret:'abracadabra',//provisorio
+  resave: false,
+  saveUninitialized: false,
+  cookie: { 
+    secure: false, // true em produção com HTTPS
+    maxAge: 1000 * 60 * 60 * 24, // 24 horas (tempo maximo que voce pode "ficar" no servidor)
+    httpOnly: true
+  }
+}));
 
 // Interpreta JSON vindo da chamada do fetch()
 app.use(express.json());
@@ -13,12 +28,22 @@ app.use(express.json());
 // Serve os arquivos do front (HTML, JS, CSS)
 app.use(express.static(path.join(__dirname, 'public')));
 
+//funcao que não permite o usuario acessar a tela home sem login
+function protegerRota(req, res, next) {
+  if (req.session.usuarioLogado) {
+    next();
+  } else {
+    return res.status(302).redirect('/'); // Adicione return e status
+  }
+}
+
 // Rota pra tela de login
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
 // Rota da Tela Inicial (onde o usuário vai após logar)
+// adição do metodo de protecao
 app.get('/home', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'home.html'));
 });
@@ -39,8 +64,13 @@ const { email, senha } = req.body;
     const usuarioValido = usuarios.find(
       u => u.email === email && u.senha === senha
     );
+
     //Verifica se usuarioValido é valido e lança mensagem correspondente
     if (usuarioValido) {
+    //criacao da sessao pelo usuario
+    req.session.usuarioLogado = true;
+    req.session.email = usuarioValido.email;
+
       return res.json({ sucesso: true, mensagem: 'Login realizado com sucesso!' });
     } else {
       return res.status(401).json({ sucesso: false, mensagem: 'E-mail ou senha incorretos!' });
@@ -50,6 +80,25 @@ const { email, senha } = req.body;
     console.error(error);
     return res.status(500).json({ sucesso: false, mensagem: 'Erro interno no servidor ao validar o login.' });
   }
+});
+//verifica se há sessão válida
+app.get('/api/verificar-sessao', (req, res) => {
+
+  if (req.session.usuarioLogado) {
+    return res.json({ logado: true, email: req.session.email });
+  } else {
+    return res.json({ logado: false });
+  }
+});
+//sessão de logout
+app.get('/api/logout',(req,res)=>{
+req.session.destroy((err)=>{
+  if(err){
+    return res.status(500).json({sucesso:false})
+  }
+  res.json({sucesso:true});
+});
+
 });
 //inicia o servidor
 app.listen(PORT, () => {
