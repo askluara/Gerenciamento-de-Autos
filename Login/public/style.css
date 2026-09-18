@@ -1,0 +1,583 @@
+/* =========================================================
+   SIAUTO — Tela de Login
+   style.css
+   ========================================================= */
+
+:root {
+    --bg-snow-white: #ffffff;
+    --bg-navy: #0d2847;
+    --bg-navy-dark: #02070e;
+
+    --primary: #0d2847;
+    --primary-hover: #0b4f8a;
+    --primary-active: #08213a;
+
+    --white: #ffffff;
+    --text-title: #0f3460;
+    --text-main: #334155;
+    --text-secondary: #64748b;
+    --text-muted: #94a3b8;
+
+    --card-border: #e2e8f0;
+    --input-bg: #f8fafc;
+    --input-border: #cbd5e1;
+    --focus: #0b4f8a;
+
+    --card-radius: 16px;
+    --input-radius: 10px;
+    --button-radius: 10px;
+
+    --transition: all 0.2s ease;
+}
+
+/* -------------------------
+   Reset
+   ------------------------- */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html {
+    min-height: 100%;
+}
+
+body {
+    min-height: 100vh;
+    padding: 1.5rem;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    font-family: "Inter", "Segoe UI", Roboto, Arial, sans-serif;
+    color: var(--text-main);
+
+    background:
+        radial-gradient(
+            circle at 50% 0%,
+            #173b61 0%,
+            var(--bg-deep-navy) 55%,
+            var(--bg-navy-dark) 100%
+        );
+
+    position: relative;
+    overflow-x: hidden;
+}
+
+/* -------------------------
+   Efeitos decorativos
+   ------------------------- */
+
+body::before {
+    content: "";
+    position: fixed;
+
+    width: 600px;
+    height: 600px;
+
+    top: -190px;
+    left: 50%;
+
+    transform: translateX(-50%);
+
+    border-radius: 50%;
+
+    background:
+        radial-gradient(
+            circle,
+            rgba(0, 210, 255, 0.12) 0%,
+            rgba(13, 40, 71, 0.05) 50%,
+            transparent 70%
+        );
+
+    filter: blur(70px);
+    pointer-events: none;
+}
+
+body::after {
+    content: "";
+    position: fixed;
+
+    width: 400px;
+    height: 400px;
+
+    right: 8%;
+    bottom: -150px;
+
+    border-radius: 50%;
+
+    background:
+        radial-gradient(
+            circle,
+            rgba(212, 163, 71, 0.08) 0%,
+            transparent 70%
+        );
+
+    filter: blur(80px);
+    pointer-events: none;
+}
+
+/* -------------------------
+   Área principal
+   ------------------------- */
+
+.auth-wrapper {
+    width: 100%;
+    max-width: 440px;
+
+    display: flex;
+    flex-direction: column;
+    gap: 1.35rem;
+
+    position: relative;
+    z-index: 1;
+}
+
+/* -------------------------
+   Identidade SIAUTO
+   ------------------------- */
+
+.brand-header {
+    text-align: center;
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+/* Selo "Ambiente Seguro" */
+
+.brand-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.375rem;
+
+    padding: 0.3rem 0.8rem;
+
+    background: rgba(224, 242, 254, 0.96);
+    border: 1px solid #0d89cc;
+    border-radius: 9999px;
+
+    color: #043f5c;
+
+    font-size: 0.75rem;
+    font-weight: 600;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+
+    margin-bottom: 0.75rem;
+
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.brand-badge i {
+    font-size: 0.7rem;
+}
+
+/* Nome do sistema */
+
+.brand-name {
+    margin-bottom: 0.35rem;
+
+    font-family: "Plus Jakarta Sans", "Segoe UI", sans-serif;
+    font-size: 2.1rem;
+    font-weight: 800;
+
+    letter-spacing: -0.02em;
+    line-height: 1.1;
+
+    color: var(--bg-blue);
+
+    text-shadow: 0 2px 12px rgba(0, 0, 0, 0.25);
+}
+
+/* Descrição */
+
+.brand-subtitle {
+    max-width: 360px;
+
+    font-size: 0.925rem;
+    font-weight: 500;
+    line-height: 1.5;
+
+    color: #094696;
+    text-align: center;
+}
+
+/* -------------------------
+   Cartão de autenticação
+   ------------------------- */
+
+.container {
+    width: 100%;
+    padding: 2.25rem 2rem;
+
+    background: var(--white);
+
+    border: 1px solid var(--card-border);
+    border-radius: var(--card-radius);
+
+    box-shadow:
+        0 20px 45px rgba(0, 5, 15, 0.25),
+        0 8px 18px rgba(0, 0, 0, 0.08);
+
+    position: relative;
+    overflow: hidden;
+}
+
+/* Linha luminosa superior */
+
+.container::before {
+    content: "";
+
+    position: absolute;
+    top: 0;
+    left: 12%;
+    right: 12%;
+
+    height: 3px;
+
+    background:
+        linear-gradient(
+            90deg,
+            transparent,
+            var(--cyan),
+            var(--gold),
+            transparent
+        );
+
+    opacity: 0.9;
+}
+
+/* -------------------------
+   Título LOGIN / AUTENTICAÇÃO
+   ------------------------- */
+
+.container h2 {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+
+    margin-bottom: 1.75rem;
+    padding-bottom: 0.85rem;
+
+    font-family: "Plus Jakarta Sans", "Segoe UI", sans-serif;
+    font-size: 1.25rem;
+    font-weight: 700;
+
+    letter-spacing: 0.02em;
+    color: var(--text-title);
+
+    border-bottom: 1px solid #f1f5f9;
+}
+
+.container h2 i {
+    color: var(--primary-hover);
+    font-size: 1.1rem;
+}
+
+/* -------------------------
+   Campos
+   ------------------------- */
+
+.input-group {
+    display: flex;
+    flex-direction: column;
+
+    margin-bottom: 1.25rem;
+}
+
+.container label {
+    display: block;
+
+    margin-bottom: 0.5rem;
+
+    color: var(--text-main);
+
+    font-size: 0.875rem;
+    font-weight: 600;
+}
+
+.input-wrapper {
+    position: relative;
+    width: 100%;
+}
+
+/* Ícones dos campos */
+
+.input-icon {
+    position: absolute;
+
+    top: 50%;
+    left: 1rem;
+
+    transform: translateY(-50%);
+
+    color: var(--text-secondary);
+    font-size: 0.95rem;
+
+    pointer-events: none;
+    transition: var(--transition);
+}
+
+/* Inputs */
+
+.container input[type="text"],
+.container input[type="password"] {
+    width: 100%;
+
+    padding: 0.85rem 1rem 0.85rem 2.75rem;
+
+    font-family: "Inter", "Segoe UI", sans-serif;
+    font-size: 0.95rem;
+
+    color: #0f172a;
+
+    background: var(--input-bg);
+
+    border: 1px solid var(--input-border);
+    border-radius: var(--input-radius);
+
+    outline: none;
+
+    transition: var(--transition);
+}
+
+.container input::placeholder {
+    color: var(--text-muted);
+    font-size: 0.875rem;
+}
+
+/* Campo em foco */
+
+.container input:focus {
+    background: var(--white);
+    border-color: var(--focus);
+
+    box-shadow:
+        0 0 0 3px rgba(11, 79, 138, 0.12);
+}
+
+/* Ícone muda ao focar */
+
+.input-wrapper:focus-within .input-icon {
+    color: var(--focus);
+}
+
+/* -------------------------
+   Opções
+   ------------------------- */
+
+.form-options {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    margin-bottom: 1.5rem;
+
+    font-size: 0.825rem;
+}
+
+.remember-me {
+    display: flex !important;
+    align-items: center;
+
+    gap: 0.5rem;
+
+    margin: 0 !important;
+
+    color: #475569 !important;
+
+    font-size: 0.85rem !important;
+    font-weight: 500 !important;
+
+    cursor: pointer;
+}
+
+.remember-me input[type="checkbox"] {
+    width: 15px;
+    height: 15px;
+
+    accent-color: var(--primary-hover);
+
+    cursor: pointer;
+}
+
+/* Link de recuperação */
+
+.forgot-link {
+    color: var(--primary-hover);
+
+    font-size: 0.825rem;
+    font-weight: 600;
+
+    text-decoration: none;
+
+    transition: var(--transition);
+}
+
+.forgot-link:hover {
+    color: var(--cyan);
+    text-decoration: underline;
+}
+
+/* -------------------------
+   Botão
+   ------------------------- */
+
+#botaoEntrar {
+    width: 100%;
+
+    padding: 0.9rem 1.5rem;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+
+    font-family: "Plus Jakarta Sans", "Segoe UI", sans-serif;
+    font-size: 0.975rem;
+    font-weight: 600;
+    letter-spacing: 0.01em;
+
+    color: var(--white);
+
+    background: var(--primary);
+
+    border: 1px solid #143b66;
+    border-radius: var(--button-radius);
+
+    cursor: pointer;
+
+    box-shadow:
+        0 4px 14px rgba(13, 40, 71, 0.35);
+
+    transition: var(--transition);
+}
+
+#botaoEntrar:hover {
+    background: var(--primary-hover);
+    border-color: var(--primary-hover);
+
+    box-shadow:
+        0 6px 20px rgba(11, 79, 138, 0.4);
+
+    transform: translateY(-1px);
+}
+
+#botaoEntrar:active {
+    background: var(--primary-active);
+
+    transform: translateY(1px);
+
+    box-shadow:
+        0 2px 10px rgba(13, 40, 71, 0.3);
+}
+
+#botaoEntrar:focus-visible {
+    outline: 3px solid rgba(11, 79, 138, 0.22);
+    outline-offset: 2px;
+}
+
+/* -------------------------
+   Rodapé de segurança
+   ------------------------- */
+
+.auth-footer {
+    margin-top: 1.5rem;
+    padding-top: 1.15rem;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+
+    border-top: 1px solid #f1f5f9;
+
+    color: var(--text-secondary);
+
+    font-size: 0.775rem;
+    line-height: 1.4;
+
+    text-align: center;
+}
+
+.auth-footer i {
+    flex-shrink: 0;
+    color: var(--primary-hover);
+    font-size: 0.85rem;
+}
+
+/* -------------------------
+   Informações do sistema
+   ------------------------- */
+
+.system-meta {
+    text-align: center;
+
+    color: #aebed2;
+
+    font-size: 0.75rem;
+    font-weight: 500;
+    line-height: 1.5;
+}
+
+.system-meta a {
+    color: var(--text-secondary);
+    text-decoration: none;
+}
+
+.system-meta a:hover {
+    color: var(--cyan);
+}
+
+/* -------------------------
+   Responsividade
+   ------------------------- */
+
+@media (max-width: 480px) {
+    body {
+        padding: 1rem;
+    }
+
+    .auth-wrapper {
+        gap: 1rem;
+    }
+
+    .brand-name {
+        font-size: 1.8rem;
+    }
+
+    .brand-subtitle {
+        font-size: 0.875rem;
+    }
+
+    .container {
+        padding: 1.75rem 1.25rem;
+    }
+
+    .container h2 {
+        font-size: 1.15rem;
+    }
+
+    .auth-footer {
+        font-size: 0.72rem;
+    }
+}
+
+@media (max-height: 650px) {
+    body {
+        align-items: flex-start;
+        padding-top: 1rem;
+        padding-bottom: 1rem;
+    }
+
+    .auth-wrapper {
+        margin-top: 0.5rem;
+        margin-bottom: 0.5rem;
+    }
+}

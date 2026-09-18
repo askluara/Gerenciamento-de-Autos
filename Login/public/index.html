@@ -1,20 +1,173 @@
 <!DOCTYPE html>
-<meta lang ="pt-br">
+<html lang="pt-BR">
 <head>
     <meta charset="utf-8">
-    <!--O nome é somente provisorio-->
-    <title>SIAUTO</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!--titulo provisorio-->
+
+    <title>SIAUTO - Sistema de Gerenciamento de Autos de Infração</title>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600&display=swap"
+        rel="stylesheet"
+    >
+
+    <!-- Font Awesome -->
+    <link
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    >
+
+    <!-- CSS do sistema -->
+    <link rel="stylesheet" href="style.css">
 </head>
+
 <body>
-    <form>
-        <div class ="container">
-            <h2>LOGIN</h2>
-            <label for="email">E-mail</label>
-            <input type="text" id="campoEmail" placeholder="Digite seu e-mail">
-            <label for="senha">Senha</label>
-            <input type="password" id="campoSenha" placeholder="Digite sua senha">
-            <button id="botaoEntrar">Entrar</button>
-        </div>
-        <script src = "login.js"></script>
-    </form>
+
+    <main class="auth-wrapper">
+
+        <!-- Identidade do sistema -->
+        <!--"opcionais" porem aumentam a qualidade visual da tela-->
+        <header class="brand-header">
+        
+            <!--Por enquanto apenas "cosmetico"-->
+            <span class="brand-badge">
+                <i class="fa-solid fa-shield-halved"></i>
+                Ambiente Seguro
+            </span>
+
+            <h1 class="brand-name">
+                SIAUTO
+            </h1>
+
+            <p class="brand-subtitle">
+                Sistema de Gerenciamento de Autos de Infração
+            </p>
+
+        </header>
+
+        <!-- Formulário de autenticação -->
+        <form id="loginForm">
+
+            <div class="container">
+
+                <h2>
+                    <i class="fa-solid fa-lock"></i>
+                    Autenticação
+                </h2>
+
+                <!-- E-mail -->
+                <div class="input-group">
+
+                    <label for="campoEmail">
+                        E-mail Corporativo
+                    </label>
+
+                    <div class="input-wrapper">
+
+                        <input
+                            type="text"
+                            id="campoEmail"
+                            name="email"
+                            placeholder="Digite seu e-mail"
+                            autocomplete="username"
+                        >
+
+                        <i class="fa-regular fa-envelope input-icon"></i>
+
+                    </div>
+
+                </div>
+
+                <!-- Senha -->
+                <div class="input-group">
+
+                    <label for="campoSenha">
+                        <span>Senha</span>
+                        <!--Por enquanto apenas "cosmetico"-->
+                        <a
+                            href="#recuperar"
+                            class="forgot-link"
+                        >
+                            Esqueceu a senha?
+                        </a>
+                    </label>
+
+                    <div class="input-wrapper">
+
+                        <input
+                            type="password"
+                            id="campoSenha"
+                            name="senha"
+                            placeholder="Digite sua senha"
+                            autocomplete="current-password"
+                        >
+
+                        <i class="fa-solid fa-key input-icon"></i>
+
+                    </div>
+
+                </div>
+
+                <!-- Opções -->
+                <div class="form-options">
+                    <!--Acredito que os proprios navegadores ja possuem esse sistema para lembrar a senha-->
+                    <label class="remember-me" for="lembrar">
+
+                        <input
+                            type="checkbox"
+                            id="lembrar"
+                            name="lembrar"
+                        >
+
+                        <span>
+                            Lembrar minhas credenciais
+                        </span>
+
+                    </label>
+
+                </div>
+
+                <!-- Botão -->
+                <button
+                    type="submit"
+                    id="botaoEntrar"
+                >
+                    <span>Entrar no Sistema</span>
+                    <i class="fa-solid fa-arrow-right"></i>
+                </button>
+
+                <!-- Segurança -->
+                <div class="auth-footer">
+
+                    <i class="fa-solid fa-certificate"></i>
+                    <!--Por enquanto apenas "cosmetico"-->
+                    <span>
+                        Criptografia de ponta a ponta • Padrão Fiscal Governamental
+                    </span>
+
+                </div>
+
+            </div>
+
+        </form>
+
+        <!-- Rodapé -->
+        <footer class="system-meta">
+            <!--Por enquanto apenas "cosmetico"-->
+            <p>
+                © 2026 SIAUTO • Acesso restrito a servidores e auditores autorizados.
+            </p>
+        </footer>
+
+    </main>
+
+    <!-- JavaScript do login -->
+    <script src="login.js"></script>
+
 </body>
+</html>
