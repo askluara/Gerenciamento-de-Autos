@@ -99,6 +99,51 @@ req.session.destroy((err)=>{
   res.json({sucesso:true});
 });
 
+// Rota para cadastrar fiscal
+app.post('/api/fiscais', (req, res) => {
+
+    const {
+        nome,
+        sobrenome,
+        cpf,
+        cargoFuncao,
+        email,
+        telefone,
+        senha
+    } = req.body;
+
+    // Verifica se todos os campos foram preenchidos
+    if (!nome || !sobrenome || !cpf || !cargoFuncao || !email || !telefone || !senha) {
+        return res.status(400).json({
+            sucesso: false,
+            mensagem: 'Todos os campos são obrigatórios.'
+        });
+    }
+
+    // Por enquanto, apenas mostra os dados recebidos
+    console.log('Novo fiscal recebido:');
+    console.log({
+        nome,
+        sobrenome,
+        cpf,
+        cargoFuncao,
+        email,
+        telefone
+    });
+
+    return res.status(201).json({
+        sucesso: true,
+        mensagem: 'Dados do fiscal recebidos com sucesso!'
+    });
+});
+
+// inicia o servidor
+app.listen(PORT, () => {
+    console.log(`Servidor rodando em: http://localhost:${PORT}`);
+}); 
+
+
+
 });
 //inicia o servidor
 app.listen(PORT, () => {
