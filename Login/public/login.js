@@ -1,49 +1,40 @@
-//Variaveis para que os valores digitados no index.html sejam "trazidos" para o login.js
-const email = document.getElementById('campoEmail');
+const matricula = document.getElementById('campoMatricula');
 const senhaLogin = document.getElementById('campoSenha');
 const botao = document.getElementById('botaoEntrar');
 
-//responsavel por iniciar a rotina de login/filtro dos dados
-botao.addEventListener('click', async(event)=>{
-    //permite que o evento funcione corretamente
+botao.addEventListener('click', async(event) => {
     event.preventDefault();
-    
-    //"pega" os valores presentes em e-mail e senha para serem validados . value.trim()
-    const emailValor = email.value.trim();
+
+    const matriculaValor = matricula.value.trim();
     const senhaValor = senhaLogin.value.trim();
 
-    //verificação para formatos de email, gmail, hotmail e outlook
-    const emailValido = /^[^\s@]+@(gmail\.com|hotmail\.com|outlook\.com)$/;
+    if (!matriculaValor || !senhaValor) {
+        alert("Preencha o campo de matrícula e senha.");
+        return;
+    }
 
-    //if's e else's para verificar se os campos foram preenchidos corretamente
-    if(emailValor === "" || senhaValor === ""){
-    alert("Campo e-mail ou senha não podem ser vazios");
-    }else if(!emailValido.test(emailValor)){
-    alert("Insira um e-mail valido")
-    }else{
-        try{
-        //envia os dados(email e senha) para o servidor
+    try {
         const resposta = await fetch('/api/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: emailValor, senha: senhaValor })
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                matricula: matriculaValor,
+                senha: senhaValor
+            })
         });
 
-        //o const dados espera a resposta do arquivo.json
+        // Converte a resposta recebida em JSON
         const dados = await resposta.json();
-         //Verifica se os dados são validos
-        if (dados.sucesso) {
-        window.location.href =  '/home'; // redireciona para a rota configurada no server.js
+
+        if (resposta.ok && dados.sucesso) {
+            window.location.href = '/home';
         } else {
-        alert(dados.mensagem);
+            // Exibe a mensagem personalizada enviada pelo backend
+            alert(dados.mensagem || "Credenciais não encontradas ou inválidas.");
         }
-    //Erro caso não conecte ao servidor
-    }catch(erro){
+
+    } catch (erro) {
         console.error("Erro ao conectar com o servidor:", erro);
-        alert("Erro de conexão com o servidor. Tente novamente mais tarde.");
+        alert("Não foi possível conectar ao servidor. Tente novamente mais tarde.");
     }
-}
-
-
-
 });

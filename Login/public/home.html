@@ -1,13 +1,224 @@
 <!DOCTYPE html>
 <html lang="pt-br">
+
 <head>
     <meta charset="UTF-8">
-    <title>SIAUTO</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SIGAI - Sistema de Gerenciamento de Autos de Infração</title>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Font Awesome (Ícones do Figma) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- CSS exclusivo do Dashboard -->
+    <link rel="stylesheet" href="home.css">
 </head>
+
 <body>
-    <h1>bem vindo</h1>
-    <button id="botaoLogout">Encerrar Sessão</button>
-    <script src = "home.js"></script>
-    <script src = "logout.js"></script>
+    <div class="container-main">
+        <!-- SIDEBAR -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <span>Sistema de Autos</span>
+                <button class="sidebar-toggle" aria-label="Menu">
+                    <i class="fa-solid fa-bars"></i>
+                </button>
+            </div>
+
+            <nav class="sidebar-nav">
+                <!-- Seção AUTOS DE INFRAÇÃO -->
+                <div class="sidebar-section">
+                    <div class="sidebar-section-title">Autos de Infração</div>
+                    <ul class="sidebar-menu">
+                        <li>
+                            <a href="#" class="active">
+                                <span class="sidebar-icon"><i class="fa-solid fa-house"></i></span> Dashboard
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#">
+                                <span class="sidebar-icon"><i class="fa-regular fa-file-lines"></i></span> Cadastrar Auto
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#">
+                                <span class="sidebar-icon"><i class="fa-solid fa-magnifying-glass"></i></span> Pesquisar Autos
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#">
+                                <span class="sidebar-icon"><i class="fa-regular fa-pen-to-square"></i></span> Editar Auto
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#">
+                                <span class="sidebar-icon"><i class="fa-regular fa-trash-can"></i></span> Excluir Auto
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Seção FISCAIS -->
+                <div class="sidebar-section">
+                    <div class="sidebar-section-title">Fiscais</div>
+                    <ul class="sidebar-menu">
+                        <li>
+                            <a href="#">
+                                <span class="sidebar-icon"><i class="fa-solid fa-user-plus"></i></span> Cadastrar Fiscal
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#">
+                                <span class="sidebar-icon"><i class="fa-solid fa-user-gear"></i></span> Pesquisar Fiscais
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#">
+                                <span class="sidebar-icon"><i class="fa-solid fa-user-pen"></i></span> Editar Fiscal
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#">
+                                <span class="sidebar-icon"><i class="fa-solid fa-user-xmark"></i></span> Inativar Fiscal
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+
+                <!-- Seção INFRAÇÕES -->
+                <div class="sidebar-section">
+                    <div class="sidebar-section-title">Infrações</div>
+                    <ul class="sidebar-menu">
+                        <li>
+                            <a href="#">
+                                <span class="sidebar-icon"><i class="fa-solid fa-triangle-exclamation"></i></span> Cadastrar Infração
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#">
+                                <span class="sidebar-icon"><i class="fa-solid fa-shield-halved"></i></span> Pesquisar Infrações
+                            </a>
+                        </li>
+                        <li>
+                            <a href="#">
+                                <span class="sidebar-icon"><i class="fa-regular fa-pen-to-square"></i></span> Editar / Excluir
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </nav>
+        </aside>
+
+        <!-- MAIN CONTENT -->
+        <div class="main-content">
+            <!-- HEADER -->
+            <header class="header">
+                <div class="header-left">
+                    <h1>Sistema de Gerenciamento de Autos de Infração</h1>
+                    <p>Prefeitura Municipal • Gerência de Posturas</p>
+                </div>
+                <div class="header-right">
+                    <div class="user-info">
+                        <div class="role">Admin</div>
+                        <div class="name">Administrador</div>
+                    </div>
+                    <div class="user-avatar">A</div>
+                </div>
+            </header>
+
+            <!-- CONTEÚDO -->
+            <div class="content">
+                <h2 class="page-title">Dashboard</h2>
+
+                <!-- CARDS DE ESTATÍSTICAS -->
+                <div class="cards-container">
+                    <!-- Card 1: Total de Autos -->
+                    <div class="card">
+                        <div class="card-content">
+                            <span>Total de Autos</span>
+                            <h2 id="cardTotalAutos">0</h2>
+                        </div>
+                        <div class="card-icon">
+                            <i class="fa-regular fa-paste"></i>
+                        </div>
+                    </div>
+
+                    <!-- Card 2: Defesas Pendentes -->
+                    <div class="card">
+                        <div class="card-content">
+                            <span>Defesas Pendentes</span>
+                            <h2 id="cardDefesasPendentes">0</h2>
+                        </div>
+                        <div class="card-icon">
+                            <i class="fa-solid fa-triangle-exclamation"></i>
+                        </div>
+                    </div>
+
+                    <!-- Card 3: Pareceres para Análise -->
+                    <div class="card">
+                        <div class="card-content">
+                            <span>Pareceres para Análise</span>
+                            <h2 id="cardPareceres">0</h2>
+                        </div>
+                        <div class="card-icon">
+                            <i class="fa-regular fa-circle-check"></i>
+                        </div>
+                    </div>
+
+                    <!-- Card 4: Multas Emitidas -->
+                    <div class="card">
+                        <div class="card-content">
+                            <span>Multas Emitidas</span>
+                            <h2 id="cardMultas">0</h2>
+                        </div>
+                        <div class="card-icon">
+                            <i class="fa-solid fa-dollar-sign"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- TABELA DE AUTOS RECENTES -->
+                <div class="table-section">
+                    <div class="table-header">
+                        <h3>Autos de Infração Recentes</h3>
+                    </div>
+                    <table class="tabela-autos">
+                        <thead>
+                            <tr>
+                                <th>PROTOCOLO</th>
+                                <th>CONTRIBUINTE</th>
+                                <th>CPF/CNPJ</th>
+                                <th>DATA</th>
+                                <th>TIPO DE INFRAÇÃO</th>
+                                <th>STATUS</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tabelaAutosBody">
+                            <!-- Dados serão preenchidos pelo JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+
+                <!-- BOTÃO DE LOGOUT -->
+                <button id="botaoLogout">Encerrar Sessão</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- SCRIPTS -->
+    <script src="home.js"></script>
+    <script src="logout.js"></script>
+
+    <!-- Script para menu responsivo -->
+    <script>
+        document.querySelector('.sidebar-toggle').addEventListener('click', function() {
+            document.querySelector('.sidebar').classList.toggle('active');
+        });
+    </script>
 </body>
+
 </html>
