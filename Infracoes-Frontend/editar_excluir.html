@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Editar e Excluir - SIGAI</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <aside class="sidebar">
+        <div class="logo">Sistema de Autos</div>
+        <nav>
+            <div class="menu-category">INFRAÇÕES</div>
+            <a href="index.html" class="menu-item">Cadastrar Infração</a>
+            <a href="pesquisar.html" class="menu-item">Pesquisar Infrações</a>
+            <a href="editar_excluir.html" class="menu-item active">Editar / Excluir</a>
+        </nav>
+    </aside>
+
+    <main class="main-content">
+        <header class="top-header">
+            <div>
+                <h1>Sistema de Gerenciamento de Autos de Infração</h1>
+                <p>Prefeitura Municipal - Gerência de Posturas</p>
+            </div>
+            <div class="user-profile">
+                <div class="avatar">A</div>
+                <div class="user-info">
+                    <strong>Admin</strong>
+                    <span>Administrador</span>
+                </div>
+            </div>
+        </header>
+
+        <div class="page-content">
+            <div class="page-title">
+                <h2>⚙️ Editar e Excluir Infrações</h2>
+                <p>Gerencie o catálogo de infrações do sistema</p>
+            </div>
+
+            <section class="card">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Código</th>
+                            <th>Descrição</th>
+                            <th>Categoria</th>
+                            <th>Artigo</th>
+                            <th>Valor Base (R$)</th>
+                            <th>Ações</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tabela-acoes">
+                        <!-- O JS vai injetar os dados aqui -->
+                    </tbody>
+                </table>
+            </section>
+        </div>
+    </main>
+
+    <script src="editar_excluir.js"></script>
+</body>
+</html>
