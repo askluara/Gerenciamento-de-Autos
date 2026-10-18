@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!--titulo provisorio-->
+    <title>SIGAI - Sistema de Gerenciamento de Autos de Infração</title>
+
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- CSS do sistema -->
+    <link rel="stylesheet" href="/css/login.css">
+</head>
+
+<body>
+
+    <main class="auth-wrapper">
+
+        <!-- Identidade do sistema (Lado Azul Esquerdo) -->
+        <header class="brand-header">
+            <!-- Círculos decorativos de fundo do Figma -->
+            <div class="circle circle-top-left"></div>
+            <div class="circle circle-bottom-right"></div>
+
+            <div class="brand-content">
+                <span class="brand-badge">
+                    <i class="fa-solid fa-shield-halved"></i>
+                </span>
+
+                <h1 class="brand-name">
+                    Sistema de Gerenciamento<br>de Autos de Infração
+                </h1>
+
+                <p class="brand-subtitle">
+                    Prefeitura Municipal · Gerência de Posturas
+                </p>
+            </div>
+        </header>
+
+        <!-- Formulário de autenticação (Lado Direito) -->
+        <section class="form-container-side">
+            <form id="loginForm">
+
+                <div class="container">
+
+                    <h2>Acesso ao Sistema</h2>
+                    <p class="subtitle-card">Informe sua matrícula e senha para continuar.</p>
+
+                    <!-- Matrícula -->
+                    <div class="input-group">
+                        <label for="campoMatricula">Matrícula</label>
+                        <div class="input-wrapper">
+                            <input type="text" id="campoMatricula" name="email" placeholder="Ex.: 000123" autocomplete="username">
+                        </div>
+                    </div>
+
+                    <!-- Senha -->
+                    <div class="input-group">
+                        <label for="campoSenha">Senha</label>
+                        <div class="input-wrapper">
+                            <input type="password" id="campoSenha" name="senha" placeholder="••••••••" autocomplete="current-password">
+                        </div>
+                    </div>
+
+                    <!-- Botão -->
+                    <button type="submit" id="botaoEntrar">
+                        Entrar
+                    </button>
+
+                    <!-- Dúvidas -->
+                    <div class="auth-footer">
+                        <span>Em caso de dúvidas, contate a Gerência de TI.</span>
+                    </div>
+
+                </div>
+
+            </form>
+
+            <!-- Rodapé -->
+            <footer class="system-meta">
+                <p>Prefeitura Municipal · Gerência de Posturas · 2026</p>
+            </footer>
+        </section>
+
+    </main>
+
+    <!-- JavaScript do login -->
+    <script src="/js/login.js"></script>
+
+</body>
+
+</html>

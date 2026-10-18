@@ -1,0 +1,250 @@
+/* ==========================================================================
+   ESTILOS DA TELA DE LOGIN (login.css)
+   ========================================================================== */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Plus Jakarta Sans', 'Inter', -apple-system, sans-serif;
+}
+
+body {
+    background-color: #f8fafc;
+    color: #1e293b;
+    min-height: 100vh;
+    display: flex;
+}
+
+
+/* Wrapper Split Screen (50% Azul / 50% Formulário) */
+
+.auth-wrapper {
+    display: flex;
+    width: 100vw;
+    min-height: 100vh;
+}
+
+
+/* --------------------------------------------------------------------------
+   LADO ESQUERDO: LADO AZUL / DECORATIVO
+   -------------------------------------------------------------------------- */
+
+.brand-header {
+    flex: 1;
+    background-color: #1b3899;
+    color: #ffffff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+    padding: 40px;
+}
+
+.brand-content {
+    position: relative;
+    z-index: 2;
+    max-width: 480px;
+}
+
+.brand-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 56px;
+    height: 56px;
+    background: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(8px);
+    border-radius: 14px;
+    margin-bottom: 24px;
+    font-size: 24px;
+    color: #ffffff;
+}
+
+.brand-name {
+    font-size: 32px;
+    font-weight: 800;
+    line-height: 1.25;
+    margin-bottom: 12px;
+    letter-spacing: -0.5px;
+}
+
+.brand-subtitle {
+    font-size: 15px;
+    color: #93c5fd;
+    font-weight: 500;
+}
+
+
+/* Elementos circulares decorativos de fundo */
+
+.circle {
+    position: absolute;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.05);
+    pointer-events: none;
+}
+
+.circle-top-left {
+    width: 350px;
+    height: 350px;
+    top: -100px;
+    left: -100px;
+}
+
+.circle-bottom-right {
+    width: 500px;
+    height: 500px;
+    bottom: -150px;
+    right: -150px;
+}
+
+
+/* --------------------------------------------------------------------------
+   LADO DIREITO: FORMULÁRIO DE AUTENTICAÇÃO
+   -------------------------------------------------------------------------- */
+
+.form-container-side {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: center;
+    padding: 40px 20px;
+    background-color: #ffffff;
+}
+
+
+/* --------------------------------------------------------------------------
+   FORMULÁRIO COM BORDA / CARD (login.css)
+   -------------------------------------------------------------------------- */
+
+#loginForm {
+    width: 100%;
+    max-width: 440px;
+    margin: auto 0;
+}
+
+.container {
+    width: 100%;
+    background-color: #ffffff;
+    border: 1px solid #e2e8f0;
+    /* Borda suave */
+    border-radius: 12px;
+    /* Cantos arredondados */
+    padding: 36px 32px;
+    /* Espaçamento interno */
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03);
+    /* Sombra leve */
+}
+
+.container h2 {
+    font-size: 26px;
+    font-weight: 700;
+    color: #0f172a;
+    margin-bottom: 8px;
+}
+
+.subtitle-card {
+    font-size: 14px;
+    color: #64748b;
+    margin-bottom: 32px;
+}
+
+
+/* Input Groups */
+
+.input-group {
+    margin-bottom: 20px;
+}
+
+.input-group label {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    color: #334155;
+    margin-bottom: 8px;
+}
+
+.input-wrapper input {
+    width: 100%;
+    height: 48px;
+    padding: 0 16px;
+    font-size: 14px;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    outline: none;
+    transition: all 0.2s ease;
+    background-color: #f8fafc;
+}
+
+.input-wrapper input:focus {
+    border-color: #2563eb;
+    background-color: #ffffff;
+    box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1);
+}
+
+
+/* Botão de Entrar */
+
+#botaoEntrar {
+    width: 100%;
+    height: 48px;
+    background-color: #1b3899;
+    color: #ffffff;
+    font-size: 15px;
+    font-weight: 600;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    margin-top: 10px;
+    transition: background-color 0.2s ease;
+}
+
+#botaoEntrar:hover {
+    background-color: #152d7c;
+}
+
+
+/* Rodapé do Formulário */
+
+.auth-footer {
+    text-align: center;
+    margin-top: 24px;
+}
+
+.auth-footer span {
+    font-size: 12px;
+    color: #94a3b8;
+}
+
+
+/* Rodapé da Página */
+
+.system-meta p {
+    font-size: 12px;
+    color: #94a3b8;
+    text-align: center;
+}
+
+
+/* --------------------------------------------------------------------------
+   RESPONSIVIDADE (MOBILE)
+   -------------------------------------------------------------------------- */
+
+@media (max-width: 850px) {
+    .auth-wrapper {
+        flex-direction: column;
+    }
+    .brand-header {
+        padding: 40px 20px;
+        min-height: 220px;
+    }
+    .brand-name {
+        font-size: 22px;
+    }
+    .form-container-side {
+        padding: 30px 20px;
+    }
+}
