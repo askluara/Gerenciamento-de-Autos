@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pesquisar Infrações - SIGAI</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <aside class="sidebar">
+        <div class="logo">Sistema de Autos</div>
+        <nav>
+            <div class="menu-category">INFRAÇÕES</div>
+            <a href="index.html" class="menu-item">Cadastrar Infração</a>
+            <a href="pesquisar.html" class="menu-item active">Pesquisar Infrações</a>
+            <a href="editar_excluir.html" class="menu-item">Editar / Excluir</a>
+        </nav>
+    </aside>
+
+    <main class="main-content">
+        <header class="top-header">
+            <div>
+                <h1>Sistema de Gerenciamento de Autos de Infração</h1>
+                <p>Prefeitura Municipal - Gerência de Posturas</p>
+            </div>
+            <div class="user-profile">
+                <div class="avatar" id="avatar-letra">A</div>
+                <div class="user-info">
+                    <strong id="nome-usuario">Carregando...</strong>
+                    <span id="cargo-usuario">Fiscal/Admin</span>
+                </div>
+            </div>
+        </header>
+
+        <div class="page-content">
+            <div class="page-title">
+                <h2>🔍 Pesquisar Infrações</h2>
+                <p>Consulte e filtre os tipos de infração cadastrados</p>
+            </div>
+
+            <!-- Cartão de Filtros -->
+            <section class="card">
+                <form id="form-pesquisa">
+                    <div class="grid-3-col">
+                        <div class="input-group">
+                            <label>Código</label>
+                            <input type="text" id="filtro_codigo" placeholder="Ex: INF-001">
+                        </div>
+                        <div class="input-group">
+                            <label>Descrição</label>
+                            <input type="text" id="filtro_descricao" placeholder="Palavra-chave na descrição">
+                        </div>
+                        <div class="input-group">
+                            <label>Categoria</label>
+                            <input type="text" id="filtro_categoria" placeholder="Todas as categorias">
+                        </div>
+                    </div>
+                    <div class="form-actions">
+                        <button type="submit" class="btn-primary">🔍 Pesquisar</button>
+                        <button type="button" class="btn-secondary" onclick="document.getElementById('form-pesquisa').reset(); carregarInfracoes();"> Limpar Filtros</button>
+                    </div>
+                </form>
+            </section>
+
+            <!-- Cartão da Tabela de Resultados -->
+            <section class="card">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>Código</th>
+                            <th>Descrição</th>
+                            <th>Categoria</th>
+                            <th>Artigo</th>
+                            <th>Valor Base (R$)</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tabela-resultados">
+                        <!-- O JavaScript vai injetar os dados aqui -->
+                    </tbody>
+                </table>
+            </section>
+        </div>
+    </main>
+
+    <script src="pesquisar.js"></script>
+</body>
+</html>

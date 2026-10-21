@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cadastrar Infração - SIGAI</title>
+    <!-- Caminho atualizado para a pasta CSS -->
+    <link rel="stylesheet" href="/css/style.css">
+    <!-- Font Awesome (Ícones do menu) -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- Menu Lateral (Sidebar) -->
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <span>Sistema de Autos</span>
+            <button class="sidebar-toggle" aria-label="Menu">
+                <i class="fa-solid fa-bars"></i>
+            </button>
+        </div>
+
+        <nav class="sidebar-nav">
+            <!-- Seção AUTOS DE INFRAÇÃO -->
+            <div class="sidebar-section">
+                <div class="sidebar-section-title">Autos de Infração</div>
+                <ul class="sidebar-menu">
+                    <li>
+                        <a href="/home">
+                            <span class="sidebar-icon"><i class="fa-solid fa-house"></i></span> Dashboard
+                        </a>
+                    </li>
+                    <li><a href="#"><span class="sidebar-icon"><i class="fa-regular fa-file-lines"></i></span> Cadastrar Auto</a></li>
+                    <li><a href="#"><span class="sidebar-icon"><i class="fa-solid fa-magnifying-glass"></i></span> Pesquisar Autos</a></li>
+                    <li><a href="#"><span class="sidebar-icon"><i class="fa-regular fa-pen-to-square"></i></span> Editar Auto</a></li>
+                    <li><a href="#"><span class="sidebar-icon"><i class="fa-regular fa-trash-can"></i></span> Excluir Auto</a></li>
+                </ul>
+            </div>
+
+            <!-- Seção FISCAIS (Design mantido, aguardando código da Luara) -->
+            <div class="sidebar-section">
+                <div class="sidebar-section-title">Fiscais</div>
+                <ul class="sidebar-menu">
+                    <li><a href="#"><span class="sidebar-icon"><i class="fa-solid fa-user-plus"></i></span> Cadastrar Fiscal</a></li>
+                    <li><a href="#"><span class="sidebar-icon"><i class="fa-solid fa-user-gear"></i></span> Pesquisar Fiscais</a></li>
+                    <li><a href="#"><span class="sidebar-icon"><i class="fa-solid fa-user-pen"></i></span> Editar Fiscal</a></li>
+                    <li><a href="#"><span class="sidebar-icon"><i class="fa-solid fa-user-xmark"></i></span> Inativar Fiscal</a></li>
+                </ul>
+            </div>
+
+            <!-- Seção INFRAÇÕES -->
+            <div class="sidebar-section">
+                <div class="sidebar-section-title">Infrações</div>
+                <ul class="sidebar-menu">
+                    <li>
+                        <a href="/html/cadastrar_infracao.html" class="active">
+                            <span class="sidebar-icon"><i class="fa-solid fa-triangle-exclamation"></i></span> Cadastrar Infração
+                        </a>
+                    </li>
+                    <li>
+                        <a href="/html/pesquisar_infracao.html">
+                            <span class="sidebar-icon"><i class="fa-solid fa-shield-halved"></i></span> Pesquisar Infrações
+                        </a>
+                    </li>
+                    <li>
+                        <a href="/html/editar_excluir_infracao.html">
+                            <span class="sidebar-icon"><i class="fa-regular fa-pen-to-square"></i></span> Editar / Excluir
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+    </aside>
+
+    <!-- Área Principal -->
+    <main class="main-content">
+        <header class="top-header">
+            <div>
+                <h1>Sistema de Gerenciamento de Autos de Infração</h1>
+                <p>Prefeitura Municipal - Gerência de Posturas</p>
+            </div>
+            <div class="user-profile">
+                <div class="avatar" id="avatar-letra">A</div>
+                <div class="user-info">
+                    <strong id="nome-usuario">Carregando...</strong>
+                    <span id="cargo-usuario">Fiscal/Admin</span>
+                </div>
+            </div>
+        </header>
+
+        <div class="page-content">
+            <div class="page-title">
+                <h2>🛡️ Cadastrar Infração</h2>
+                <p>Registre um novo tipo de infração no sistema</p>
+            </div>
+
+            <form id="form-infracao">
+                <section class="card">
+                    <h3>Identificação</h3>
+                    <div class="grid-2-col">
+                        <div class="input-group">
+                            <label>Código da Infração *</label>
+                            <input type="text" id="id_infracao" placeholder="Ex: INF-001" required>
+                        </div>
+                        <div class="input-group">
+                            <label>Categoria *</label>
+                            <input type="text" id="tipo" placeholder="Digite a categoria" required>
+                        </div>
+                    </div>
+                    <div class="input-group full-width">
+                        <label>Descrição da Infração *</label>
+                        <input type="text" id="descricao" placeholder="Descrição resumida exibida nos autos de infração" required>
+                    </div>
+                </section>
+
+                <section class="card">
+                    <h3>Fundamento Legal</h3>
+                    <div class="input-group full-width">
+                        <label>Artigo / Lei de Referência *</label>
+                        <input type="text" id="artigo" placeholder="Ex: Art. 45, §2º da Lei Municipal nº 1.234/2010" required>
+                    </div>
+                    <div class="grid-2-col">
+                        <div class="input-group">
+                            <label>Valor Base (R$) *</label>
+                            <input type="number" id="valor_base" placeholder="0,00" required>
+                        </div>
+                    </div>
+                </section>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn-primary">💾 Cadastrar Infração</button>
+                    <!-- O Botão Limpar agora tem a ação correta! -->
+                    <button type="button" class="btn-secondary" onclick="document.getElementById('form-infracao').reset()">✖ Limpar</button>
+                </div>
+            </form>
+        </div>
+    </main>
+
+    <!-- Caminho atualizado para a pasta JS -->
+    <script src="/js/script.js"></script>
+</body>
+</html>
