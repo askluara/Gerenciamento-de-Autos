@@ -1,6 +1,6 @@
 //antes de carregar, le o conteudo inserido e valida a sessao criada
-document.addEventListener('DOMContentLoaded',async() =>{
-try {
+document.addEventListener('DOMContentLoaded', async() => {
+  try {
     const resposta = await fetch('/api/verificar-sessao', {
       credentials: 'include' // ISTO É ESSENCIAL PARA A VERIFICAÇÃO DA SESSAO
     });
@@ -14,17 +14,29 @@ try {
     if (!dados.logado) {
       window.location.href = '/';
     } else {
-      //sessão valida
+      // Sessão válida: Atualiza os dados do utilizador logado no cabeçalho
+      const matricula = dados.usuario?.login || "Usuário"; 
+      const perfil = dados.usuario?.perfil || "Cargo";
+      
+      const elNome = document.getElementById('nome-usuario');
+      const elAvatar = document.getElementById('avatar-letra');
+      const elCargo = document.getElementById('cargo-usuario');
+
+      if (elNome) elNome.innerText = matricula;
+      if (elAvatar) elAvatar.innerText = perfil.charAt(0).toUpperCase();
+      if (elCargo) elCargo.innerText = perfil;
     }
   } catch (error) {
     console.error(error.message);
     window.location.href = '/';
   }
 });
+
 document.addEventListener('DOMContentLoaded', () => {
   carregarEstatisticas();
   carregarAutosRecentes();
 });
+
 //função para tela de carregar estatisticas 
 async function carregarEstatisticas() {
   try {
@@ -39,6 +51,7 @@ async function carregarEstatisticas() {
     console.error('Erro ao carregar estatísticas:', erro);
   }
 }
+
 //criação de função para tabela com dados recentes dos autos de infração
 async function carregarAutosRecentes() {
   try {
@@ -69,6 +82,7 @@ async function carregarAutosRecentes() {
     console.error('Erro ao carregar tabela:', erro);
   }
 }
+
 //funcoes para o botao de logout
 //confirmar o logout
 document.getElementById('botaoLogout').addEventListener('click', async () => {
@@ -81,13 +95,5 @@ document.getElementById('botaoLogout').addEventListener('click', async () => {
     window.location.href = '/';
   }
 });
-//alerta ao fechar a pagina
-window.addEventListener('beforeunload', (event) => {
-  const confirmar = confirm('Deseja realmente sair? Sua sessão será encerrada.');
-  
-  if (!confirmar) {
-    event.preventDefault();
-    event.returnValue = '';
-  }
-});
 
+;
