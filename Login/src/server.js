@@ -1,9 +1,13 @@
 // Imports necessários
 const express = require('express');
 const path = require('path');
+const dotenv = require('dotenv');
+dotenv.config();
+dotenv.config({ path: path.join(__dirname, '../../cadastro-fiscal/.env'), override: false });
 // Substituição para o arquivo supabase para importação de dados
 const supabase = require('./supabase'); // Importa a conexão criada
 const session = require('express-session');
+const fiscaisRouter = require('../../cadastro-fiscal/Index');
 
 const app = express();
 const PORT = 3000;
@@ -35,14 +39,21 @@ function protegerRota(req, res, next) {
     }
 }
 
+// Mantém as rotas e páginas de fiscais no mesmo servidor e exige sessão válida.
+const rotasFiscais = new Set(['/fiscais', '/cargos', '/setores', '/niveis-acesso']);
+app.use((req, res, next) => {
+    return rotasFiscais.has(req.path) ? protegerRota(req, res, next) : next();
+}, fiscaisRouter);
+app.use('/cadastro-fiscal', protegerRota, express.static(path.join(__dirname, '../../cadastro-fiscal/public')));
+
 // Rota para a tela de login
 app.get('/', (req, res) => {
-    res.sendFile(path.join(__dirname, '../public', 'index.html'));
+    res.sendFile(path.join(__dirname, '../public', 'html', 'index.html'));
 });
 
 // Rota da Tela Inicial (onde o utilizador vai após logar)
 app.get('/home', protegerRota, (req, res) => {
-    res.sendFile(path.join(__dirname, '../public', 'home.html'));
+    res.sendFile(path.join(__dirname, '../public', 'html', 'home.html'));
 });
 
 // Rota onde o login.js envia os dados

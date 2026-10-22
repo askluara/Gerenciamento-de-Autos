@@ -1,7 +1,7 @@
 require('dotenv').config(); // Carrega as variáveis do arquivo .env
 const { createClient } = require('@supabase/supabase-js');
 
-const supabaseUrl = process.env.SUPABASE_URL;
+const supabaseUrl = process.env.SUPABASE_URL || 'https://kabdcameedigsitnlarf.supabase.co';
 const supabaseKey = process.env.SUPABASE_KEY;
 
 if (!supabaseUrl || !supabaseKey) {
