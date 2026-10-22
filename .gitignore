@@ -1,1 +1,14 @@
-Login/node_modules/
+@'
+# Dependencias do Node.js em qualquer pasta
+**/node_modules/
+
+# Arquivos de ambiente e credenciais
+**/.env
+**/.env.*
+
+# Permitir arquivo de exemplo
+!**/.env.example
+
+# Logs
+**/npm-debug.log*
+'@ | Set-Content -Path .gitignore

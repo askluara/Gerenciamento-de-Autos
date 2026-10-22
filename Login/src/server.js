@@ -44,7 +44,10 @@ const rotasFiscais = new Set(['/fiscais', '/cargos', '/setores', '/niveis-acesso
 app.use((req, res, next) => {
     return rotasFiscais.has(req.path) ? protegerRota(req, res, next) : next();
 }, fiscaisRouter);
-app.use('/cadastro-fiscal', protegerRota, express.static(path.join(__dirname, '../../cadastro-fiscal/public')));
+const publicFiscais = path.join(__dirname, '../../cadastro-fiscal/public');
+// Mantém os endereços atuais das páginas, embora os HTMLs fiquem em public/html.
+app.use('/cadastro-fiscal', protegerRota, express.static(path.join(publicFiscais, 'html')));
+app.use('/cadastro-fiscal', protegerRota, express.static(publicFiscais));
 
 // Rota para a tela de login
 app.get('/', (req, res) => {

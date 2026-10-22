@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pesquisar Fiscais | SIGAI</title>
+    <link rel="stylesheet" href="css/Cadastro-fiscal.css">
+</head>
+<body data-fiscal-page="pesquisar">
+    <div class="main-container">
+        <div class="content-wrapper">
+            <div class="fiscal-page-heading">
+                <span class="fiscal-heading-icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg>
+                </span>
+                <div>
+                    <h2>Pesquisar Fiscais</h2>
+                    <p>Consulte e filtre os fiscais cadastrados no sistema</p>
+                </div>
+            </div>
+
+            <section class="fiscal-card" aria-label="Filtros de pesquisa">
+                <div class="fiscal-card-body">
+                    <div class="fiscal-form-grid is-three-column">
+                        <div class="fiscal-field">
+                            <label for="filtro-nome">Nome do Fiscal</label>
+                            <input type="search" id="filtro-nome" placeholder="Nome completo ou parcial">
+                        </div>
+                        <div class="fiscal-field">
+                            <label for="filtro-cpf">CPF</label>
+                            <input type="search" id="filtro-cpf" inputmode="numeric" placeholder="000.000.000-00">
+                        </div>
+                        <div class="fiscal-field">
+                            <label for="filtro-matricula">Matrícula</label>
+                            <input type="search" id="filtro-matricula" placeholder="Ex.: 00123456">
+                        </div>
+                        <div class="fiscal-field">
+                            <label for="filtro-cargo">Cargo / Função</label>
+                            <select id="filtro-cargo"><option value="">Todos os cargos</option></select>
+                        </div>
+                        <div class="fiscal-field">
+                            <label for="filtro-setor">Setor / Departamento</label>
+                            <select id="filtro-setor"><option value="">Todos os setores</option></select>
+                        </div>
+                        <div class="fiscal-field">
+                            <label for="filtro-nivel">Nível de Acesso</label>
+                            <select id="filtro-nivel"><option value="">Todos os níveis</option></select>
+                        </div>
+                        <div class="fiscal-field">
+                            <label for="filtro-status">Status</label>
+                            <select id="filtro-status">
+                                <option value="">Todos</option>
+                                <option value="ativo">Ativo</option>
+                                <option value="inativo">Inativo</option>
+                            </select>
+                        </div>
+                        <div class="fiscal-field">
+                            <label for="filtro-admissao-de">Admissão — De</label>
+                            <input type="date" id="filtro-admissao-de" aria-label="Data inicial de admissão">
+                        </div>
+                        <div class="fiscal-field">
+                            <label for="filtro-admissao-ate">Admissão — Até</label>
+                            <input type="date" id="filtro-admissao-ate" aria-label="Data final de admissão">
+                        </div>
+                    </div>
+                    <div class="fiscal-search-actions">
+                        <button class="fiscal-button is-primary" type="button" id="btn-pesquisar">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg>
+                            Pesquisar
+                        </button>
+                        <button class="fiscal-button" type="button" id="btn-limpar">Limpar Filtros</button>
+                    </div>
+                </div>
+            </section>
+            <div id="resultado-pesquisa" class="fiscal-results" hidden></div>
+        </div>
+    </div>
+
+    <script src="js/fiscal-layout.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="js/pesquisar-fiscal.js"></script>
+</body>
+</html>

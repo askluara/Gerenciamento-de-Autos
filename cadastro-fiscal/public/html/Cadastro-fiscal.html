@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cadastrar Fiscal | SIGAI</title>
+    <link rel="stylesheet" href="css/Cadastro-fiscal.css">
+    <link rel="stylesheet" href="/css/notificacoes.css">
+</head>
+<body data-fiscal-page="cadastrar">
+    <div class="main-container">
+        <div class="content-wrapper">
+            <div class="fiscal-page-heading">
+                <span class="fiscal-heading-icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="7" r="4"/><path d="M2 21v-2a7 7 0 0 1 14 0v2M19 8v6M22 11h-6"/></svg>
+                </span>
+                <div>
+                    <h2>Cadastrar Fiscal</h2>
+                    <p>Registre um novo fiscal no sistema</p>
+                </div>
+            </div>
+
+            <form id="formCadastroFiscal" class="fiscal-form">
+                <section class="fiscal-card">
+                    <header class="fiscal-card-header"><h3>Dados Pessoais</h3></header>
+                    <div class="fiscal-form-section">
+                        <div class="fiscal-form-grid">
+                            <div class="fiscal-field is-full">
+                                <label for="nome">Nome Completo <span class="required">*</span></label>
+                                <input type="text" id="nome" required placeholder="Nome completo do fiscal">
+                            </div>
+                            <div class="fiscal-field">
+                                <label for="cpf">CPF <span class="required">*</span></label>
+                                <input type="text" id="cpf" required inputmode="numeric" maxlength="14" placeholder="000.000.000-00">
+                            </div>
+                            <div class="fiscal-field">
+                                <label for="email">E-mail Institucional <span class="required">*</span></label>
+                                <input type="email" id="email" required placeholder="fiscal@prefeitura.gov.br">
+                            </div>
+                            <div class="fiscal-field">
+                                <label for="telefone">Telefone / Ramal</label>
+                                <input type="tel" id="telefone" inputmode="tel" placeholder="(00) 00000-0000">
+                            </div>
+                            <div class="fiscal-field">
+                                <label for="data_admissao">Data de Admissão <span class="required">*</span></label>
+                                <input type="date" id="data_admissao" required>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="fiscal-card">
+                    <header class="fiscal-card-header"><h3>Vínculo Funcional</h3></header>
+                    <div class="fiscal-form-section fiscal-form-grid">
+                        <div class="fiscal-field">
+                            <label for="cargo_id">Cargo / Função <span class="required">*</span></label>
+                            <select id="cargo_id" required><option value="">Selecione o cargo</option></select>
+                        </div>
+                        <div class="fiscal-field">
+                            <label for="setor_id">Setor / Departamento <span class="required">*</span></label>
+                            <select id="setor_id" required><option value="">Selecione o setor</option></select>
+                        </div>
+                        <div class="fiscal-field">
+                            <label for="nivel_acesso_id">Nível de Acesso ao Sistema <span class="required">*</span></label>
+                            <select id="nivel_acesso_id" required><option value="">Selecione o nível de acesso</option></select>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="fiscal-card">
+                    <header class="fiscal-card-header"><h3>Observações</h3></header>
+                    <div class="fiscal-form-section">
+                        <div class="fiscal-field">
+                            <label for="observacoes">Informações adicionais</label>
+                            <textarea id="observacoes" placeholder="Informações adicionais sobre o fiscal (opcional)"></textarea>
+                        </div>
+                    </div>
+                </section>
+
+                <div class="fiscal-form-actions">
+                    <button class="fiscal-button is-primary" type="submit">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2Z"/><path d="M17 21v-8H7v8M7 3v5h8"/></svg>
+                        Cadastrar Fiscal
+                    </button>
+                    <button class="fiscal-button" type="reset">× <span>Limpar</span></button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="js/fiscal-layout.js"></script>
+    <script src="/js/notificacoes.js"></script>
+    <script src="js/Cadastro-fiscal.js"></script>
+</body>
+</html>

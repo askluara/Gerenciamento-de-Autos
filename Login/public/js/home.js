@@ -82,12 +82,4 @@ document.getElementById('botaoLogout').addEventListener('click', async () => {
   }
 });
 //alerta ao fechar a pagina
-window.addEventListener('beforeunload', (event) => {
-  const confirmar = confirm('Deseja realmente sair? Sua sessão será encerrada.');
-  
-  if (!confirmar) {
-    event.preventDefault();
-    event.returnValue = '';
-  }
-});
 
