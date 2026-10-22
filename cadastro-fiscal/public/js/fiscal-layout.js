@@ -38,10 +38,8 @@ document.addEventListener('DOMContentLoaded', () => {
             </div>
             <nav class="fiscal-navigation">
                 <div class="fiscal-nav-group">
-                    ${navLink('Dashboard', '/home', 'dashboard', 'dashboard')}
-                </div>
-                <div class="fiscal-nav-group">
                     <p class="fiscal-nav-heading">Autos de Infração</p>
+                    ${navLink('Dashboard', '/home', 'dashboard', 'dashboard')}
                     ${navLink('Cadastrar Auto', '#', 'file')}
                     ${navLink('Pesquisar Autos', '#', 'search')}
                     ${navLink('Editar Auto', '#', 'edit')}
@@ -88,6 +86,21 @@ document.addEventListener('DOMContentLoaded', () => {
     const sidebarToggle = shell.querySelector('.fiscal-sidebar-toggle');
     const mobileToggle = shell.querySelector('.fiscal-mobile-toggle');
     const backdrop = shell.querySelector('.fiscal-mobile-backdrop');
+    shell.querySelectorAll('.fiscal-nav-link').forEach(link => {
+        link.addEventListener('click', event => {
+            const href = link.getAttribute('href');
+            if (!href || href === '#' || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+
+            const destination = new URL(href, window.location.href);
+            if (destination.origin !== window.location.origin || destination.href === window.location.href) return;
+
+            event.preventDefault();
+            link.classList.add('is-navigating');
+            const delay = window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 0 : 80;
+            window.setTimeout(() => window.location.assign(destination.href), delay);
+        });
+    });
+
     const setMobileMenu = (open) => {
         document.body.classList.toggle('fiscal-mobile-menu-open', open);
         mobileToggle.setAttribute('aria-expanded', String(open));

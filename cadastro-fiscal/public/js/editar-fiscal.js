@@ -14,6 +14,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const btnSalvar = document.querySelector('#btn-salvar');
     const resultados = document.querySelector('#resultados-editar');
     const mensagemBusca = document.querySelector('#mensagem-busca-editar');
+    opcoesEdicaoPromise = carregarOpcoesEdicao();
 
 
     // Se vier com matrícula da página de pesquisa externa
