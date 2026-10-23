@@ -41,7 +41,7 @@ body {
     display: flex;
     flex-direction: column;
     flex-shrink: 0;
-    transition: left 0.25s ease;
+    transition: transform 0.25s ease;
     overflow: hidden;
     z-index: 1000;
 }
@@ -403,10 +403,11 @@ body {
 
 @media (max-width: 900px) {
     .sidebar {
-        left: -260px;
+        left: 0;
+        transform: translateX(-100%);
     }
     .sidebar.active {
-        left: 0;
+        transform: translateX(0);
     }
     .cards-container {
         grid-template-columns: 1fr 1fr;

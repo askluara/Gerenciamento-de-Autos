@@ -45,8 +45,8 @@ button { cursor: pointer; }
 }
 
 @media (max-width: 900px) {
-    .container-main > .sidebar { left: -260px; }
-    .container-main > .sidebar.active { left: 0; }
+    .container-main > .sidebar { left: 0; transform: translateX(-100%); }
+    .container-main > .sidebar.active { transform: translateX(0); }
     .container-main > .main-content { margin-left: 0; }
     .sidebar-launcher { display: grid; place-items: center; position: fixed; top: 14px; left: 14px; z-index: 999; width: 40px; height: 40px; color: #fff; background: #1b3899; border: 0; border-radius: 8px; }
 }

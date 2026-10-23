@@ -44,7 +44,7 @@
         const aside = document.createElement('aside');
         aside.className = 'sidebar';
         aside.setAttribute('aria-label', 'Navegação principal');
-        aside.innerHTML = '<div class="sidebar-header"><span>Sistema de Autos</span><button class="sidebar-toggle" type="button" aria-label="Abrir menu" aria-expanded="false"><i class="fa-solid fa-bars" aria-hidden="true"></i></button></div><nav class="sidebar-nav"></nav>';
+        aside.innerHTML = '<div class="sidebar-header"><span>SIGAI - Autos de Infração </span><button class="sidebar-toggle" type="button" aria-label="Abrir menu" aria-expanded="false"><i class="fa-solid fa-bars" aria-hidden="true"></i></button></div><nav class="sidebar-nav"></nav>';
 
         let permissoesAtuais = lerPermissoesEmCache();
         renderizarMenu(aside, page, permissoesAtuais);
