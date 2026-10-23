@@ -27,7 +27,7 @@ botao.addEventListener('click', async(event) => {
         const dados = await resposta.json();
 
         if (resposta.ok && dados.sucesso) {
-            try { sessionStorage.removeItem('sigai-sidebar-permissions'); } catch {}
+            try { sessionStorage.removeItem('sigai-sidebar-permissions-v2'); } catch {}
             window.location.href = '/home';
         } else {
             // Exibe a mensagem personalizada enviada pelo backend

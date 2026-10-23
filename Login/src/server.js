@@ -82,7 +82,7 @@ function protegerPerfil(...perfisPermitidos) {
 function obterPermissoes(usuario) {
     const perfil = usuario?.perfil;
     return {
-        fiscais: ['COORDENADOR', 'ADMINISTRADOR'].includes(perfil),
+        fiscais: perfil === 'ADMINISTRADOR',
         infracoes: ['FISCAL', 'ADMINISTRADOR'].includes(perfil)
     };
 }
@@ -97,19 +97,19 @@ app.use(express.static(path.join(__dirname, '../public')));
 const publicFiscais = path.join(__dirname, '../../cadastro-fiscal/public');
 const publicFiscaisHtml = path.join(publicFiscais, 'html');
 
-app.get('/cadastro-fiscal', protegerRota, protegerPerfil('COORDENADOR', 'ADMINISTRADOR'), (req, res) => {
+app.get('/cadastro-fiscal', protegerRota, protegerPerfil('ADMINISTRADOR'), (req, res) => {
     return res.redirect('/cadastro-fiscal/Cadastro-fiscal.html');
 });
-app.get('/cadastro-fiscal/Cadastro-fiscal.html', protegerRota, protegerPerfil('COORDENADOR', 'ADMINISTRADOR'), (req, res) => {
+app.get('/cadastro-fiscal/Cadastro-fiscal.html', protegerRota, protegerPerfil('ADMINISTRADOR'), (req, res) => {
     return res.sendFile(path.join(publicFiscaisHtml, 'Cadastro-fiscal.html'));
 });
-app.get('/cadastro-fiscal/pesquisar-fiscal.html', protegerRota, protegerPerfil('COORDENADOR', 'ADMINISTRADOR'), (req, res) => {
+app.get('/cadastro-fiscal/pesquisar-fiscal.html', protegerRota, protegerPerfil('ADMINISTRADOR'), (req, res) => {
     return res.sendFile(path.join(publicFiscaisHtml, 'pesquisar-fiscal.html'));
 });
-app.get('/cadastro-fiscal/editar-fiscal.html', protegerRota, protegerPerfil('COORDENADOR', 'ADMINISTRADOR'), (req, res) => {
+app.get('/cadastro-fiscal/editar-fiscal.html', protegerRota, protegerPerfil('ADMINISTRADOR'), (req, res) => {
     return res.sendFile(path.join(publicFiscaisHtml, 'editar-fiscal.html'));
 });
-app.get('/cadastro-fiscal/inativar-fiscal.html', protegerRota, protegerPerfil('COORDENADOR', 'ADMINISTRADOR'), (req, res) => {
+app.get('/cadastro-fiscal/inativar-fiscal.html', protegerRota, protegerPerfil('ADMINISTRADOR'), (req, res) => {
     return res.sendFile(path.join(publicFiscaisHtml, 'inativar-fiscal.html'));
 });
 app.use('/cadastro-fiscal/css', express.static(path.join(publicFiscais, 'css')));
@@ -295,7 +295,7 @@ app.get('/api/dashboard/recentes', protegerRota, async(req, res) => {
 // ==========================================
 
 // Rota para buscar Cargos
-app.get('/api/cargos', protegerRota, protegerPerfil('COORDENADOR', 'ADMINISTRADOR'), async (req, res) => {
+app.get('/api/cargos', protegerRota, protegerPerfil('ADMINISTRADOR'), async (req, res) => {
     try {
         const { data, error } = await supabase
             .from('cargo')
@@ -310,7 +310,7 @@ app.get('/api/cargos', protegerRota, protegerPerfil('COORDENADOR', 'ADMINISTRADO
 });
 
 // Rota para buscar Setores
-app.get('/api/setores', protegerRota, protegerPerfil('COORDENADOR', 'ADMINISTRADOR'), async (req, res) => {
+app.get('/api/setores', protegerRota, protegerPerfil('ADMINISTRADOR'), async (req, res) => {
     try {
         const { data, error } = await supabase
             .from('setor')
@@ -325,7 +325,7 @@ app.get('/api/setores', protegerRota, protegerPerfil('COORDENADOR', 'ADMINISTRAD
 });
 
 // Rota para buscar Níveis de Acesso
-app.get('/api/niveis-acesso', protegerRota, protegerPerfil('COORDENADOR', 'ADMINISTRADOR'), async (req, res) => {
+app.get('/api/niveis-acesso', protegerRota, protegerPerfil('ADMINISTRADOR'), async (req, res) => {
     try {
         const { data, error } = await supabase
             .from('nivel_acesso')
@@ -340,7 +340,7 @@ app.get('/api/niveis-acesso', protegerRota, protegerPerfil('COORDENADOR', 'ADMIN
 });
 
 // Rota para Cadastrar o Fiscal no Banco de Dados
-app.post('/api/fiscais/cadastrar', protegerRota, protegerPerfil('COORDENADOR', 'ADMINISTRADOR'), async (req, res) => {
+app.post('/api/fiscais/cadastrar', protegerRota, protegerPerfil('ADMINISTRADOR'), async (req, res) => {
     try {
         const { credencial, ...novoFiscal } = req.body;
         const matricula = String(novoFiscal.matricula_fiscal || '').trim();
@@ -385,7 +385,7 @@ app.post('/api/fiscais/cadastrar', protegerRota, protegerPerfil('COORDENADOR', '
     }
 });
 
-app.patch('/api/fiscais/:matricula/senha', protegerRota, protegerPerfil('COORDENADOR', 'ADMINISTRADOR'), async (req, res) => {
+app.patch('/api/fiscais/:matricula/senha', protegerRota, protegerPerfil('ADMINISTRADOR'), async (req, res) => {
     const matricula = String(req.params.matricula || '').trim();
     const senha = String(req.body.senha || '').trim();
     if (!matricula || senha.length < 6) {

@@ -1,5 +1,5 @@
 (function () {
-    const CACHE_KEY = 'sigai-sidebar-permissions';
+    const CACHE_KEY = 'sigai-sidebar-permissions-v2';
     const grupos = [
         ['Autos de Infração', null, [
             ['/home', 'Dashboard', 'fa-house', 'dashboard']
@@ -31,13 +31,19 @@
 
     function renderizarMenu(aside, page, permissoes) {
         const gruposPermitidos = grupos.filter(([, permissao]) => !permissao || permissoes[permissao]);
-        aside.querySelector('.sidebar-nav').innerHTML = gruposPermitidos.map(([titulo, , links]) =>
-            `<div class="sidebar-section"><div class="sidebar-section-title">${titulo}</div><ul class="sidebar-menu">${links.map(([url, nome, icone, chave]) =>
+        aside.querySelector('.sidebar-nav').innerHTML = gruposPermitidos.map(([titulo, , links]) => {
+            const lista = `<ul class="sidebar-menu">${links.map(([url, nome, icone, chave]) =>
                 `<li><a href="${url}" ${page === chave ? 'class="active" aria-current="page"' : ''}><span class="sidebar-icon"><i class="${icone.includes(' ') ? icone : `fa-solid ${icone}`}" aria-hidden="true"></i></span>${nome}</a></li>`
-            ).join('')}</ul></div>`
-        ).join('');
-    }
+            ).join('')}</ul>`;
 
+            if (titulo === 'Fiscais') {
+                const aberto = links.some(([, , , chave]) => chave === page);
+                return `<details class="sidebar-section sidebar-admin" ${aberto ? 'open' : ''}><summary class="sidebar-section-title">Administração<i class="fa-solid fa-chevron-down" aria-hidden="true"></i></summary><div class="sidebar-subsection-title">Fiscais</div>${lista}</details>`;
+            }
+
+            return `<div class="sidebar-section"><div class="sidebar-section-title">${titulo}</div>${lista}</div>`;
+        }).join('');
+    }
     function mount(target, page) {
         if (!target) return;
 

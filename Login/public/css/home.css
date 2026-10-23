@@ -89,6 +89,27 @@ body {
     padding: 10px 12px 5px 12px;
 }
 
+.sidebar-admin > .sidebar-section-title {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    cursor: pointer;
+    list-style: none;
+}
+
+.sidebar-admin > .sidebar-section-title::-webkit-details-marker { display: none; }
+.sidebar-admin > .sidebar-section-title i { font-size: 10px; transition: transform .2s ease; }
+.sidebar-admin[open] > .sidebar-section-title i { transform: rotate(180deg); }
+.sidebar-subsection-title {
+    padding: 8px 12px 4px 18px;
+    color: #a9bbf7;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+}
+.sidebar-admin .sidebar-menu { padding-left: 6px; }
+
 .sidebar-menu {
     list-style: none;
 }
