@@ -50,7 +50,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     btnAlterarStatus?.addEventListener('click', () => {
-        if (fiscalSelecionado) alterarStatusFiscal(window.supabaseClient, fiscalSelecionado);
+        if (fiscalSelecionado) alterarStatusFiscal(fiscalSelecionado);
     });
 });
 
@@ -115,7 +115,7 @@ async function executarBusca(db) {
     }
 }
 
-async function alterarStatusFiscal(db, fiscal) {
+async function alterarStatusFiscal(fiscal) {
     const matricula = fiscal.matricula_fiscal;
     const novoEstado = fiscal.ativo === false;
     const acao = novoEstado ? 'ativar' : 'inativar';
@@ -125,23 +125,28 @@ async function alterarStatusFiscal(db, fiscal) {
     );
     if (!confirmado) return;
 
+    const botaoStatus = document.querySelector('#btn-alterar-status');
+    botaoStatus.disabled = true;
     try {
-        const { error } = await db
-            .from('fiscal')
-            .update({ ativo: novoEstado })
-            .eq('matricula_fiscal', matricula);
-        if (error) throw error;
+        const resposta = await fetch(`/api/fiscais/${encodeURIComponent(matricula)}/status`, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'same-origin',
+            body: JSON.stringify({ ativo: novoEstado })
+        });
+        const resultado = await resposta.json();
+        if (!resposta.ok) throw new Error(resultado.mensagem || 'Não foi possível alterar o status.');
 
         fiscal.ativo = novoEstado;
-        const botaoStatus = document.querySelector('#btn-alterar-status');
         botaoStatus.textContent = novoEstado ? 'Inativar fiscal' : 'Ativar fiscal';
         botaoStatus.classList.toggle('is-success', novoEstado);
         botaoStatus.classList.toggle('is-danger', !novoEstado);
-        await abrirModal(`Fiscal ${novoEstado ? 'ativado' : 'inativado'} com sucesso.`, { titulo: 'Ação concluída' });
-        await executarBusca(db);
+        await concluirAcao(`Fiscal ${novoEstado ? 'ativado' : 'inativado'} com sucesso.`);
     } catch (error) {
         console.error('Erro ao atualizar status do fiscal:', error);
         abrirModal(`Erro ao atualizar: ${error.message || JSON.stringify(error)}`);
+    } finally {
+        botaoStatus.disabled = false;
     }
 }
 
