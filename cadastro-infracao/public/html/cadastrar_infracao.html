@@ -7,7 +7,6 @@
     
     <link rel="stylesheet" href="/css/home.css">
     <link rel="stylesheet" href="/cadastro-fiscal/css/Cadastro-fiscal.css">
-    <link rel="stylesheet" href="/cadastro-infracao/css/style.css">
     
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -16,7 +15,8 @@
 
     <!-- O script de layout procura esta div para injetar o menu lateral e o topo -->
     <div class="main-container">
-        <div class="page-content">
+        <!-- CORREÇÃO: Trocado de 'page-content' para 'content-wrapper' para evitar duplicidade de CSS -->
+        <div class="content-wrapper">
             <div class="fiscal-page-heading">
                 <div class="fiscal-heading-icon">
                     <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
@@ -39,7 +39,7 @@
                         <div class="fiscal-form-grid">
                             <div class="fiscal-field">
                                 <label>Código da Infração <span class="required">*</span></label>
-                                <input type="text" id="id_infracao" placeholder="Ex: INF-001" required>
+                                <input type="text" id="id_infracao" placeholder="Gerando código..." readonly required style="background-color: #f1f5f9; cursor: not-allowed; color: #64748b; border-color: #e2e8f0;">
                             </div>
                             <div class="fiscal-field">
                                 <label>Categoria <span class="required">*</span></label>
@@ -79,11 +79,14 @@
         </div>
     </div>
 
-    <!-- Script de layout unificado (reutiliza o mesmo motor dos fiscais) -->
+    <!-- 1. O script original que traz os estilos da barra lateral -->
     <script src="/js/sidebar.js"></script>
+    
+    <!-- 2. O nosso script que injeta o menu padronizado e o cabeçalho novo -->
     <script src="/cadastro-fiscal/js/fiscal-layout.js"></script>
-    <!-- Script de lógica e CRUD da infração -->
-    <script src="/cadastro-infracao/js/script.js"></script>
+    
+    <!-- Restantes scripts da página -->
+    <script src="/cadastro-infracao/js/script.js"></script> <!-- ou pesquisar.js / editar_excluir.js -->
     <script src="/js/formatadores.js"></script>
     <script src="/js/modal.js"></script>
 </body>

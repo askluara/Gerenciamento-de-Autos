@@ -1,7 +1,8 @@
 // =========================================================
-// VALIDAÇÃO DE SESSÃO E ATUALIZAÇÃO DO PERFIL NO CABEÇALHO
+// VALIDAÇÃO DE SESSÃO, ATUALIZAÇÃO DO PERFIL E CÓDIGO AUTOMÁTICO
 // =========================================================
 document.addEventListener('DOMContentLoaded', async () => {
+    // 1. Validação de Sessão
     try {
         const resposta = await fetch('/api/verificar-sessao', { credentials: 'include' });
         
@@ -28,48 +29,79 @@ document.addEventListener('DOMContentLoaded', async () => {
         console.error("Erro na sessão:", error.message);
         window.location.href = '/';
     }
+
+    // 2. Geração do Código da Infração Visual (Auto-incremento)
+    const campoCodigo = document.getElementById('id_infracao');
+    if (campoCodigo) {
+        try {
+            const respostaInfracoes = await fetch('/infracoes');
+            if (respostaInfracoes.ok) {
+                const infracoes = await respostaInfracoes.json();
+                const proximoNumero = infracoes.length + 1;
+                campoCodigo.value = `INF-${String(proximoNumero).padStart(3, '0')}`;
+            } else {
+                campoCodigo.value = 'Erro ao gerar';
+            }
+        } catch (erro) {
+            console.error('Erro ao buscar o próximo código:', erro);
+            campoCodigo.placeholder = 'Falha ao carregar';
+        }
+    }
 });
 // =========================================================
 
-const API_URL = 'http://localhost:3000/infracoes';
+const API_URL = '/infracoes'; // Uso de rota relativa para evitar problemas caso mude de porta
 
 // ==========================================
 // [POST] Função para Cadastrar Nova Infração
 // ==========================================
-document.getElementById('form-infracao').addEventListener('submit', async (evento) => {
-    evento.preventDefault(); // Impede a página de recarregar
+const formInfracao = document.getElementById('form-infracao');
 
-    try {
-        // Captura os dados digitados
-        const id_infracao = document.getElementById('id_infracao').value;
-        const tipo = document.getElementById('tipo').value;
-        const descricao = document.getElementById('descricao').value;
-        const artigo = document.getElementById('artigo').value;
-        const valor_base = document.getElementById('valor_base').value;
+if (formInfracao) {
+    formInfracao.addEventListener('submit', async (evento) => {
+        evento.preventDefault(); // Impede a página de recarregar
 
-        const novaInfracao = {
-            id_infracao: id_infracao,
-            descricao: descricao,
-            tipo: tipo,
-            artigo: artigo,
-            valor_base: Number(valor_base)
-        };
+        try {
+            // Captura os dados digitados
+            const tipo = document.getElementById('tipo').value;
+            const descricao = document.getElementById('descricao').value;
+            const artigo = document.getElementById('artigo').value;
+            const valor_base = document.getElementById('valor_base').value;
 
-        const resposta = await fetch(API_URL, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(novaInfracao)
-        });
+            // O id_infracao não precisa ser enviado, o server.js já o cria automaticamente!
+            const novaInfracao = {
+                descricao: descricao,
+                tipo: tipo,
+                artigo: artigo,
+                valor_base: Number(valor_base)
+            };
 
-        if (resposta.ok) {
-            await concluirAcao('Infração cadastrada com sucesso.');
-        } else {
-            abrirModal('❌ Erro ao tentar cadastrar no banco de dados. Verifique o terminal do Node.js.');
+            const resposta = await fetch(API_URL, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(novaInfracao)
+            });
+
+            if (resposta.ok) {
+                await concluirAcao('Infração cadastrada com sucesso.');
+                
+                // Atualiza o visual do código para o próximo número após o cadastro
+                const campoCodigo = document.getElementById('id_infracao');
+                if (campoCodigo) {
+                    const partes = campoCodigo.value.split('-');
+                    if(partes.length === 2) {
+                        const prox = parseInt(partes[1]) + 1;
+                        campoCodigo.value = `INF-${String(prox).padStart(3, '0')}`;
+                    }
+                }
+            } else {
+                abrirModal('❌ Erro ao tentar cadastrar no banco de dados. Verifique o terminal do Node.js.');
+            }
+        } catch (erro) {
+            console.error('Erro no Javascript:', erro);
+            abrirModal('Falha na comunicação. Certifique-se de que o Back-end está rodando!');
         }
-    } catch (erro) {
-        console.error('Erro no Javascript:', erro);
-        abrirModal('Falha na comunicação. Certifique-se de que o Back-end está rodando!');
-    }
-});
+    });
+}
