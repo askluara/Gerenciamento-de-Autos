@@ -4,82 +4,103 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Pesquisar Infrações - SIGAI</title>
-    <!-- Caminho atualizado para a pasta CSS com a nova rota -->
-    <link rel="stylesheet" href="/cadastro-infracao/css/style.css">
-    <!-- Font Awesome (Ícones do menu) -->
+    
+    <!-- CSS Global (Sidebar e Header) -->
+    <link rel="stylesheet" href="/css/home.css">
+    
+    <!-- CSS Padronizado do Sistema (Substitui o antigo style.css) -->
+    <link rel="stylesheet" href="/cadastro-fiscal/css/Cadastro-fiscal.css">
+   
+    
+    <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
-<body data-current-page="pesquisar-infracao">
-    <!-- Menu Lateral (Sidebar) -->
+<body data-fiscal-page="pesquisar-infracao">
 
-    <main class="main-content">
-        <header class="top-header">
-            <div>
-                <h1>Sistema de Gerenciamento de Autos de Infração</h1>
-                <p>Prefeitura Municipal • Gerência de Posturas</p>
-            </div>
-            <div class="user-profile">
-                <div class="user-info">
-                    <strong id="nome-usuario">Carregando...</strong>
-                    <span id="cargo-usuario">Carregando...</span>
-                </div>
-                <div class="avatar" id="avatar-letra">-</div>
-            </div>
-        </header>
-
+    <!-- O script de layout procura esta div para injetar o menu lateral e o topo -->
+    <div class="main-container">
         <div class="page-content">
-            <div class="page-title">
-                <h2>🔍 Pesquisar Infrações</h2>
-                <p>Consulte e filtre os tipos de infração cadastrados</p>
+            
+            <!-- CABEÇALHO PADRONIZADO (Igual ao de fiscais) -->
+            <div class="fiscal-page-heading">
+                <div class="fiscal-heading-icon">
+                    <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="11" cy="11" r="8"/>
+                        <path d="m21 21-4.3-4.3"/>
+                    </svg>
+                </div>
+                <div>
+                    <h2>Pesquisar Infrações</h2>
+                    <p>Consulte e filtre os tipos de infração cadastrados no sistema</p>
+                </div>
             </div>
 
             <!-- Cartão de Filtros -->
-            <section class="card">
-                <form id="form-pesquisa">
-                    <div class="grid-3-col">
-                        <div class="input-group">
-                            <label>Código</label>
-                            <input type="text" id="filtro_codigo" placeholder="Ex: INF-001">
+            <section class="fiscal-card">
+                <div class="fiscal-card-header">
+                    <h3>Filtros de Busca</h3>
+                </div>
+                <div class="fiscal-card-body">
+                    <form id="form-pesquisa">
+                        <div class="fiscal-form-grid">
+                            <div class="fiscal-field">
+                                <label>Código</label>
+                                <input type="text" id="filtro_codigo" placeholder="Ex: INF-001">
+                            </div>
+                            <div class="fiscal-field">
+                                <label>Descrição</label>
+                                <input type="text" id="filtro_descricao" placeholder="Palavra-chave na descrição">
+                            </div>
+                            <div class="fiscal-field">
+                                <label>Categoria</label>
+                                <input type="text" id="filtro_categoria" placeholder="Todas as categorias">
+                            </div>
                         </div>
-                        <div class="input-group">
-                            <label>Descrição</label>
-                            <input type="text" id="filtro_descricao" placeholder="Palavra-chave na descrição">
+                        <div class="fiscal-form-actions" style="margin-top: 20px;">
+                            <button type="submit" class="fiscal-button is-primary">
+                                <i class="fa-solid fa-magnifying-glass"></i> Pesquisar
+                            </button>
+                            <button type="button" class="fiscal-button" onclick="document.getElementById('form-pesquisa').reset(); carregarInfracoes();">
+                                ✖ Limpar Filtros
+                            </button>
                         </div>
-                        <div class="input-group">
-                            <label>Categoria</label>
-                            <input type="text" id="filtro_categoria" placeholder="Todas as categorias">
-                        </div>
-                    </div>
-                    <div class="form-actions">
-                        <button type="submit" class="btn-primary">🔍 Pesquisar</button>
-                        <button type="button" class="btn-secondary" onclick="document.getElementById('form-pesquisa').reset(); carregarInfracoes();"> Limpar Filtros</button>
-                    </div>
-                </form>
+                    </form>
+                </div>
             </section>
 
             <!-- Cartão da Tabela de Resultados -->
-            <section class="card">
-                <table class="data-table">
-                    <thead>
-                        <tr>
-                            <th>Código</th>
-                            <th>Descrição</th>
-                            <th>Categoria</th>
-                            <th>Artigo</th>
-                            <th>Valor Base (R$)</th>
-                        </tr>
-                    </thead>
-                    <tbody id="tabela-resultados">
-                        <!-- O JavaScript vai injetar os dados aqui -->
-                    </tbody>
-                </table>
+            <section class="fiscal-card">
+                <div class="fiscal-card-body">
+                    <div class="fiscal-table-wrap">
+                        <table class="fiscal-table">
+                            <thead>
+                                <tr>
+                                    <th>Código</th>
+                                    <th>Descrição</th>
+                                    <th>Categoria</th>
+                                    <th>Artigo</th>
+                                    <th>Valor Base (R$)</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tabela-resultados">
+                                <!-- O JavaScript vai injetar os dados aqui -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
             </section>
+            
         </div>
-    </main>
+    </div>
 
-    <!-- Caminho atualizado para a pasta JS com a nova rota -->
+    <!-- 1. O script original que traz os estilos da barra lateral -->
     <script src="/js/sidebar.js"></script>
-    <script src="/cadastro-infracao/js/pesquisar.js"></script>
+    
+    <!-- 2. O nosso script que injeta o menu padronizado e o cabeçalho novo -->
+    <script src="/cadastro-fiscal/js/fiscal-layout.js"></script>
+    
+    <!-- Restantes scripts da página -->
+    <script src="/cadastro-infracao/js/pesquisar.js"></script> <!-- ou pesquisar.js / editar_excluir.js -->
     <script src="/js/formatadores.js"></script>
     <script src="/js/modal.js"></script>
 </body>

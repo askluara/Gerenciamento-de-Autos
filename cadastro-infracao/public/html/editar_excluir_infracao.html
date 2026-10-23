@@ -4,58 +4,70 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Editar e Excluir - SIGAI</title>
-    <!-- Caminho atualizado para a pasta CSS com a nova rota -->
-    <link rel="stylesheet" href="/cadastro-infracao/css/style.css">
+    
+    <!-- CSS Global (Sidebar e Header) -->
+    <link rel="stylesheet" href="/css/home.css">
+    
+    <!-- CSS Padronizado do Sistema (Substitui o antigo style.css) -->
+    <link rel="stylesheet" href="/cadastro-fiscal/css/Cadastro-fiscal.css">
+
+    
     <!-- Font Awesome (Ícones do menu) -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
-<body data-current-page="editar-infracao">
-    <!-- Menu Lateral (Sidebar) -->
+<body data-fiscal-page="editar-infracao">
 
-    <main class="main-content">
-        <header class="top-header">
-            <div>
-                <h1>Sistema de Gerenciamento de Autos de Infração</h1>
-                <p>Prefeitura Municipal • Gerência de Posturas</p>
-            </div>
-            <div class="user-profile">
-                <div class="user-info">
-                    <strong id="nome-usuario">Carregando...</strong>
-                    <span id="cargo-usuario">Carregando...</span>
-                </div>
-                <div class="avatar" id="avatar-letra">-</div>
-            </div>
-        </header>
-
+    <!-- O script de layout procura esta div para injetar o menu lateral e o topo -->
+    <div class="main-container">
         <div class="page-content">
-            <div class="page-title">
-                <h2>⚙️ Editar e Excluir Infrações</h2>
-                <p>Gerencie o catálogo de infrações do sistema</p>
+            
+            <!-- CABEÇALHO PADRONIZADO -->
+            <div class="fiscal-page-heading">
+                <div class="fiscal-heading-icon">
+                    <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="3"/>
+                        <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+                    </svg>
+                </div>
+                <div>
+                    <h2>Editar e Excluir Infrações</h2>
+                    <p>Gerencie o catálogo de infrações do sistema</p>
+                </div>
             </div>
 
-            <section class="card">
-                <table class="data-table">
-                    <thead>
-                        <tr>
-                            <th>Código</th>
-                            <th>Descrição</th>
-                            <th>Categoria</th>
-                            <th>Artigo</th>
-                            <th>Valor Base (R$)</th>
-                            <th>Ações</th>
-                        </tr>
-                    </thead>
-                    <tbody id="tabela-acoes">
-                        <!-- O JS vai injetar os dados aqui -->
-                    </tbody>
-                </table>
+            <!-- Cartão da Tabela de Resultados -->
+            <section class="fiscal-card">
+                <div class="fiscal-card-body">
+                    <div class="fiscal-table-wrap">
+                        <table class="fiscal-table">
+                            <thead>
+                                <tr>
+                                    <th>Código</th>
+                                    <th>Descrição</th>
+                                    <th>Categoria</th>
+                                    <th>Artigo</th>
+                                    <th>Valor Base (R$)</th>
+                                    <th style="text-align: center;">Ações</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tabela-acoes">
+                                <!-- O JS vai injetar os dados aqui -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
             </section>
         </div>
-    </main>
+    </div>
 
-    <!-- Caminho atualizado para a pasta JS com a nova rota -->
+    <!-- 1. O script original que traz os estilos da barra lateral -->
     <script src="/js/sidebar.js"></script>
-    <script src="/cadastro-infracao/js/editar_excluir.js"></script>
+    
+    <!-- 2. O nosso script que injeta o menu padronizado e o cabeçalho novo -->
+    <script src="/cadastro-fiscal/js/fiscal-layout.js"></script>
+    
+    <!-- Restantes scripts da página -->
+    <script src="/cadastro-infracao/js/editar_excluir.js"></script> <!-- ou pesquisar.js / editar_excluir.js -->
     <script src="/js/formatadores.js"></script>
     <script src="/js/modal.js"></script>
 </body>
