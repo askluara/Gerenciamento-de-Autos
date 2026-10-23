@@ -14,9 +14,9 @@
     <!-- Font Awesome (Ícones do Figma) -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-    <!-- CSS exclusivo do Dashboard -->
-    <link rel="stylesheet" href="../css/home.css">
-    <link rel="stylesheet" href="../css/notificacoes.css">
+    <!-- CSS exclusivo do Dashboard (caminhos absolutos) -->
+    <link rel="stylesheet" href="/css/home.css">
+    <link rel="stylesheet" href="/css/notificacoes.css">
 </head>
 
 <body>
@@ -36,7 +36,7 @@
                     <div class="sidebar-section-title">Autos de Infração</div>
                     <ul class="sidebar-menu">
                         <li>
-                            <a href="#" class="active">
+                            <a href="/home" class="active">
                                 <span class="sidebar-icon"><i class="fa-solid fa-house"></i></span> Dashboard
                             </a>
                         </li>
@@ -95,17 +95,17 @@
                     <div class="sidebar-section-title">Infrações</div>
                     <ul class="sidebar-menu">
                         <li>
-                            <a href="#">
+                            <a href="/cadastro-infracao/cadastrar_infracao.html">
                                 <span class="sidebar-icon"><i class="fa-solid fa-triangle-exclamation"></i></span> Cadastrar Infração
                             </a>
                         </li>
                         <li>
-                            <a href="#">
+                            <a href="/cadastro-infracao/pesquisar_infracao.html">
                                 <span class="sidebar-icon"><i class="fa-solid fa-shield-halved"></i></span> Pesquisar Infrações
                             </a>
                         </li>
                         <li>
-                            <a href="#">
+                            <a href="/cadastro-infracao/editar_excluir_infracao.html">
                                 <span class="sidebar-icon"><i class="fa-regular fa-pen-to-square"></i></span> Editar / Excluir
                             </a>
                         </li>
@@ -124,10 +124,10 @@
                 </div>
                 <div class="header-right">
                     <div class="user-info">
-                        <div class="role">Admin</div>
-                        <div class="name">Administrador</div>
+                        <div class="role">Carregando...</div>
+                        <div class="name">Carregando...</div>
                     </div>
-                    <div class="user-avatar">A</div>
+                    <div class="user-avatar">-</div>
                 </div>
             </header>
 
@@ -210,10 +210,10 @@
         </div>
     </div>
 
-    <!-- SCRIPTS -->
-    <script src="../js/notificacoes.js"></script>
-    <script src="../js/home.js"></script>
-    <script src="../js/logout.js"></script>
+    <!-- SCRIPTS (caminhos absolutos) -->
+    <script src="/js/notificacoes.js"></script>
+    <script src="/js/home.js"></script>
+    <script src="/js/logout.js"></script>
 
     <!-- Script para menu responsivo -->
     <script>

@@ -12,10 +12,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const btnPesquisar = document.querySelector('#btn-pesquisar');
     const btnSalvar = document.querySelector('#btn-salvar');
-    const resultados = document.querySelector('#resultados-editar');
-    const mensagemBusca = document.querySelector('#mensagem-busca-editar');
+    
+    // Inicia máscaras de formatação
+    aplicarMascaras();
+    
+    // Inicia o carregamento das opções dos selects
     opcoesEdicaoPromise = carregarOpcoesEdicao();
-
 
     // Se vier com matrícula da página de pesquisa externa
     const urlParams = new URLSearchParams(window.location.search);
@@ -46,6 +48,35 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 
+// Função para aplicar as máscaras em tempo real
+function aplicarMascaras() {
+    const cpfInput = document.getElementById('cpf');
+    const telInput = document.getElementById('telefone');
+
+    if (cpfInput) {
+        cpfInput.addEventListener('input', function(e) {
+            let valor = e.target.value.replace(/\D/g, ""); // Remove tudo o que não é número
+            valor = valor.substring(0, 11); // Limita a exatamente 11 números antes de formatar
+            
+            valor = valor.replace(/(\d{3})(\d)/, "$1.$2");
+            valor = valor.replace(/(\d{3})(\d)/, "$1.$2");
+            valor = valor.replace(/(\d{3})(\d{1,2})$/, "$1-$2");
+            e.target.value = valor;
+        });
+    }
+
+    if (telInput) {
+        telInput.addEventListener('input', function(e) {
+            let valor = e.target.value.replace(/\D/g, ""); // Remove tudo o que não é número
+            valor = valor.substring(0, 11); // Limita o telefone a 11 números (2 do DDD + 9 dígitos)
+            
+            valor = valor.replace(/^(\d{2})(\d)/g, "($1) $2");
+            valor = valor.replace(/(\d)(\d{4})$/, "$1-$2");
+            e.target.value = valor;
+        });
+    }
+}
+
 async function executarBusca(db) {
     const termo = document.querySelector('#filtro-termo')?.value.trim() || '';
     const tbody = document.querySelector('#tabela-resultados-busca');
@@ -56,9 +87,9 @@ async function executarBusca(db) {
         let query = db.from('fiscal').select('*').order('matricula_fiscal', { ascending: true });
 
         if (termo) {
-            const cpf = termo.replace(/\D/g, '');
+            const cpfNum = termo.replace(/\D/g, '');
             const filtros = [`nome.ilike.%${termo}%`, `matricula_fiscal.ilike.%${termo}%`];
-            if (cpf) filtros.push(`cpf.ilike.%${cpf}%`);
+            if (cpfNum) filtros.push(`cpf.ilike.%${cpfNum}%`);
             query = query.or(filtros.join(','));
         }
 
@@ -158,7 +189,7 @@ async function salvarAlteracoes(db) {
             .from('fiscal')
             .update({
                 nome: nome,
-                cpf: cpf,
+                cpf: cpf, // O banco de dados vai receber a formatação bonitinha!
                 email: email,
                 fk_telefone_fiscal_telefone_fiscal_pk: telefone || null,
                 observacao: observacao,
@@ -170,7 +201,11 @@ async function salvarAlteracoes(db) {
 
         if (error) throw error;
 
-        window.finalizarAcaoFiscal('Fiscal atualizado com sucesso.');
+        if (typeof window.finalizarAcaoFiscal === 'function') {
+            window.finalizarAcaoFiscal('Fiscal atualizado com sucesso.');
+        } else {
+            alert('Fiscal atualizado com sucesso.');
+        }
     } catch (err) {
         console.error('Erro ao atualizar:', err);
         alert('Erro ao atualizar: ' + (err.message || JSON.stringify(err)));
@@ -178,50 +213,43 @@ async function salvarAlteracoes(db) {
 }
 
 async function carregarOpcoesEdicao() {
-    const configuracoes = [
-        {
-            url: '/cargos',
-            seletor: '#cargo_id',
-            ids: ['id', 'id_cargo', 'cargo_id'],
-            nomes: ['nome_cargo', 'cargo', 'nome'],
-            placeholder: 'Selecione o cargo'
-        },
-        {
-            url: '/setores',
-            seletor: '#setor_id',
-            ids: ['id_setor', 'id', 'setor_id'],
-            nomes: ['nome_setor', 'setor', 'nome'],
-            placeholder: 'Selecione o setor'
-        },
-        {
-            url: '/niveis-acesso',
-            seletor: '#nivel_acesso_id',
-            ids: ['id_nivelAcesso', 'id_nivel_acesso', 'id'],
-            nomes: ['descricao', 'descrição', 'descricao_nivel_acesso', 'nome_nivel_acesso'],
-            placeholder: 'Selecione o nível de acesso'
-        }
-    ];
-
-    await Promise.all(configuracoes.map(async configuracao => {
-        const select = document.querySelector(configuracao.seletor);
-        if (!select) return;
-
-        try {
-            const resposta = await fetch(configuracao.url);
-            if (!resposta.ok) throw new Error(`Falha ao carregar ${configuracao.url}`);
-            const registros = await resposta.json();
-            registros.forEach(registro => {
-                const id = configuracao.ids.map(chave => registro[chave]).find(valor => valor !== undefined && valor !== null);
-                const nome = configuracao.nomes.map(chave => registro[chave]).find(valor => valor !== undefined && valor !== null);
-                if (id === undefined || nome === undefined) return;
-
-                const option = document.createElement('option');
-                option.value = id;
-                option.textContent = nome;
-                select.append(option);
+    try {
+        const resCargos = await fetch('/api/cargos');
+        if (resCargos.ok) {
+            const cargos = await resCargos.json();
+            const selectCargo = document.querySelector('#cargo_id');
+            cargos.forEach(c => {
+                const opt = document.createElement('option');
+                opt.value = c.id;
+                opt.textContent = c.nome_cargo;
+                selectCargo.appendChild(opt);
             });
-        } catch (error) {
-            console.error(`Erro ao carregar ${configuracao.placeholder.toLowerCase()}:`, error);
         }
-    }));
+
+        const resSetores = await fetch('/api/setores');
+        if (resSetores.ok) {
+            const setores = await resSetores.json();
+            const selectSetor = document.querySelector('#setor_id');
+            setores.forEach(s => {
+                const opt = document.createElement('option');
+                opt.value = s.id_setor;
+                opt.textContent = s.nome_setor;
+                selectSetor.appendChild(opt);
+            });
+        }
+
+        const resNiveis = await fetch('/api/niveis-acesso');
+        if (resNiveis.ok) {
+            const niveis = await resNiveis.json();
+            const selectNivel = document.querySelector('#nivel_acesso_id');
+            niveis.forEach(n => {
+                const opt = document.createElement('option');
+                opt.value = n.id_nivelAcesso;
+                opt.textContent = n.descrição; 
+                selectNivel.appendChild(opt);
+            });
+        }
+    } catch (error) {
+        console.error("Erro ao carregar opções:", error);
+    }
 }

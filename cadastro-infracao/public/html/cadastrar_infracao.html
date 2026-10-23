@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cadastrar Infração - SIGAI</title>
+    
+    <!-- Carrega o CSS global de Fiscais/Infrações -->
+    <link rel="stylesheet" href="/cadastro-fiscal/css/Cadastro-fiscal.css">
+    <link rel="stylesheet" href="/cadastro-infracao/css/style.css">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body data-fiscal-page="cadastrar-infracao">
+
+    <!-- O script de layout procura esta div para injetar o menu lateral e o topo -->
+    <div class="main-container">
+        <div class="page-content">
+            <div class="fiscal-page-heading">
+                <div class="fiscal-heading-icon">
+                    <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="m10.3 3.9-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.7-3.1l-8-14a2 2 0 0 0-3.4 0Z"/>
+                        <path d="M12 9v4M12 17h.01"/>
+                    </svg>
+                </div>
+                <div>
+                    <h2>Cadastrar Infração</h2>
+                    <p>Registre um novo tipo de infração no sistema</p>
+                </div>
+            </div>
+
+            <form id="form-infracao">
+                <section class="fiscal-card">
+                    <div class="fiscal-card-header">
+                        <h3>Identificação</h3>
+                    </div>
+                    <div class="fiscal-card-body">
+                        <div class="fiscal-form-grid">
+                            <div class="fiscal-field">
+                                <label>Código da Infração <span class="required">*</span></label>
+                                <input type="text" id="id_infracao" placeholder="Ex: INF-001" required>
+                            </div>
+                            <div class="fiscal-field">
+                                <label>Categoria <span class="required">*</span></label>
+                                <input type="text" id="tipo" placeholder="Digite a categoria" required>
+                            </div>
+                        </div>
+                        <div class="fiscal-field is-full" style="margin-top: 13px;">
+                            <label>Descrição da Infração <span class="required">*</span></label>
+                            <input type="text" id="descricao" placeholder="Descrição resumida exibida nos autos de infração" required>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="fiscal-card">
+                    <div class="fiscal-card-header">
+                        <h3>Fundamento Legal</h3>
+                    </div>
+                    <div class="fiscal-card-body">
+                        <div class="fiscal-field is-full" style="margin-bottom: 13px;">
+                            <label>Artigo / Lei de Referência <span class="required">*</span></label>
+                            <input type="text" id="artigo" placeholder="Ex: Art. 45, §2º da Lei Municipal nº 1.234/2010" required>
+                        </div>
+                        <div class="fiscal-form-grid">
+                            <div class="fiscal-field">
+                                <label>Valor Base (R$) <span class="required">*</span></label>
+                                <input type="number" id="valor_base" placeholder="0,00" step="0.01" required>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <div class="fiscal-form-actions">
+                    <button type="submit" class="fiscal-button is-primary">💾 Cadastrar Infração</button>
+                    <button type="button" class="fiscal-button" onclick="document.getElementById('form-infracao').reset()">✖ Limpar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Script de layout unificado (reutiliza o mesmo motor dos fiscais) -->
+    <script src="/cadastro-fiscal/js/fiscal-layout.js"></script>
+    <!-- Script de lógica e CRUD da infração -->
+    <script src="/cadastro-infracao/js/script.js"></script>
+</body>
+</html>

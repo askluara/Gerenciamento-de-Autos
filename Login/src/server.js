@@ -1,36 +1,44 @@
-// Imports necessários
+// ==========================================
+// IMPORTS E CONFIGURAÇÕES INICIAIS
+// ==========================================
 const express = require('express');
 const path = require('path');
 const dotenv = require('dotenv');
 dotenv.config();
-dotenv.config({ path: path.join(__dirname, '../../cadastro-fiscal/.env'), override: false });
-// Substituição para o arquivo supabase para importação de dados
-const supabase = require('./supabase'); // Importa a conexão criada
+
+const supabase = require('./supabase');
 const session = require('express-session');
-const fiscaisRouter = require('../../cadastro-fiscal/Index');
 
 const app = express();
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// Cria sessão do utilizador (segurança)
+// Configurações Legadas do Supabase para o CRUD de Infrações (via fetch)
+const SUPABASE_URL_INFRACOES = `${process.env.SUPABASE_URL}/rest/v1/infracao`;
+const SUPABASE_KEY = process.env.SUPABASE_KEY;
+const headersFetch = {
+    'apikey': SUPABASE_KEY,
+    'Authorization': `Bearer ${SUPABASE_KEY}`,
+    'Content-Type': 'application/json',
+    'Prefer': 'return=representation'
+};
+
+// ==========================================
+// SESSÃO E SEGURANÇA
+// ==========================================
 app.use(session({
-    secret: 'abracadabra', // provisório
+    secret: 'abracadabra',
     resave: false,
     saveUninitialized: false,
     cookie: {
-        secure: false, // true em produção com HTTPS
-        maxAge: 1000 * 60 * 60 * 24, // 24 horas
+        secure: false,
+        maxAge: 1000 * 60 * 60 * 24,
         httpOnly: true
     }
 }));
 
-// Serve os ficheiros do front (HTML, JS, CSS) a partir da raiz
-app.use(express.static(path.join(__dirname, '../public')));
-
-// Função que impede o acesso à tela home sem login
 function protegerRota(req, res, next) {
     if (req.session.usuarioLogado) {
         next();
@@ -39,148 +47,97 @@ function protegerRota(req, res, next) {
     }
 }
 
-// Mantém as rotas e páginas de fiscais no mesmo servidor e exige sessão válida.
-const rotasFiscais = new Set(['/fiscais', '/cargos', '/setores', '/niveis-acesso']);
-app.use((req, res, next) => {
-    return rotasFiscais.has(req.path) ? protegerRota(req, res, next) : next();
-}, fiscaisRouter);
-const publicFiscais = path.join(__dirname, '../../cadastro-fiscal/public');
-// Mantém os endereços atuais das páginas, embora os HTMLs fiquem em public/html.
-app.use('/cadastro-fiscal', protegerRota, express.static(path.join(publicFiscais, 'html')));
-app.use('/cadastro-fiscal', protegerRota, express.static(publicFiscais));
+// ==========================================
+// CONFIGURAÇÃO DAS PASTAS ESTÁTICAS
+// ==========================================
+// 1. Arquivos globais e Login (public na raiz do Login)
+app.use(express.static(path.join(__dirname, '../public')));
 
-// Rota para a tela de login
+// 2. Módulo de Fiscais (Luara)
+const publicFiscais = path.join(__dirname, '../../cadastro-fiscal/public');
+app.use('/cadastro-fiscal', protegerRota, express.static(path.join(publicFiscais, 'html')));
+app.use('/cadastro-fiscal', express.static(publicFiscais));
+
+// 3. Módulo de Infrações (Luis Gabriel)
+const publicInfracoes = path.join(__dirname, '../../cadastro-infracao/public');
+app.use('/cadastro-infracao', protegerRota, express.static(path.join(publicInfracoes, 'html')));
+app.use('/cadastro-infracao', express.static(publicInfracoes));
+
+
+// ==========================================
+// ROTAS DE PÁGINAS GERAIS
+// ==========================================
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, '../public', 'html', 'index.html'));
 });
 
-// Rota da Tela Inicial (onde o utilizador vai após logar)
 app.get('/home', protegerRota, (req, res) => {
     res.sendFile(path.join(__dirname, '../public', 'html', 'home.html'));
 });
 
-// Rota onde o login.js envia os dados
-// Susbtituição dos metodos que dependiam do usuarios.json para o supabase
+
+// ==========================================
+// ROTAS DE AUTENTICAÇÃO
+// ==========================================
 app.post('/api/login', async(req, res) => {
     const { matricula, senha } = req.body;
-
     const mat = (matricula !== null && matricula !== undefined) ? matricula.trim() : undefined;
     const senhaInformada = (senha !== null && senha !== undefined) ? senha.trim() : undefined;
 
-    // Proteção contra campos vazios
-    if (!mat || !senhaInformada) {
-        return res.status(400).json({
-            sucesso: false,
-            mensagem: 'Preencha a matrícula e a senha.'
-        });
-    }
-
-    // VALIDAÇÃO: Se o banco espera um Inteiro, verifica se a matrícula contém apenas números
-    if (isNaN(mat) || isNaN(Number(mat))) {
-        return res.status(401).json({
-            sucesso: false,
-            mensagem: 'Matrícula ou senha inválidas.'
-        });
-    }
-
-    const matNumero = parseInt(mat, 10);
+    if (!mat || !senhaInformada) return res.status(400).json({ sucesso: false, mensagem: 'Preencha a matrícula e a senha.' });
 
     try {
-        // Consulta no Supabase usando o número convertido
         const { data: credenciais, error } = await supabase
             .from('credencial')
             .select('*')
-            .or(`matricula_coordenador.eq.${matNumero},matricula_fiscal.eq.${matNumero}`)
+            .eq('login', mat)
             .eq('senha_hash', senhaInformada)
             .eq('ativo', true);
 
-        if (error) {
-            console.error('Erro no Supabase:', error);
-            return res.status(500).json({
-                sucesso: false,
-                mensagem: 'Não foi possível conectar ao banco de dados.'
-            });
-        }
+        if (error) return res.status(500).json({ sucesso: false, mensagem: 'Não foi possível conectar ao banco de dados.' });
 
-        // Se encontrou registo correspondente
         if (credenciais && credenciais.length > 0) {
             const usuario = credenciais[0];
-
             req.session.usuarioLogado = true;
             req.session.usuario = usuario;
 
             return req.session.save((err) => {
-                if (err) {
-                    console.error("Erro ao salvar sessão:", err);
-                    return res.status(500).json({ sucesso: false, mensagem: "Erro ao criar sessão." });
-                }
-
-                return res.json({
-                    sucesso: true,
-                    usuario: usuario
-                });
+                if (err) return res.status(500).json({ sucesso: false, mensagem: "Erro ao criar sessão." });
+                return res.json({ sucesso: true, usuario: usuario });
             });
         } else {
-            return res.status(401).json({
-                sucesso: false,
-                mensagem: 'Matrícula ou senha inválidas.'
-            });
+            return res.status(401).json({ sucesso: false, mensagem: 'Matrícula ou senha inválidas.' });
         }
-
     } catch (err) {
-        console.error('Erro interno:', err);
-        return res.status(500).json({
-            sucesso: false,
-            mensagem: 'Erro de processamento interno no servidor.'
-        });
+        return res.status(500).json({ sucesso: false, mensagem: 'Erro interno no servidor.' });
     }
 });
 
-// Verifica se há sessão válida
 app.get('/api/verificar-sessao', (req, res) => {
     if (req.session.usuarioLogado) {
-        return res.json({ logado: true, email: req.session.email });
+        return res.json({ logado: true, usuario: req.session.usuario });
     } else {
         return res.json({ logado: false });
     }
 });
 
-// Sessão de logout
 app.get('/api/logout', (req, res) => {
     req.session.destroy((err) => {
-        if (err) {
-            return res.status(500).json({ sucesso: false });
-        }
+        if (err) return res.status(500).json({ sucesso: false });
         res.json({ sucesso: true });
     });
 });
 
-// 1. Contadores do Dashboard (usando status_processo e relacionamentos)
+
+// ==========================================
+// ROTAS DO DASHBOARD
+// ==========================================
 app.get('/api/dashboard/estatisticas', protegerRota, async(req, res) => {
     try {
-        // Total de Autos
-        const { count: totalAutos, error: errTotal } = await supabase
-            .from('auto_infracao')
-            .select('*', { count: 'exact', head: true });
-
-        // Defesas Pendentes (contagem de registos na tabela defesa)
-        const { count: defesasPendentes, error: errDefesa } = await supabase
-            .from('defesa')
-            .select('*', { count: 'exact', head: true });
-
-        // Pareceres em Análise
-        const { count: pareceresAnalise, error: errParecer } = await supabase
-            .from('parecer')
-            .select('*', { count: 'exact', head: true });
-
-        // Multas Emitidas
-        const { count: multasEmitidas, error: errMulta } = await supabase
-            .from('multa')
-            .select('*', { count: 'exact', head: true });
-
-        if (errTotal || errDefesa || errParecer || errMulta) {
-            throw new Error("Erro ao consultar tabelas do dashboard");
-        }
+        const { count: totalAutos } = await supabase.from('auto_infracao').select('*', { count: 'exact', head: true });
+        const { count: defesasPendentes } = await supabase.from('defesa').select('*', { count: 'exact', head: true });
+        const { count: pareceresAnalise } = await supabase.from('parecer').select('*', { count: 'exact', head: true });
+        const { count: multasEmitidas } = await supabase.from('multa').select('*', { count: 'exact', head: true });
 
         return res.json({
             totalAutos: totalAutos || 0,
@@ -188,43 +145,23 @@ app.get('/api/dashboard/estatisticas', protegerRota, async(req, res) => {
             pareceresAnalise: pareceresAnalise || 0,
             multasEmitidas: multasEmitidas || 0
         });
-
     } catch (err) {
-        console.error('Erro nas estatísticas:', err);
         return res.status(500).json({ mensagem: 'Erro ao carregar estatísticas.' });
     }
 });
 
-// 2. Tabela de Autos Recentes (fazendo JOIN com 'contribuinte' e 'infracao')
 app.get('/api/dashboard/recentes', protegerRota, async(req, res) => {
     try {
         const { data: autos, error } = await supabase
             .from('auto_infracao')
-            .select(`
-        id_auto,
-        numero_auto,
-        data_auto,
-        status_processo,
-        contribuinte:fk_contribuinte_id_contribuinte (
-          nome,
-          cpf,
-          cnpj
-        ),
-        infracao (
-          tipo,
-          descricao
-        )
-      `)
-            .order('data_auto', { ascending: false })
-            .limit(5);
+            .select(`id_auto, numero_auto, data_auto, status_processo, contribuinte:fk_contribuinte_id_contribuinte (nome, cpf, cnpj), infracao (tipo, descricao)`)
+            .order('data_auto', { ascending: false }).limit(5);
 
         if (error) throw error;
 
-        // Formata o resultado para coincidir com a estrutura da tabela HTML
         const autosFormatados = autos.map(item => {
             const contrib = Array.isArray(item.contribuinte) ? item.contribuinte[0] : item.contribuinte;
             const inf = Array.isArray(item.infracao) ? item.infracao[0] : item.infracao;
-
             return {
                 protocolo: item.numero_auto || item.id_auto,
                 contribuinte: (contrib && contrib.nome) || 'Não informado',
@@ -235,14 +172,163 @@ app.get('/api/dashboard/recentes', protegerRota, async(req, res) => {
             };
         });
         return res.json(autosFormatados);
-
     } catch (err) {
-        console.error('Erro ao buscar autos recentes:', err);
         return res.status(500).json({ mensagem: 'Erro ao carregar autos recentes.' });
     }
 });
 
-// Inicia o servidor
+
+// ==========================================
+// ROTAS DE FISCAIS (LUARA) E DADOS DE APOIO
+// ==========================================
+
+// Rota para buscar Cargos
+app.get('/api/cargos', protegerRota, async (req, res) => {
+    try {
+        const { data, error } = await supabase
+            .from('cargo')
+            .select('id, nome_cargo') // CORRIGIDO PARA 'id'
+            .order('nome_cargo', { ascending: true });
+            
+        if (error) throw error;
+        return res.json(data);
+    } catch (err) {
+        return res.status(500).json({ erro: 'Erro ao buscar cargos' });
+    }
+});
+
+// Rota para buscar Setores
+app.get('/api/setores', protegerRota, async (req, res) => {
+    try {
+        const { data, error } = await supabase
+            .from('setor')
+            .select('id_setor, nome_setor')
+            .order('nome_setor', { ascending: true });
+            
+        if (error) throw error;
+        return res.json(data);
+    } catch (err) {
+        return res.status(500).json({ erro: 'Erro ao buscar setores' });
+    }
+});
+
+// Rota para buscar Níveis de Acesso
+app.get('/api/niveis-acesso', protegerRota, async (req, res) => {
+    try {
+        const { data, error } = await supabase
+            .from('nivel_acesso')
+            .select('id_nivelAcesso, descrição') // CORRIGIDO PARA 'descrição'
+            .order('id_nivelAcesso', { ascending: true });
+            
+        if (error) throw error;
+        return res.json(data);
+    } catch (err) {
+        return res.status(500).json({ erro: 'Erro ao buscar níveis de acesso' });
+    }
+});
+
+// Rota para Cadastrar o Fiscal no Banco de Dados
+app.post('/api/fiscais/cadastrar', protegerRota, async (req, res) => {
+    try {
+        const novoFiscal = req.body;
+        
+        // Insere o fiscal na tabela 'fiscal' do Supabase
+        const { data, error } = await supabase
+            .from('fiscal')
+            .insert([novoFiscal])
+            .select();
+
+        if (error) throw error;
+        return res.status(201).json({ sucesso: true, fiscal: data[0] });
+    } catch (err) {
+        console.error("Erro no cadastro de fiscal:", err);
+        return res.status(500).json({ sucesso: false, mensagem: 'Erro ao gravar fiscal no banco de dados.' });
+    }
+});
+
+
+// ==========================================
+// ROTAS DE INFRAÇÕES (LUIS)
+// ==========================================
+app.post('/infracoes', async (req, res) => {
+    const { descricao, tipo, artigo, valor_base } = req.body;
+    if (!descricao || !tipo || !artigo || !valor_base) {
+        return res.status(400).json({ erro: "Erro: Preencha todos os campos obrigatórios para continuar." });
+    }
+    try {
+        const getResp = await fetch(SUPABASE_URL_INFRACOES, { headers: headersFetch });
+        const infracoesExistentes = await getResp.json();
+        
+        const proximoNumero = infracoesExistentes.length + 1;
+        const novoId = `INF-${String(proximoNumero).padStart(3, '0')}`;
+
+        const novaInfracao = { id_infracao: novoId, descricao, tipo, artigo, valor_base };
+
+        const postResp = await fetch(SUPABASE_URL_INFRACOES, {
+            method: 'POST',
+            headers: headersFetch,
+            body: JSON.stringify(novaInfracao)
+        });
+
+        if (postResp.ok) {
+            return res.status(201).json({ mensagem: "Infração cadastrada com sucesso na Base de Dados!", infracao: novaInfracao });
+        } else {
+            return res.status(500).json({ erro: "Erro ao gravar no Supabase." });
+        }
+    } catch (error) {
+        return res.status(500).json({ erro: "Erro interno no servidor." });
+    }
+});
+
+app.get('/infracoes', async (req, res) => {
+    try {
+        const urlOrdenada = `${SUPABASE_URL_INFRACOES}?order=id_infracao.asc`;
+        const resposta = await fetch(urlOrdenada, { headers: headersFetch });
+        const dados = await resposta.json();
+        return res.status(200).json(dados);
+    } catch (error) {
+        return res.status(500).json({ erro: "Erro ao pesquisar infrações." });
+    }
+});
+
+app.patch('/infracoes/:id', async (req, res) => {
+    const idParam = req.params.id;
+    try {
+        const urlEdicao = `${SUPABASE_URL_INFRACOES}?id_infracao=eq.${idParam}`;
+        const patchResp = await fetch(urlEdicao, {
+            method: 'PATCH',
+            headers: headersFetch,
+            body: JSON.stringify(req.body)
+        });
+        if (patchResp.ok) {
+            return res.status(200).json({ mensagem: "Infração atualizada com sucesso na Base de Dados!" });
+        } else {
+            return res.status(404).json({ erro: "Erro ao atualizar ou infração não encontrada." });
+        }
+    } catch (error) {
+        return res.status(500).json({ erro: "Erro interno no servidor." });
+    }
+});
+
+app.delete('/infracoes/:id', async (req, res) => {
+    const idParam = req.params.id;
+    try {
+        const urlExclusao = `${SUPABASE_URL_INFRACOES}?id_infracao=eq.${idParam}`;
+        const deleteResp = await fetch(urlExclusao, { method: 'DELETE', headers: headersFetch });
+        if (deleteResp.ok) {
+            return res.status(200).json({ mensagem: "Auto de Infração excluído com sucesso da Base de Dados!" });
+        } else {
+            return res.status(404).json({ erro: "Erro ao excluir ou infração não encontrada." });
+        }
+    } catch (error) {
+        return res.status(500).json({ erro: "Erro interno no servidor." });
+    }
+});
+
+
+// ==========================================
+// INICIAR SERVIDOR
+// ==========================================
 app.listen(PORT, () => {
-    console.log(`Servidor rodando em: http://localhost:${PORT}`);
+    console.log(`Servidor unificado rodando em: http://localhost:${PORT}`);
 });

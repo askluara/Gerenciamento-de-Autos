@@ -1,131 +1,126 @@
 document.addEventListener('DOMContentLoaded', async () => {
-    const selectCargo = document.getElementById('cargo_id');
-    const selectSetor = document.getElementById('setor_id');
-    const selectNivel = document.getElementById('nivel_acesso_id');
-    const formFiscal = document.getElementById('formCadastroFiscal');
+    // 1. Carregar as opções do banco de dados
+    await carregarOpcoesSelects();
+    
+    // 2. Aplicar máscaras de formatação (CPF e Telefone)
+    aplicarMascaras();
 
-
-    // Máscara e validação de limite para o CPF
-    const inputCpf = document.getElementById('cpf');
-    if (inputCpf) {
-        inputCpf.addEventListener('input', (e) => {
-            let valor = e.target.value.replace(/\D/g, ''); // Remove tudo o que não for número
-            
-            if (valor.length > 11) {
-                valor = valor.slice(0, 11); // Limita a 11 dígitos
-            }
-
-            // Aplica a formatação 000.000.000-00
-            if (valor.length > 9) {
-                valor = valor.replace(/^(\d{3})(\d{3})(\d{3})(\d{2}).*/, '$1.$2.$3-$4');
-            } else if (valor.length > 6) {
-                valor = valor.replace(/^(\d{3})(\d{3})(\d{1,3}).*/, '$1.$2.$3');
-            } else if (valor.length > 3) {
-                valor = valor.replace(/^(\d{3})(\d{1,3}).*/, '$1.$2');
-            }
-
-            e.target.value = valor;
-        });
-    }
-
-    // Máscara e validação de limite para o Telefone
-    const inputTelefone = document.getElementById('telefone');
-    if (inputTelefone) {
-        inputTelefone.addEventListener('input', (e) => {
-            let valor = e.target.value.replace(/\D/g, ''); // Remove tudo o que não for número
-            
-            if (valor.length > 11) {
-                valor = valor.slice(0, 11); // Limita a 11 dígitos (DDD + 9 dígitos)
-            }
-
-            // Aplica a formatação (00) 00000-0000 ou (00) 0000-0000
-            if (valor.length > 10) {
-                valor = valor.replace(/^(\d{2})(\d{5})(\d{4}).*/, '($1) $2-$3');
-            } else if (valor.length > 6) {
-                valor = valor.replace(/^(\d{2})(\d{4})(\d{0,4}).*/, '($1) $2-$3');
-            } else if (valor.length > 2) {
-                valor = valor.replace(/^(\d{2})(\d{0,5}).*/, '($1) $2');
-            } else if (valor.length > 0) {
-                valor = valor.replace(/^(\d*)/, '($1');
-            }
-
-            e.target.value = valor;
-        });
-    }
-
-    async function carregarSelects() {
-        try {
-            // Carregar Cargos
-            const respCargos = await fetch('/cargos');
-            const cargos = await respCargos.json();
-            selectCargo.innerHTML = '<option value="">Selecione o cargo</option>';
-            cargos.forEach(c => {
-                const nomeCargo = c.nome_cargo || c.cargo || c.nome;
-                selectCargo.innerHTML += `<option value="${c.id || c.cargo_id}">${nomeCargo}</option>`;
-            });
-
-            // Carregar Setores
-            const respSetores = await fetch('/setores');
-            const setores = await respSetores.json();
-            selectSetor.innerHTML = '<option value="">Selecione o setor</option>';
-            setores.forEach(s => {
-                const nomeSetor = s.nome_setor || s.setor || s.nome;
-                selectSetor.innerHTML += `<option value="${s.id_setor || s.id}">${nomeSetor}</option>`;
-            });
-
-           // Carregar Níveis de Acesso
-            const respNivel = await fetch('/niveis-acesso');
-            const niveis = await respNivel.json();
-            selectNivel.innerHTML = '<option value="">Selecione o nível de acesso</option>';
-            niveis.forEach(n => {
-                selectNivel.innerHTML += `<option value="${n.id_nivelAcesso}">${n.descrição}</option>`;
-            });
-        } catch (err) {
-            console.error("Erro ao carregar as opções dos selects:", err);
-        }
-    }
-
-    carregarSelects();
-
-    // Manipular o envio do formulário de cadastro
-    if (formFiscal) {
-        formFiscal.addEventListener('submit', async (e) => {
+    // 3. Configurar o envio do formulário
+    const formCadastro = document.getElementById('formCadastroFiscal');
+    if (formCadastro) {
+        formCadastro.addEventListener('submit', async (e) => {
             e.preventDefault();
-
-            // Pega o valor do telefone formatado e remove tudo o que não for número para enviar ao banco
-            const telefoneInput = document.getElementById('telefone')?.value || '';
-            const telefoneLimpo = telefoneInput.replace(/\D/g, '');
-
-            const dadosForm = {
-                nome: document.getElementById('nome').value,
-                email: document.getElementById('email').value,
-                cpf: document.getElementById('cpf').value,
-                fk_telefone_fiscal_telefone_fiscal_pk: telefoneLimpo,
-                data_admissao: document.getElementById('data_admissao').value,
-                fk_cargo_id: selectCargo.value,
-                fk_idsetor: selectSetor.value,
-                fk_idnivelacesso: selectNivel.value,
-                observacao: document.getElementById('observacoes')?.value || ''
-            };
-
-            try {
-                const resposta = await fetch('/fiscais', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(dadosForm)
-                });
-
-                const resultado = await resposta.json();
-
-                if (resposta.ok) {
-                    window.finalizarAcaoFiscal(resultado.mensagem || 'Fiscal cadastrado com sucesso.');
-                } else {
-                    alert('Erro ao cadastrar: ' + (resultado.erro || resultado.detalhe));
-                }
-            } catch (err) {
-                console.error('Erro na requisição:', err);
-                alert('Erro de conexão com o servidor.');
-            }
+            await salvarFiscal();
         });
     }
 });
+
+// Função para aplicar as máscaras em tempo real
+function aplicarMascaras() {
+    const cpfInput = document.getElementById('cpf');
+    const telInput = document.getElementById('telefone');
+
+    if (cpfInput) {
+        cpfInput.addEventListener('input', function(e) {
+            let valor = e.target.value.replace(/\D/g, ""); // Remove tudo o que não é número
+            valor = valor.substring(0, 11); // Limita a exatamente 11 números antes de formatar
+            
+            valor = valor.replace(/(\d{3})(\d)/, "$1.$2");
+            valor = valor.replace(/(\d{3})(\d)/, "$1.$2");
+            valor = valor.replace(/(\d{3})(\d{1,2})$/, "$1-$2");
+            e.target.value = valor;
+        });
+    }
+
+    if (telInput) {
+        telInput.addEventListener('input', function(e) {
+            let valor = e.target.value.replace(/\D/g, ""); // Remove tudo o que não é número
+            valor = valor.substring(0, 11); // Limita o telefone a 11 números (2 do DDD + 9 dígitos)
+            
+            valor = valor.replace(/^(\d{2})(\d)/g, "($1) $2");
+            valor = valor.replace(/(\d)(\d{4})$/, "$1-$2");
+            e.target.value = valor;
+        });
+    }
+}
+
+// Busca os dados na API e preenche os campos <select>
+async function carregarOpcoesSelects() {
+    try {
+        const resCargos = await fetch('/api/cargos');
+        if (resCargos.ok) {
+            const cargos = await resCargos.json();
+            const selectCargo = document.getElementById('cargo_id');
+            cargos.forEach(c => {
+                const opt = document.createElement('option');
+                opt.value = c.id; 
+                opt.textContent = c.nome_cargo;
+                selectCargo.appendChild(opt);
+            });
+        }
+
+        const resSetores = await fetch('/api/setores');
+        if (resSetores.ok) {
+            const setores = await resSetores.json();
+            const selectSetor = document.getElementById('setor_id');
+            setores.forEach(s => {
+                const opt = document.createElement('option');
+                opt.value = s.id_setor;
+                opt.textContent = s.nome_setor;
+                selectSetor.appendChild(opt);
+            });
+        }
+
+        const resNiveis = await fetch('/api/niveis-acesso');
+        if (resNiveis.ok) {
+            const niveis = await resNiveis.json();
+            const selectNivel = document.getElementById('nivel_acesso_id');
+            niveis.forEach(n => {
+                const opt = document.createElement('option');
+                opt.value = n.id_nivelAcesso;
+                opt.textContent = n.descrição; 
+                selectNivel.appendChild(opt);
+            });
+        }
+    } catch (erro) {
+        console.error("Erro ao carregar opções dos formulários:", erro);
+    }
+}
+
+// Envia os dados do formulário para o back-end
+async function salvarFiscal() {
+    const matriculaGerada = 'FS' + Math.floor(Math.random() * 100000).toString().padStart(5, '0');
+
+    const novoFiscal = {
+        matricula_fiscal: matriculaGerada,
+        nome: document.getElementById('nome').value,
+        cpf: document.getElementById('cpf').value,
+        email: document.getElementById('email').value,
+        fk_telefone_fiscal_telefone_fiscal_pk: document.getElementById('telefone').value,
+        data_admissao: document.getElementById('data_admissao').value,
+        fk_cargo_id: document.getElementById('cargo_id').value,
+        fk_idsetor: document.getElementById('setor_id').value,
+        fk_idnivelacesso: document.getElementById('nivel_acesso_id').value,
+        observacao: document.getElementById('observacoes').value,
+        ativo: true
+    };
+
+    try {
+        const res = await fetch('/api/fiscais/cadastrar', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(novoFiscal)
+        });
+
+        if (res.ok) {
+            alert(`Fiscal cadastrado com sucesso! Matrícula: ${matriculaGerada}`);
+            document.getElementById('formCadastroFiscal').reset();
+        } else {
+            const erro = await res.json();
+            alert('Erro ao cadastrar: ' + (erro.mensagem || 'Verifique os dados informados.'));
+        }
+    } catch (erro) {
+        console.error('Erro na requisição:', erro);
+        alert('Erro de conexão com o servidor.');
+    }
+}

@@ -1,0 +1,349 @@
+/* Importação das fontes padronizadas */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
+
+/* Reset básico */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+
+body {
+    display: flex;
+    height: 100vh;
+    background-color: #f7f9fc;
+    color: #172033;
+    overflow-x: hidden;
+}
+
+/* ==================== MENU LATERAL ==================== */
+.sidebar {
+    width: 260px;
+    background-color: #1b3899;
+    color: #ffffff;
+    display: flex;
+    flex-direction: column;
+    flex-shrink: 0;
+    transition: all 0.3s ease;
+    overflow-y: auto;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+
+.sidebar::-webkit-scrollbar {
+    display: none;
+}
+
+.sidebar-header {
+    height: 70px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 20px;
+    font-size: 18px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    font-family: 'Plus Jakarta Sans', 'Inter', sans-serif;
+}
+
+.sidebar-toggle {
+    background: transparent;
+    border: none;
+    color: #ffffff;
+    font-size: 20px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.sidebar-nav {
+    flex: 1;
+    padding: 10px 15px;
+    overflow-y: auto;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+}
+
+.sidebar-nav::-webkit-scrollbar {
+    display: none;
+}
+
+.sidebar-section {
+    margin-bottom: 20px;
+}
+
+.sidebar-section-title {
+    color: #7995f1;
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    padding: 10px 12px 5px 12px;
+}
+
+.sidebar-menu {
+    list-style: none;
+}
+
+.sidebar-menu li {
+    margin-bottom: 4px;
+}
+
+.sidebar-menu a {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 9px 14px;
+    color: #c2d1ff;
+    text-decoration: none;
+    font-size: 14px;
+    font-weight: 500;
+    border-radius: 8px;
+    transition: background 0.2s, color 0.2s;
+}
+
+.sidebar-menu a:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: #ffffff;
+}
+
+.sidebar-menu a.active {
+    background-color: #2563eb;
+    color: #ffffff;
+    font-weight: 600;
+}
+
+.sidebar-icon {
+    font-size: 16px;
+    display: inline-block;
+    width: 20px; 
+    text-align: center;
+}
+
+/* ==================== ÁREA PRINCIPAL E CABEÇALHO IDÊNTICO AO FISCAL ==================== */
+.main-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+    background-color: #f7f9fc;
+}
+
+.top-header {
+    min-height: 70px;
+    background-color: #ffffff;
+    padding: 12px 28px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #e4e8f0;
+}
+
+.top-header h1 { 
+    font-size: 18px; 
+    font-weight: 700; 
+    color: #1a2437; 
+    font-family: 'Plus Jakarta Sans', 'Inter', sans-serif; 
+    line-height: 1.3;
+}
+
+.top-header p { 
+    font-size: 12px; 
+    color: #68758b; 
+    margin-top: 2px; 
+}
+
+/* Organização perfeita do perfil do usuário para ficar idêntico ao fiscal */
+.user-profile { 
+    display: flex; 
+    align-items: center; 
+    gap: 12px; 
+}
+
+.user-info { 
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    text-align: right;
+}
+
+.user-info strong { 
+    color: #172033;
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.user-info span { 
+    color: #68758b;
+    font-size: 11px;
+    text-transform: uppercase;
+}
+
+.avatar {
+    width: 36px; 
+    height: 36px;
+    background-color: #155eef; 
+    color: #ffffff;
+    border-radius: 50%;
+    display: flex; 
+    justify-content: center; 
+    align-items: center;
+    font-weight: 700;
+    font-size: 14px;
+}
+
+/* ==================== CONTEÚDO DA PÁGINA E CARTÕES ==================== */
+.page-content { padding: 24px 28px 40px; max-width: 1200px; }
+
+.page-title { margin-bottom: 25px; }
+.page-title h2 { color: #0f172a; font-size: 21px; font-weight: 700; display: flex; align-items: center; gap: 8px; font-family: 'Plus Jakarta Sans', 'Inter', sans-serif;}
+.page-title p { color: #64748b; font-size: 12px; margin-top: 3px; }
+
+.card {
+    background-color: white;
+    border-radius: 9px;
+    padding: 20px;
+    margin-bottom: 15px;
+    box-shadow: 0 1px 2px rgba(18, 32, 61, .025);
+    border: 1px solid #e5e9f0;
+}
+
+.card h3 {
+    font-size: 13px;
+    font-weight: 650;
+    color: #26334a;
+    margin-bottom: 15px;
+    border-bottom: 1px solid #e5e9f0;
+    padding-bottom: 10px;
+    font-family: 'Plus Jakarta Sans', 'Inter', sans-serif;
+}
+
+/* ==================== FORMULÁRIOS ==================== */
+.grid-2-col { display: grid; grid-template-columns: 1fr 1fr; gap: 13px 16px; margin-bottom: 15px; }
+.grid-3-col { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 13px 16px; margin-bottom: 15px; }
+.full-width { margin-bottom: 15px; }
+
+.input-group label {
+    display: block;
+    font-size: 11px;
+    color: #37445a;
+    margin-bottom: 5px;
+    font-weight: 600;
+}
+
+.input-group input {
+    display: block;
+    width: 100%;
+    min-height: 36px;
+    padding: 8px 10px;
+    border: 1px solid #ccd4e2;
+    border-radius: 6px;
+    outline: none;
+    font-size: 12px;
+    color: #27344a;
+    background: #fff;
+}
+
+.input-group input:focus {
+    border-color: #6a96f7;
+    box-shadow: 0 0 0 3px rgba(21,94,239,.11);
+}
+
+/* ==================== BOTÕES ==================== */
+.form-actions { display: flex; gap: 8px; margin-top: 14px; }
+
+.btn-primary {
+    background-color: #155eef;
+    color: white;
+    padding: 8px 12px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 11px;
+    transition: background 0.15s;
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+}
+.btn-primary:hover { background-color: #124cca; }
+
+.btn-secondary {
+    background-color: white;
+    color: #33415a;
+    padding: 8px 12px;
+    border: 1px solid #cfd7e4;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 11px;
+    transition: all 0.15s;
+}
+.btn-secondary:hover { background-color: #f5f7fb; border-color: #b8c4d5; }
+
+/* ==================== TABELAS ==================== */
+.data-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+}
+
+.data-table th, .data-table td {
+    padding: 10px 12px;
+    text-align: left;
+    border-top: 1px solid #edf0f5;
+}
+
+.data-table th {
+    background-color: #f6f8fb;
+    color: #647188;
+    font-weight: 700;
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: .04em;
+}
+
+.data-table td {
+    color: #46536a;
+    font-size: 11px;
+}
+
+.data-table tbody tr:hover {
+    background-color: #f9fbff;
+}
+
+.data-table td input {
+    width: 100%;
+    min-width: 80px;
+    padding: 6px 8px;
+    border: 1px solid #ccd4e2;
+    border-radius: 6px;
+    font-size: 12px;
+    color: #27344a;
+    background-color: #ffffff;
+}
+
+.data-table td input:focus {
+    border-color: #6a96f7;
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(21,94,239,.11);
+}
+
+/* Correção definitiva para o título da página de Infrações ficar idêntico ao de Fiscais */
+.page-title h2 {
+    font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+    font-size: 21px !important;
+    font-weight: 700 !important;
+    color: #172033 !important;
+    letter-spacing: normal !important;
+}
+
+.page-title p {
+    font-family: 'Inter', sans-serif !important;
+    font-size: 12px !important;
+    color: #68758b !important;
+    font-weight: 400 !important;
+    margin-top: 3px !important;
+}
