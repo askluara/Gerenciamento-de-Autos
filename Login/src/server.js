@@ -47,6 +47,46 @@ function protegerRota(req, res, next) {
     }
 }
 
+function normalizarPerfil(usuario) {
+    const adminAtivo = usuario?.is_admin === true
+        || usuario?.is_admin === 1
+        || ['true', '1'].includes(String(usuario?.is_admin).toLowerCase());
+    if (adminAtivo) return 'ADMINISTRADOR';
+
+    const perfil = String(usuario?.perfil || '')
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .trim()
+        .toUpperCase();
+    if (perfil.includes('ADMIN')) return 'ADMINISTRADOR';
+    if (perfil.includes('COORDENADOR')) return 'COORDENADOR';
+    if (perfil.includes('FISCAL')) return 'FISCAL';
+    if (usuario?.matricula_admin) return 'ADMINISTRADOR';
+    if (usuario?.matricula_coordenador) return 'COORDENADOR';
+    if (usuario?.matricula_fiscal) return 'FISCAL';
+    return 'SEM_PERFIL';
+}
+
+function protegerPerfil(...perfisPermitidos) {
+    return (req, res, next) => {
+        if (perfisPermitidos.includes(req.session.usuario?.perfil)) {
+            return next();
+        }
+        if (req.originalUrl.split('?')[0].startsWith('/api/')) {
+            return res.status(403).json({ sucesso: false, mensagem: 'Você não tem permissão para acessar este recurso.' });
+        }
+        return res.status(403).send('Você não tem permissão para acessar este recurso.');
+    };
+}
+
+function obterPermissoes(usuario) {
+    const perfil = usuario?.perfil;
+    return {
+        fiscais: ['COORDENADOR', 'ADMINISTRADOR'].includes(perfil),
+        infracoes: ['FISCAL', 'ADMINISTRADOR'].includes(perfil)
+    };
+}
+
 // ==========================================
 // CONFIGURAÇÃO DAS PASTAS ESTÁTICAS
 // ==========================================
@@ -55,13 +95,19 @@ app.use(express.static(path.join(__dirname, '../public')));
 
 // 2. Módulo de Fiscais (Luara)
 const publicFiscais = path.join(__dirname, '../../cadastro-fiscal/public');
-app.use('/cadastro-fiscal', protegerRota, express.static(path.join(publicFiscais, 'html')));
-app.use('/cadastro-fiscal', express.static(publicFiscais));
+app.use('/cadastro-fiscal', protegerRota, protegerPerfil('COORDENADOR', 'ADMINISTRADOR'), express.static(path.join(publicFiscais, 'html')));
+app.use('/cadastro-fiscal', protegerRota, protegerPerfil('COORDENADOR', 'ADMINISTRADOR'), express.static(publicFiscais));
 
 // 3. Módulo de Infrações (Luis Gabriel)
 const publicInfracoes = path.join(__dirname, '../../cadastro-infracao/public');
-app.use('/cadastro-infracao', protegerRota, express.static(path.join(publicInfracoes, 'html')));
-app.use('/cadastro-infracao', express.static(publicInfracoes));
+app.get('/cadastro-infracao', protegerRota, protegerPerfil('FISCAL', 'ADMINISTRADOR'), (req, res) => {
+    return res.redirect('/cadastro-infracao/cadastrar_infracao.html');
+});
+app.get('/cadastro-infracao/cadastrar_infracao.html', protegerRota, protegerPerfil('FISCAL', 'ADMINISTRADOR'), (req, res) => {
+    return res.sendFile(path.join(publicInfracoes, 'html', 'cadastrar_infracao.html'));
+});
+app.use('/cadastro-infracao', protegerRota, protegerPerfil('FISCAL', 'ADMINISTRADOR'), express.static(path.join(publicInfracoes, 'html')));
+app.use('/cadastro-infracao', protegerRota, protegerPerfil('FISCAL', 'ADMINISTRADOR'), express.static(publicInfracoes));
 
 
 // ==========================================
@@ -81,41 +127,83 @@ app.get('/home', protegerRota, (req, res) => {
 // ==========================================
 app.post('/api/login', async(req, res) => {
     const { matricula, senha } = req.body;
-    const mat = (matricula !== null && matricula !== undefined) ? matricula.trim() : undefined;
-    const senhaInformada = (senha !== null && senha !== undefined) ? senha.trim() : undefined;
 
-    if (!mat || !senhaInformada) return res.status(400).json({ sucesso: false, mensagem: 'Preencha a matrícula e a senha.' });
+    const mat = (matricula !== null && matricula !== undefined) ? String(matricula).trim() : '';
+    const senhaInformada = (senha !== null && senha !== undefined) ? String(senha).trim() : '';
+
+    if (!mat || !senhaInformada) {
+        return res.status(400).json({
+            sucesso: false,
+            mensagem: 'Preencha a matrícula e a senha.'
+        });
+    }
+
+    // Colunas de matrícula aceitas no login
+    const COLUNAS_MATRICULA = [
+        'matricula_coordenador',
+        'matricula_fiscal',
+        'matricula_admin'
+    ];
+
+    const buscar = (coluna) => supabase
+        .from('credencial')
+        .select('*')
+        .eq(coluna, mat)
+        .eq('senha_hash', senhaInformada)
+        .eq('ativo', true);
 
     try {
-        const { data: credenciais, error } = await supabase
-            .from('credencial')
-            .select('*')
-            .eq('login', mat)
-            .eq('senha_hash', senhaInformada)
-            .eq('ativo', true);
+        const respostas = await Promise.all(COLUNAS_MATRICULA.map(buscar));
 
-        if (error) return res.status(500).json({ sucesso: false, mensagem: 'Não foi possível conectar ao banco de dados.' });
+        const erro = respostas.map(r => r.error).find(Boolean);
+        if (erro) {
+            console.error('Erro no Supabase:', erro);
+            return res.status(500).json({
+                sucesso: false,
+                mensagem: 'Não foi possível conectar ao banco de dados.'
+            });
+        }
 
-        if (credenciais && credenciais.length > 0) {
+        const credenciais = respostas.flatMap(r => r.data || []);
+
+        if (credenciais.length > 0) {
+            // Não envia o hash/senha para a sessão nem para o front
             const { senha_hash, ...usuario } = credenciais[0];
+            usuario.perfil = normalizarPerfil(usuario);
+
             req.session.usuarioLogado = true;
             req.session.usuario = usuario;
 
             return req.session.save((err) => {
-                if (err) return res.status(500).json({ sucesso: false, mensagem: "Erro ao criar sessão." });
+                if (err) {
+                    console.error('Erro ao salvar sessão:', err);
+                    return res.status(500).json({ sucesso: false, mensagem: 'Erro ao criar sessão.' });
+                }
                 return res.json({ sucesso: true, usuario: usuario });
             });
-        } else {
-            return res.status(401).json({ sucesso: false, mensagem: 'Matrícula ou senha inválidas.' });
         }
+
+        return res.status(401).json({
+            sucesso: false,
+            mensagem: 'Matrícula ou senha inválidas.'
+        });
+
     } catch (err) {
-        return res.status(500).json({ sucesso: false, mensagem: 'Erro interno no servidor.' });
+        console.error('Erro interno:', err);
+        return res.status(500).json({
+            sucesso: false,
+            mensagem: 'Erro de processamento interno no servidor.'
+        });
     }
 });
 
 app.get('/api/verificar-sessao', (req, res) => {
     if (req.session.usuarioLogado) {
-        return res.json({ logado: true, usuario: req.session.usuario });
+        return res.json({
+            logado: true,
+            usuario: req.session.usuario,
+            permissoes: obterPermissoes(req.session.usuario)
+        });
     } else {
         return res.json({ logado: false });
     }
@@ -183,7 +271,7 @@ app.get('/api/dashboard/recentes', protegerRota, async(req, res) => {
 // ==========================================
 
 // Rota para buscar Cargos
-app.get('/api/cargos', protegerRota, async (req, res) => {
+app.get('/api/cargos', protegerRota, protegerPerfil('COORDENADOR', 'ADMINISTRADOR'), async (req, res) => {
     try {
         const { data, error } = await supabase
             .from('cargo')
@@ -198,7 +286,7 @@ app.get('/api/cargos', protegerRota, async (req, res) => {
 });
 
 // Rota para buscar Setores
-app.get('/api/setores', protegerRota, async (req, res) => {
+app.get('/api/setores', protegerRota, protegerPerfil('COORDENADOR', 'ADMINISTRADOR'), async (req, res) => {
     try {
         const { data, error } = await supabase
             .from('setor')
@@ -213,7 +301,7 @@ app.get('/api/setores', protegerRota, async (req, res) => {
 });
 
 // Rota para buscar Níveis de Acesso
-app.get('/api/niveis-acesso', protegerRota, async (req, res) => {
+app.get('/api/niveis-acesso', protegerRota, protegerPerfil('COORDENADOR', 'ADMINISTRADOR'), async (req, res) => {
     try {
         const { data, error } = await supabase
             .from('nivel_acesso')
@@ -228,12 +316,8 @@ app.get('/api/niveis-acesso', protegerRota, async (req, res) => {
 });
 
 // Rota para Cadastrar o Fiscal no Banco de Dados
-app.post('/api/fiscais/cadastrar', protegerRota, async (req, res) => {
+app.post('/api/fiscais/cadastrar', protegerRota, protegerPerfil('COORDENADOR', 'ADMINISTRADOR'), async (req, res) => {
     try {
-        if (!req.session.usuario?.is_admin) {
-            return res.status(403).json({ sucesso: false, mensagem: 'Somente administradores podem cadastrar fiscais e credenciais.' });
-        }
-
         const { credencial, ...novoFiscal } = req.body;
         const matricula = String(novoFiscal.matricula_fiscal || '').trim();
         const senha = String(credencial?.senha || '');
@@ -277,11 +361,7 @@ app.post('/api/fiscais/cadastrar', protegerRota, async (req, res) => {
     }
 });
 
-app.patch('/api/fiscais/:matricula/senha', protegerRota, async (req, res) => {
-    if (!req.session.usuario?.is_admin) {
-        return res.status(403).json({ sucesso: false, mensagem: 'Somente administradores podem alterar senhas de fiscais.' });
-    }
-
+app.patch('/api/fiscais/:matricula/senha', protegerRota, protegerPerfil('COORDENADOR', 'ADMINISTRADOR'), async (req, res) => {
     const matricula = String(req.params.matricula || '').trim();
     const senha = String(req.body.senha || '').trim();
     if (!matricula || senha.length < 6) {
@@ -311,7 +391,7 @@ app.patch('/api/fiscais/:matricula/senha', protegerRota, async (req, res) => {
 // ==========================================
 // ROTAS DE INFRAÇÕES (LUIS)
 // ==========================================
-app.post('/infracoes', async (req, res) => {
+app.post('/infracoes', protegerRota, protegerPerfil('FISCAL', 'ADMINISTRADOR'), async (req, res) => {
     const { descricao, tipo, artigo, valor_base } = req.body;
     if (!descricao || !tipo || !artigo || !valor_base) {
         return res.status(400).json({ erro: "Erro: Preencha todos os campos obrigatórios para continuar." });
@@ -341,7 +421,7 @@ app.post('/infracoes', async (req, res) => {
     }
 });
 
-app.get('/infracoes', async (req, res) => {
+app.get('/infracoes', protegerRota, protegerPerfil('FISCAL', 'ADMINISTRADOR'), async (req, res) => {
     try {
         const urlOrdenada = `${SUPABASE_URL_INFRACOES}?order=id_infracao.asc`;
         const resposta = await fetch(urlOrdenada, { headers: headersFetch });
@@ -352,7 +432,7 @@ app.get('/infracoes', async (req, res) => {
     }
 });
 
-app.patch('/infracoes/:id', async (req, res) => {
+app.patch('/infracoes/:id', protegerRota, protegerPerfil('FISCAL', 'ADMINISTRADOR'), async (req, res) => {
     const idParam = req.params.id;
     try {
         const urlEdicao = `${SUPABASE_URL_INFRACOES}?id_infracao=eq.${idParam}`;
@@ -371,7 +451,7 @@ app.patch('/infracoes/:id', async (req, res) => {
     }
 });
 
-app.delete('/infracoes/:id', async (req, res) => {
+app.delete('/infracoes/:id', protegerRota, protegerPerfil('FISCAL', 'ADMINISTRADOR'), async (req, res) => {
     const idParam = req.params.id;
     try {
         const urlExclusao = `${SUPABASE_URL_INFRACOES}?id_infracao=eq.${idParam}`;
