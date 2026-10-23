@@ -95,19 +95,43 @@ app.use(express.static(path.join(__dirname, '../public')));
 
 // 2. Módulo de Fiscais (Luara)
 const publicFiscais = path.join(__dirname, '../../cadastro-fiscal/public');
-app.use('/cadastro-fiscal', protegerRota, protegerPerfil('COORDENADOR', 'ADMINISTRADOR'), express.static(path.join(publicFiscais, 'html')));
-app.use('/cadastro-fiscal', protegerRota, protegerPerfil('COORDENADOR', 'ADMINISTRADOR'), express.static(publicFiscais));
+const publicFiscaisHtml = path.join(publicFiscais, 'html');
+
+app.get('/cadastro-fiscal', protegerRota, protegerPerfil('COORDENADOR', 'ADMINISTRADOR'), (req, res) => {
+    return res.redirect('/cadastro-fiscal/Cadastro-fiscal.html');
+});
+app.get('/cadastro-fiscal/Cadastro-fiscal.html', protegerRota, protegerPerfil('COORDENADOR', 'ADMINISTRADOR'), (req, res) => {
+    return res.sendFile(path.join(publicFiscaisHtml, 'Cadastro-fiscal.html'));
+});
+app.get('/cadastro-fiscal/pesquisar-fiscal.html', protegerRota, protegerPerfil('COORDENADOR', 'ADMINISTRADOR'), (req, res) => {
+    return res.sendFile(path.join(publicFiscaisHtml, 'pesquisar-fiscal.html'));
+});
+app.get('/cadastro-fiscal/editar-fiscal.html', protegerRota, protegerPerfil('COORDENADOR', 'ADMINISTRADOR'), (req, res) => {
+    return res.sendFile(path.join(publicFiscaisHtml, 'editar-fiscal.html'));
+});
+app.get('/cadastro-fiscal/inativar-fiscal.html', protegerRota, protegerPerfil('COORDENADOR', 'ADMINISTRADOR'), (req, res) => {
+    return res.sendFile(path.join(publicFiscaisHtml, 'inativar-fiscal.html'));
+});
+app.use('/cadastro-fiscal/css', express.static(path.join(publicFiscais, 'css')));
+app.use('/cadastro-fiscal/js', express.static(path.join(publicFiscais, 'js')));
 
 // 3. Módulo de Infrações (Luis Gabriel)
 const publicInfracoes = path.join(__dirname, '../../cadastro-infracao/public');
+const publicInfracoesHtml = path.join(publicInfracoes, 'html');
 app.get('/cadastro-infracao', protegerRota, protegerPerfil('FISCAL', 'ADMINISTRADOR'), (req, res) => {
     return res.redirect('/cadastro-infracao/cadastrar_infracao.html');
 });
 app.get('/cadastro-infracao/cadastrar_infracao.html', protegerRota, protegerPerfil('FISCAL', 'ADMINISTRADOR'), (req, res) => {
-    return res.sendFile(path.join(publicInfracoes, 'html', 'cadastrar_infracao.html'));
+    return res.sendFile(path.join(publicInfracoesHtml, 'cadastrar_infracao.html'));
 });
-app.use('/cadastro-infracao', protegerRota, protegerPerfil('FISCAL', 'ADMINISTRADOR'), express.static(path.join(publicInfracoes, 'html')));
-app.use('/cadastro-infracao', protegerRota, protegerPerfil('FISCAL', 'ADMINISTRADOR'), express.static(publicInfracoes));
+app.get('/cadastro-infracao/pesquisar_infracao.html', protegerRota, protegerPerfil('FISCAL', 'ADMINISTRADOR'), (req, res) => {
+    return res.sendFile(path.join(publicInfracoesHtml, 'pesquisar_infracao.html'));
+});
+app.get('/cadastro-infracao/editar_excluir_infracao.html', protegerRota, protegerPerfil('FISCAL', 'ADMINISTRADOR'), (req, res) => {
+    return res.sendFile(path.join(publicInfracoesHtml, 'editar_excluir_infracao.html'));
+});
+app.use('/cadastro-infracao/css', express.static(path.join(publicInfracoes, 'css')));
+app.use('/cadastro-infracao/js', express.static(path.join(publicInfracoes, 'js')));
 
 
 // ==========================================

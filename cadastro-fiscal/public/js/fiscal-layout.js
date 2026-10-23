@@ -2,8 +2,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const pageContent = document.querySelector('.main-container');
     if (!pageContent) return;
 
+    const hasHomeCss = () => !!document.querySelector('link[href="/css/home.css"], link[href="css/home.css"]');
+    const hasFiscalCss = () => !!document.querySelector('link[href="/cadastro-fiscal/css/Cadastro-fiscal.css"], link[href="/cadastro-fiscal/css/Cadastro-fiscal.css?"], link[href="css/Cadastro-fiscal.css"]');
+
     // 1. Garante o carregamento do home.css (para a sidebar azul escura)
-    if (!document.querySelector('link[href="/css/home.css"]')) {
+    if (!hasHomeCss()) {
         const homeCss = document.createElement('link');
         homeCss.rel = 'stylesheet';
         homeCss.href = '/css/home.css';
@@ -11,7 +14,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // 2. Garante o carregamento do Cadastro-fiscal.css (para os formulários, ícones e cabeçalho)
-    if (!document.querySelector('link[href="/cadastro-fiscal/css/Cadastro-fiscal.css"]')) {
+    if (!hasFiscalCss()) {
         const fiscalCss = document.createElement('link');
         fiscalCss.rel = 'stylesheet';
         fiscalCss.href = '/cadastro-fiscal/css/Cadastro-fiscal.css';
