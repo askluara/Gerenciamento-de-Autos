@@ -7,6 +7,7 @@ botaoSair.addEventListener('click', async()=>{
             credentials: 'include'
         });
         if(resposta.ok){
+            try { sessionStorage.removeItem('sigai-sidebar-permissions'); } catch {}
             await abrirModal("Sessão encerrada com sucesso");
             window.location.href ='/';
         }else{

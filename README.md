@@ -2,6 +2,8 @@
 
 Aplicacao web para gerenciamento de autos de infracao, com autenticacao, painel, cadastro de fiscais e cadastro de infracoes. O backend principal e um servidor Express unico, localizado em `Login/src/server.js`. Ele fornece as APIs e serve as paginas dos modulos `Login`, `cadastro-fiscal` e `cadastro-infracao`.
 
+O `package.json` e o `package-lock.json` da raiz sao os manifests npm unicos do projeto. As dependencias compartilhadas ficam instaladas em `node_modules/` na raiz.
+
 ## Estrutura
 
 ```text
@@ -15,13 +17,15 @@ cadastro-fiscal/
 cadastro-infracao/
   Index.js            Scripts do navegador para o modulo de infracoes
   public/             Paginas, estilos e scripts de infracoes
+package.json          Dependencias e comando npm start
+package-lock.json     Versoes travadas das dependencias
 ```
 
-`cadastro-fiscal/Index.js` exporta um router e nao inicia um servidor. O servidor em `Login/src/server.js` e o processo que deve ser iniciado para usar a aplicacao completa. Os diretorios dos modulos contem os arquivos do frontend servidos por esse processo.
+`cadastro-fiscal/Index.js` exporta um router e nao inicia um servidor. O servidor em `Login/src/server.js` e o processo que deve ser iniciado para usar a aplicacao completa. Os diretorios dos modulos contem os arquivos do frontend servidos por esse processo. Os endpoints de fiscais atualmente estao implementados no servidor principal; o router legado nao e montado por ele.
 
 ## Requisitos
 
-- Node.js 18 ou superior.
+- Node.js 22 ou superior (exigido pela versao atual do Supabase JS travada no lockfile).
 - npm.
 - Um projeto Supabase configurado com as tabelas e permissoes usadas pela aplicacao.
 
@@ -48,14 +52,11 @@ Nao compartilhe nem envie `Login/.env` ao Git. O `.gitignore` ignora arquivos de
 No PowerShell, a partir da raiz do repositorio:
 
 ```powershell
-cd Login
 npm ci
 npm start
 ```
 
-Abra `http://localhost:3000` (ou a porta definida em `PORT`). Para encerrar o servidor, use `Ctrl+C` no terminal.
-
-Execute os comandos npm dentro de `Login`, onde estao o `package.json` e o lockfile do servidor. Os diretorios `cadastro-fiscal` e `cadastro-infracao` nao sao processos de servidor independentes na configuracao atual.
+O script inicia o servidor principal a partir de `Login`, para que ele encontre `Login/.env`. Abra `http://localhost:3000` (ou a porta definida em `PORT`). Para encerrar o servidor, use `Ctrl+C` no terminal. Os diretorios `cadastro-fiscal` e `cadastro-infracao` nao sao processos de servidor independentes na configuracao atual.
 
 ## Rotas principais
 

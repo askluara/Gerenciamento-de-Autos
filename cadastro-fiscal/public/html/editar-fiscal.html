@@ -3,9 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Editar Fiscal | SIGAI</title>
-    <link rel="stylesheet" href="css/Cadastro-fiscal.css">
+    <title>Gerenciar Fiscais | SIGAI</title>
+    <link rel="stylesheet" href="/css/home.css">
+    <link rel="stylesheet" href="/cadastro-fiscal/css/Cadastro-fiscal.css">
     <link rel="stylesheet" href="/css/notificacoes.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body data-fiscal-page="editar">
@@ -16,13 +18,13 @@
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L8 18l-4 1 1-4Z"/></svg>
                 </span>
                 <div>
-                    <h2>Editar Fiscal</h2>
-                    <p>Atualize os dados cadastrais de um fiscal</p>
+                    <h2>Gerenciar Fiscais</h2>
+                    <p>Edite os dados e ative ou inative fiscais</p>
                 </div>
             </div>
 
             <section class="fiscal-card" aria-label="Localizar fiscal">
-                <header class="fiscal-card-header"><h3>Localizar Fiscal</h3></header>
+                <header class="fiscal-card-header"><h3>Localizar Fiscal para editar ou alterar status</h3></header>
                 <div class="fiscal-card-body">
                     <div class="fiscal-inline-search">
                         <div class="fiscal-field fiscal-search-field">
@@ -33,10 +35,11 @@
                         <button class="fiscal-button is-primary" type="button" id="btn-pesquisar">Pesquisar</button>
                     </div>
                     <p id="mensagem-busca-editar" class="fiscal-helper-text">Digite o nome, matrícula ou CPF do fiscal para localizá-lo.</p>
+                    <p class="fiscal-helper-text">Clique em uma linha para selecionar o fiscal.</p>
                     <div id="resultados-editar" class="fiscal-results" hidden>
                         <div class="fiscal-table-wrap">
                             <table class="fiscal-table">
-                                <thead><tr><th>Matrícula</th><th>Nome</th><th>CPF</th><th class="is-centered">Ação</th></tr></thead>
+                                <thead><tr><th>Matrícula</th><th>Nome</th><th>CPF</th><th>Status</th></tr></thead>
                                 <tbody id="tabela-resultados-busca"></tbody>
                             </table>
                         </div>
@@ -103,6 +106,7 @@
 
                     <div class="fiscal-form-actions">
                         <button class="fiscal-button is-primary" type="button" id="btn-salvar">Salvar Alterações</button>
+                        <button class="fiscal-button is-danger" type="button" id="btn-alterar-status" hidden></button>
                     </div>
                 </div>
             </form>
@@ -115,6 +119,7 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="/js/formatadores.js"></script>
     <script src="/js/modal.js"></script>
+    <script src="/js/unsaved-changes.js"></script>
     <script src="js/editar-fiscal.js"></script>
 </body>
 </html>

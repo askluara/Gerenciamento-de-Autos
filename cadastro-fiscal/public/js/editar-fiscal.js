@@ -1,4 +1,5 @@
 let opcoesEdicaoPromise = Promise.resolve();
+let fiscalSelecionado = null;
 
 document.addEventListener('DOMContentLoaded', () => {
     if (typeof supabase === 'undefined') {
@@ -12,6 +13,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const btnPesquisar = document.querySelector('#btn-pesquisar');
     const btnSalvar = document.querySelector('#btn-salvar');
+    const btnAlterarStatus = document.querySelector('#btn-alterar-status');
     
     // Inicia máscaras de formatação
     aplicarMascaras();
@@ -46,6 +48,10 @@ document.addEventListener('DOMContentLoaded', () => {
             salvarAlteracoes(window.supabaseClient);
         });
     }
+
+    btnAlterarStatus?.addEventListener('click', () => {
+        if (fiscalSelecionado) alterarStatusFiscal(window.supabaseClient, fiscalSelecionado);
+    });
 });
 
 async function executarBusca(db) {
@@ -82,29 +88,60 @@ async function executarBusca(db) {
         }
 
         fiscais.forEach(fiscal => {
+            const ativo = fiscal.ativo !== false;
             const tr = document.createElement('tr');
+            tr.dataset.matricula = fiscal.matricula_fiscal || '';
+            tr.tabIndex = 0;
+            tr.setAttribute('aria-label', `Selecionar fiscal ${fiscal.nome || fiscal.matricula_fiscal}`);
             tr.innerHTML = `
                 <td>${fiscal.matricula_fiscal || ''}</td>
                 <td class="is-strong">${fiscal.nome || ''}</td>
                 <td>${formatarCpf(fiscal.cpf) || ''}</td>
-                <td class="is-centered">
-                    <button type="button" class="fiscal-button is-primary btn-selecionar" data-matricula="${fiscal.matricula_fiscal}">Selecionar</button>
-                </td>
+                <td><span class="fiscal-status ${ativo ? 'is-active' : 'is-inactive'}">${ativo ? 'Ativo' : 'Inativo'}</span></td>
             `;
-            tbody.appendChild(tr);
-        });
-
-        // Adiciona evento aos botões "Selecionar" da tabela gerada
-        document.querySelectorAll('.btn-selecionar').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                const mat = e.target.getAttribute('data-matricula');
-                carregarFiscalDireto(db, mat);
+            tr.addEventListener('click', () => carregarFiscalDireto(db, tr.dataset.matricula));
+            tr.addEventListener('keydown', event => {
+                if (event.key === 'Enter' || event.key === ' ') {
+                    event.preventDefault();
+                    carregarFiscalDireto(db, tr.dataset.matricula);
+                }
             });
+            tbody.appendChild(tr);
         });
 
     } catch (err) {
         console.error('Erro na pesquisa:', err);
         abrirModal('Erro ao pesquisar fiscais.');
+    }
+}
+
+async function alterarStatusFiscal(db, fiscal) {
+    const matricula = fiscal.matricula_fiscal;
+    const novoEstado = fiscal.ativo === false;
+    const acao = novoEstado ? 'ativar' : 'inativar';
+    const confirmado = await confirmarModal(
+        `Tem certeza que deseja ${acao} o fiscal com a matrícula ${matricula}?`,
+        { tipo: novoEstado ? 'info' : 'danger' }
+    );
+    if (!confirmado) return;
+
+    try {
+        const { error } = await db
+            .from('fiscal')
+            .update({ ativo: novoEstado })
+            .eq('matricula_fiscal', matricula);
+        if (error) throw error;
+
+        fiscal.ativo = novoEstado;
+        const botaoStatus = document.querySelector('#btn-alterar-status');
+        botaoStatus.textContent = novoEstado ? 'Inativar fiscal' : 'Ativar fiscal';
+        botaoStatus.classList.toggle('is-success', novoEstado);
+        botaoStatus.classList.toggle('is-danger', !novoEstado);
+        await abrirModal(`Fiscal ${novoEstado ? 'ativado' : 'inativado'} com sucesso.`, { titulo: 'Ação concluída' });
+        await executarBusca(db);
+    } catch (error) {
+        console.error('Erro ao atualizar status do fiscal:', error);
+        abrirModal(`Erro ao atualizar: ${error.message || JSON.stringify(error)}`);
     }
 }
 
@@ -121,6 +158,16 @@ async function carregarFiscalDireto(db, matricula) {
             abrirModal('Fiscal não encontrado.');
             return;
         }
+
+        fiscalSelecionado = data;
+        document.querySelectorAll('#tabela-resultados-busca tr[data-matricula]').forEach(linha => {
+            linha.classList.toggle('is-selected', linha.dataset.matricula === String(matricula));
+        });
+        const botaoStatus = document.querySelector('#btn-alterar-status');
+        botaoStatus.hidden = false;
+        botaoStatus.textContent = data.ativo === false ? 'Ativar fiscal' : 'Inativar fiscal';
+        botaoStatus.classList.toggle('is-success', data.ativo === false);
+        botaoStatus.classList.toggle('is-danger', data.ativo !== false);
 
         document.querySelector('#matricula').value = data.matricula_fiscal || '';
         document.querySelector('#nome').value = data.nome || '';
@@ -198,6 +245,7 @@ async function salvarAlteracoes(db) {
         }
 
         document.querySelector('#senha-nova').value = '';
+        window.limparAlteracoesPendentes?.();
         await concluirAcao(senhaNova ? 'Dados do fiscal e senha atualizados com sucesso.' : 'Dados do fiscal atualizados com sucesso.');
     } catch (err) {
         console.error('Erro ao atualizar:', err);

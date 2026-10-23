@@ -28,7 +28,7 @@ body {
     display: flex;
     flex-direction: column;
     flex-shrink: 0;
-    transition: all 0.3s ease;
+    transition: left 0.25s ease;
     overflow-y: auto;
     scrollbar-width: none;
     -ms-overflow-style: none;

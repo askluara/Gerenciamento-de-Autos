@@ -10,6 +10,12 @@
     
     <!-- CSS Padronizado do Sistema (Substitui o antigo style.css) -->
     <link rel="stylesheet" href="/cadastro-fiscal/css/Cadastro-fiscal.css">
+    <style>
+        #tabela-acoes tr[data-infracao-id] { cursor: pointer; }
+        #tabela-acoes tr[data-infracao-id]:focus-visible { outline: 2px solid var(--fiscal-blue); outline-offset: -2px; }
+        #tabela-acoes tr[data-infracao-id].is-selected { background: #eef4ff; }
+        #acoes-infracao-selecionada[hidden] { display: none; }
+    </style>
 
     
     <!-- Font Awesome (Ícones do menu) -->
@@ -47,13 +53,18 @@
                                     <th>Categoria</th>
                                     <th>Artigo</th>
                                     <th>Valor Base (R$)</th>
-                                    <th style="text-align: center;">Ações</th>
                                 </tr>
                             </thead>
                             <tbody id="tabela-acoes">
                                 <!-- O JS vai injetar os dados aqui -->
                             </tbody>
                         </table>
+                    </div>
+                    <p class="fiscal-helper-text">Clique em uma infração para selecioná-la.</p>
+                    <div id="acoes-infracao-selecionada" class="fiscal-form-actions" hidden>
+                        <span id="infracao-selecionada-label" class="fiscal-helper-text"></span>
+                        <button class="fiscal-button is-primary" type="button" id="btn-editar-infracao">Editar</button>
+                        <button class="fiscal-button is-danger" type="button" id="btn-excluir-infracao">Excluir</button>
                     </div>
                 </div>
             </section>
@@ -70,5 +81,6 @@
     <script src="/cadastro-infracao/js/editar_excluir.js"></script> <!-- ou pesquisar.js / editar_excluir.js -->
     <script src="/js/formatadores.js"></script>
     <script src="/js/modal.js"></script>
+    <script src="/js/unsaved-changes.js"></script>
 </body>
 </html>
