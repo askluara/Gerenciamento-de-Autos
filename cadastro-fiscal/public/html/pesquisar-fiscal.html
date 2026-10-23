@@ -28,7 +28,7 @@
                         </div>
                         <div class="fiscal-field">
                             <label for="filtro-cpf">CPF</label>
-                            <input type="search" id="filtro-cpf" inputmode="numeric" placeholder="000.000.000-00">
+                            <input type="search" id="filtro-cpf" data-mask="cpf" inputmode="numeric" maxlength="14" placeholder="000.000.000-00">
                         </div>
                         <div class="fiscal-field">
                             <label for="filtro-matricula">Matrícula</label>
@@ -76,8 +76,11 @@
         </div>
     </div>
 
+    <script src="/js/sidebar.js"></script>
     <script src="js/fiscal-layout.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="/js/formatadores.js"></script>
+    <script src="/js/modal.js"></script>
     <script src="js/pesquisar-fiscal.js"></script>
 </body>
 </html>

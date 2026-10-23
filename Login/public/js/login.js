@@ -9,7 +9,7 @@ botao.addEventListener('click', async(event) => {
     const senhaValor = senhaLogin.value.trim();
 
     if (!matriculaValor || !senhaValor) {
-        alert("Preencha o campo de matrícula e senha.");
+        abrirModal("Preencha o campo de matrícula e senha.");
         return;
     }
 
@@ -30,11 +30,11 @@ botao.addEventListener('click', async(event) => {
             window.location.href = '/home';
         } else {
             // Exibe a mensagem personalizada enviada pelo backend
-            alert(dados.mensagem || "Credenciais não encontradas ou inválidas.");
+            abrirModal(dados.mensagem || "Credenciais não encontradas ou inválidas.");
         }
 
     } catch (erro) {
         console.error("Erro ao conectar com o servidor:", erro);
-        alert("Não foi possível conectar ao servidor. Tente novamente mais tarde.");
+        abrirModal("Não foi possível conectar ao servidor. Tente novamente mais tarde.");
     }
 });

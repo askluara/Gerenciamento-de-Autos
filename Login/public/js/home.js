@@ -89,7 +89,7 @@ async function carregarAutosRecentes() {
 // Funções para o botão de logout
 // Confirmar o logout
 document.getElementById('botaoLogout').addEventListener('click', async () => {
-    const confirmar = confirm('Deseja realmente sair?');
+    const confirmar = await confirmarModal('Deseja realmente sair?', { tipo: 'danger' });
 
     if (confirmar) {
         await fetch('/api/logout', {

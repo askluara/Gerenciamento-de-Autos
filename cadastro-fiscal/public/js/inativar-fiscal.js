@@ -64,13 +64,17 @@ async function executarBuscaInativar(db) {
         if (helper) helper.hidden = true;
     } catch (error) {
         console.error('Erro na pesquisa:', error);
-        alert('Erro ao pesquisar fiscais.');
+        abrirModal('Erro ao pesquisar fiscais.');
     }
 }
 
 async function alterarStatusFiscal(db, matricula, novoEstado) {
     const acao = novoEstado ? 'ativar' : 'inativar';
-    if (!confirm(`Tem certeza que deseja ${acao} o fiscal com a matrícula ${matricula}?`)) return;
+    const confirmar = await confirmarModal(
+        `Tem certeza que deseja ${acao} o fiscal com a matrícula ${matricula}?`,
+        { tipo: 'danger' }
+    );
+    if (!confirmar) return;
 
     try {
         const { error } = await db
@@ -79,9 +83,9 @@ async function alterarStatusFiscal(db, matricula, novoEstado) {
             .eq('matricula_fiscal', matricula);
         if (error) throw error;
 
-        window.finalizarAcaoFiscal(`Fiscal ${novoEstado ? 'ativado' : 'inativado'} com sucesso.`);
+        await concluirAcao(`Fiscal ${novoEstado ? 'ativado' : 'inativado'} com sucesso.`);
     } catch (error) {
         console.error('Erro ao atualizar estado do fiscal:', error);
-        alert(`Erro ao atualizar: ${error.message || JSON.stringify(error)}`);
+        abrirModal(`Erro ao atualizar: ${error.message || JSON.stringify(error)}`);
     }
 }

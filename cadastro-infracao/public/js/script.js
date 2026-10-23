@@ -64,13 +64,12 @@ document.getElementById('form-infracao').addEventListener('submit', async (event
         });
 
         if (resposta.ok) {
-            alert('✅ Sucesso! Infração cadastrada na base de dados.');
-            document.getElementById('form-infracao').reset(); // Limpa as caixinhas automaticamente
+            await concluirAcao('Infração cadastrada com sucesso.');
         } else {
-            alert('❌ Erro ao tentar cadastrar no banco de dados. Verifique o terminal do Node.js.');
+            abrirModal('❌ Erro ao tentar cadastrar no banco de dados. Verifique o terminal do Node.js.');
         }
     } catch (erro) {
         console.error('Erro no Javascript:', erro);
-        alert('Falha na comunicação. Certifique-se de que o Back-end está rodando!');
+        abrirModal('Falha na comunicação. Certifique-se de que o Back-end está rodando!');
     }
 });

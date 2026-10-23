@@ -7,14 +7,14 @@ botaoSair.addEventListener('click', async()=>{
             credentials: 'include'
         });
         if(resposta.ok){
-            alert("Sessão encerrada com sucesso")
+            await abrirModal("Sessão encerrada com sucesso");
             window.location.href ='/';
         }else{
         //logout é cancelado
         }
 
     }catch(erro){
-        alert("Erro ao comunicar com o servidor\nFalha no encerramento da sessão", erro)
+        abrirModal(`Erro ao comunicar com o servidor. Falha no encerramento da sessão: ${erro.message || erro}`);
     }
 
 });

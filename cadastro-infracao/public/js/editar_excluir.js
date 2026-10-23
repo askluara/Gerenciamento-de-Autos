@@ -100,7 +100,11 @@ async function carregarInfracoes() {
 }
 
 async function excluirInfracao(id) {
-    if (!confirm(`🚨 Tem a certeza que deseja excluir a infração ${id}?\nEssa ação não pode ser desfeita.`)) {
+    const confirmar = await confirmarModal(
+        `Tem certeza que deseja excluir a infração ${id}?\nEssa ação não pode ser desfeita.`,
+        { tipo: 'danger' }
+    );
+    if (!confirmar) {
         return; 
     }
 
@@ -108,13 +112,12 @@ async function excluirInfracao(id) {
         const resposta = await fetch(`${API_URL}/${id}`, { method: 'DELETE' });
 
         if (resposta.ok) {
-            alert('✅ Infração excluída com sucesso!');
-            carregarInfracoes();
+            await concluirAcao('Infração excluída com sucesso.');
         } else {
-            alert('❌ Erro ao excluir no banco de dados.');
+            abrirModal('❌ Erro ao excluir no banco de dados.');
         }
     } catch (erro) {
-        alert('Falha na comunicação com o servidor.');
+        abrirModal('Falha na comunicação com o servidor.');
     }
 }
 
@@ -162,13 +165,12 @@ async function salvarEdicao(id) {
         });
 
         if (resposta.ok) {
-            alert('✅ Infração atualizada com sucesso!');
-            carregarInfracoes();
+            await concluirAcao('Infração atualizada com sucesso.');
         } else {
-            alert('❌ Erro ao tentar atualizar.');
+            abrirModal('❌ Erro ao tentar atualizar.');
         }
     } catch (erro) {
-        alert('Falha na comunicação com o servidor.');
+        abrirModal('Falha na comunicação com o servidor.');
     }
 }
 

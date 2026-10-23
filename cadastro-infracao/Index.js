@@ -47,15 +47,15 @@ document.addEventListener('DOMContentLoaded', async () => {
                 });
 
                 if (res.ok) {
-                    alert('Infração cadastrada com sucesso!');
+                    abrirModal('Infração cadastrada com sucesso!');
                     formInfracao.reset();
                 } else {
                     const errData = await res.json();
-                    alert('Erro ao cadastrar: ' + (errData.mensagem || 'Erro desconhecido'));
+                    abrirModal('Erro ao cadastrar: ' + (errData.mensagem || 'Erro desconhecido'));
                 }
             } catch (err) {
                 console.error('Erro na requisição:', err);
-                alert('Erro de conexão com o servidor.');
+                abrirModal('Erro de conexão com o servidor.');
             }
         });
     }

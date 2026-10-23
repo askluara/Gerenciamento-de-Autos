@@ -32,81 +32,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const shell = document.createElement('div');
     shell.className = 'container-main';
     shell.innerHTML = `
-        <aside class="sidebar" aria-label="Navegação principal">
-            <div class="sidebar-header">
-                <span>Sistema de Autos</span>
-                <button class="sidebar-toggle" aria-label="Menu">
-                    <i class="fa-solid fa-bars"></i>
-                </button>
-            </div>
-            
-            <nav class="sidebar-nav">
-                <!-- Seção AUTOS DE INFRAÇÃO -->
-                <div class="sidebar-section">
-                    <div class="sidebar-section-title">Autos de Infração</div>
-                    <ul class="sidebar-menu">
-                        <li>
-                            <a href="/home" ${currentPage === 'dashboard' ? 'class="active"' : ''}>
-                                <span class="sidebar-icon"><i class="fa-solid fa-house"></i></span> Dashboard
-                            </a>
-                        </li>
-                        <li><a href="#"><span class="sidebar-icon"><i class="fa-regular fa-file-lines"></i></span> Cadastrar Auto</a></li>
-                        <li><a href="#"><span class="sidebar-icon"><i class="fa-solid fa-magnifying-glass"></i></span> Pesquisar Autos</a></li>
-                        <li><a href="#"><span class="sidebar-icon"><i class="fa-regular fa-pen-to-square"></i></span> Editar Auto</a></li>
-                        <li><a href="#"><span class="sidebar-icon"><i class="fa-regular fa-trash-can"></i></span> Excluir Auto</a></li>
-                    </ul>
-                </div>
-
-                <!-- Seção FISCAIS -->
-                <div class="sidebar-section">
-                    <div class="sidebar-section-title">Fiscais</div>
-                    <ul class="sidebar-menu">
-                        <li>
-                            <a href="/cadastro-fiscal/Cadastro-fiscal.html" ${currentPage === 'cadastrar' ? 'class="active"' : ''}>
-                                <span class="sidebar-icon"><i class="fa-solid fa-user-plus"></i></span> Cadastrar Fiscal
-                            </a>
-                        </li>
-                        <li>
-                            <a href="/cadastro-fiscal/pesquisar-fiscal.html" ${currentPage === 'pesquisar' ? 'class="active"' : ''}>
-                                <span class="sidebar-icon"><i class="fa-solid fa-user-gear"></i></span> Pesquisar Fiscais
-                            </a>
-                        </li>
-                        <li>
-                            <a href="/cadastro-fiscal/editar-fiscal.html" ${currentPage === 'editar' ? 'class="active"' : ''}>
-                                <span class="sidebar-icon"><i class="fa-solid fa-user-pen"></i></span> Editar Fiscal
-                            </a>
-                        </li>
-                        <li>
-                            <a href="/cadastro-fiscal/inativar-fiscal.html" ${currentPage === 'inativar' ? 'class="active"' : ''}>
-                                <span class="sidebar-icon"><i class="fa-solid fa-user-xmark"></i></span> Inativar Fiscal
-                            </a>
-                        </li>
-                    </ul>
-                </div>
-
-                <!-- Seção INFRAÇÕES -->
-                <div class="sidebar-section">
-                    <div class="sidebar-section-title">Infrações</div>
-                    <ul class="sidebar-menu">
-                        <li>
-                            <a href="/cadastro-infracao/cadastrar_infracao.html" ${currentPage === 'cadastrar-infracao' ? 'class="active"' : ''}>
-                                <span class="sidebar-icon"><i class="fa-solid fa-triangle-exclamation"></i></span> Cadastrar Infração
-                            </a>
-                        </li>
-                        <li>
-                            <a href="/cadastro-infracao/pesquisar_infracao.html" ${currentPage === 'pesquisar-infracao' ? 'class="active"' : ''}>
-                                <span class="sidebar-icon"><i class="fa-solid fa-shield-halved"></i></span> Pesquisar Infrações
-                            </a>
-                        </li>
-                        <li>
-                            <a href="/cadastro-infracao/editar_excluir_infracao.html" ${currentPage === 'editar-infracao' ? 'class="active"' : ''}>
-                                <span class="sidebar-icon"><i class="fa-regular fa-pen-to-square"></i></span> Editar / Excluir
-                            </a>
-                        </li>
-                    </ul>
-                </div>
-            </nav>
-        </aside>
 
         <div class="main-content">
             <header class="top-header">
@@ -130,15 +55,7 @@ document.addEventListener('DOMContentLoaded', () => {
     document.body.classList.add('fiscal-page-body');
     document.body.insertBefore(shell, pageContent);
     document.getElementById('fiscal-page-container').appendChild(pageContent);
-
-    // Lógica do menu responsivo
-    const sidebarToggle = shell.querySelector('.sidebar-toggle');
-    if (sidebarToggle) {
-        sidebarToggle.addEventListener('click', function() {
-            document.querySelector('.sidebar').classList.toggle('active');
-        });
-    }
-
+    if (window.SIGAISidebar) window.SIGAISidebar.mount(shell, currentPage);
     // Busca os dados da sessão e preenche o cabeçalho
     fetch('/api/verificar-sessao')
         .then(res => res.json())

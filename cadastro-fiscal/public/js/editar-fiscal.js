@@ -48,35 +48,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 
-// Função para aplicar as máscaras em tempo real
-function aplicarMascaras() {
-    const cpfInput = document.getElementById('cpf');
-    const telInput = document.getElementById('telefone');
-
-    if (cpfInput) {
-        cpfInput.addEventListener('input', function(e) {
-            let valor = e.target.value.replace(/\D/g, ""); // Remove tudo o que não é número
-            valor = valor.substring(0, 11); // Limita a exatamente 11 números antes de formatar
-            
-            valor = valor.replace(/(\d{3})(\d)/, "$1.$2");
-            valor = valor.replace(/(\d{3})(\d)/, "$1.$2");
-            valor = valor.replace(/(\d{3})(\d{1,2})$/, "$1-$2");
-            e.target.value = valor;
-        });
-    }
-
-    if (telInput) {
-        telInput.addEventListener('input', function(e) {
-            let valor = e.target.value.replace(/\D/g, ""); // Remove tudo o que não é número
-            valor = valor.substring(0, 11); // Limita o telefone a 11 números (2 do DDD + 9 dígitos)
-            
-            valor = valor.replace(/^(\d{2})(\d)/g, "($1) $2");
-            valor = valor.replace(/(\d)(\d{4})$/, "$1-$2");
-            e.target.value = valor;
-        });
-    }
-}
-
 async function executarBusca(db) {
     const termo = document.querySelector('#filtro-termo')?.value.trim() || '';
     const tbody = document.querySelector('#tabela-resultados-busca');
@@ -87,30 +58,35 @@ async function executarBusca(db) {
         let query = db.from('fiscal').select('*').order('matricula_fiscal', { ascending: true });
 
         if (termo) {
-            const cpfNum = termo.replace(/\D/g, '');
-            const filtros = [`nome.ilike.%${termo}%`, `matricula_fiscal.ilike.%${termo}%`];
-            if (cpfNum) filtros.push(`cpf.ilike.%${cpfNum}%`);
-            query = query.or(filtros.join(','));
+            // A comparação dos critérios acontece em memória, normalizando os dígitos do CPF.
         }
 
         const { data, error } = await query;
         if (error) throw error;
 
+        const termoNormalizado = termo.toLocaleLowerCase('pt-BR');
+        const termoNumerico = somenteNumeros(termo);
+        const fiscais = termo ? (data || []).filter(fiscal =>
+            String(fiscal.nome || '').toLocaleLowerCase('pt-BR').includes(termoNormalizado) ||
+            String(fiscal.matricula_fiscal || '').toLocaleLowerCase('pt-BR').includes(termoNormalizado) ||
+            (termoNumerico && somenteNumeros(fiscal.cpf).includes(termoNumerico))
+        ) : (data || []);
+
         resultados.hidden = false;
         mensagemBusca.hidden = true;
         tbody.innerHTML = '';
 
-        if (!data || data.length === 0) {
+        if (fiscais.length === 0) {
             tbody.innerHTML = '<tr><td colspan="4" class="fiscal-empty-state">Nenhum fiscal encontrado.</td></tr>';
             return;
         }
 
-        data.forEach(fiscal => {
+        fiscais.forEach(fiscal => {
             const tr = document.createElement('tr');
             tr.innerHTML = `
                 <td>${fiscal.matricula_fiscal || ''}</td>
                 <td class="is-strong">${fiscal.nome || ''}</td>
-                <td>${fiscal.cpf || ''}</td>
+                <td>${formatarCpf(fiscal.cpf) || ''}</td>
                 <td class="is-centered">
                     <button type="button" class="fiscal-button is-primary btn-selecionar" data-matricula="${fiscal.matricula_fiscal}">Selecionar</button>
                 </td>
@@ -128,7 +104,7 @@ async function executarBusca(db) {
 
     } catch (err) {
         console.error('Erro na pesquisa:', err);
-        alert('Erro ao pesquisar fiscais.');
+        abrirModal('Erro ao pesquisar fiscais.');
     }
 }
 
@@ -142,15 +118,16 @@ async function carregarFiscalDireto(db, matricula) {
             .single();
 
         if (error || !data) {
-            alert('Fiscal não encontrado.');
+            abrirModal('Fiscal não encontrado.');
             return;
         }
 
         document.querySelector('#matricula').value = data.matricula_fiscal || '';
         document.querySelector('#nome').value = data.nome || '';
-        document.querySelector('#cpf').value = data.cpf || '';
+        document.querySelector('#cpf').value = formatarCpf(data.cpf);
         document.querySelector('#email').value = data.email || '';
-        document.querySelector('#telefone').value = data.fk_telefone_fiscal_telefone_fiscal_pk || '';
+        document.querySelector('#telefone').value = formatarTelefone(data.fk_telefone_fiscal_telefone_fiscal_pk);
+        document.querySelector('#senha-nova').value = '';
         document.querySelector('#observacao').value = data.observacao || '';
         document.querySelector('#cargo_id').value = data.fk_cargo_id ?? '';
         document.querySelector('#setor_id').value = data.fk_idsetor ?? '';
@@ -171,25 +148,31 @@ async function salvarAlteracoes(db) {
 
     const matricula = document.querySelector('#matricula').value.trim();
     if (!matricula) {
-        alert('Selecione um fiscal na tabela acima antes de salvar.');
+        abrirModal('Selecione um fiscal na tabela acima antes de salvar.');
         return;
     }
 
     const nome = document.querySelector('#nome').value.trim();
-    const cpf = document.querySelector('#cpf').value.trim();
+    const cpf = somenteNumeros(document.querySelector('#cpf').value);
     const email = document.querySelector('#email').value.trim();
-    const telefone = document.querySelector('#telefone').value.trim();
+    const telefone = somenteNumeros(document.querySelector('#telefone').value);
     const observacao = document.querySelector('#observacao').value.trim();
     const cargo = document.querySelector('#cargo_id').value;
     const setor = document.querySelector('#setor_id').value;
     const nivelAcesso = document.querySelector('#nivel_acesso_id').value;
+    const senhaNova = document.querySelector('#senha-nova').value.trim();
+
+    if (senhaNova && senhaNova.length < 6) {
+        abrirModal('A nova senha deve ter pelo menos 6 caracteres.');
+        return;
+    }
 
     try {
         const { error } = await db
             .from('fiscal')
             .update({
                 nome: nome,
-                cpf: cpf, // O banco de dados vai receber a formatação bonitinha!
+                cpf: cpf,
                 email: email,
                 fk_telefone_fiscal_telefone_fiscal_pk: telefone || null,
                 observacao: observacao,
@@ -201,14 +184,24 @@ async function salvarAlteracoes(db) {
 
         if (error) throw error;
 
-        if (typeof window.finalizarAcaoFiscal === 'function') {
-            window.finalizarAcaoFiscal('Fiscal atualizado com sucesso.');
-        } else {
-            alert('Fiscal atualizado com sucesso.');
+        if (senhaNova) {
+            const respostaSenha = await fetch(`/api/fiscais/${encodeURIComponent(matricula)}/senha`, {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                credentials: 'same-origin',
+                body: JSON.stringify({ senha: senhaNova })
+            });
+            const resultadoSenha = await respostaSenha.json();
+            if (!respostaSenha.ok) {
+                throw new Error(`Os dados do fiscal foram salvos, mas a senha não foi alterada: ${resultadoSenha.mensagem || 'erro no servidor.'}`);
+            }
         }
+
+        document.querySelector('#senha-nova').value = '';
+        await concluirAcao(senhaNova ? 'Dados do fiscal e senha atualizados com sucesso.' : 'Dados do fiscal atualizados com sucesso.');
     } catch (err) {
         console.error('Erro ao atualizar:', err);
-        alert('Erro ao atualizar: ' + (err.message || JSON.stringify(err)));
+        abrirModal('Erro ao atualizar: ' + (err.message || JSON.stringify(err)));
     }
 }
 

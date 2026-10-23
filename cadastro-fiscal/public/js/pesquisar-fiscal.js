@@ -67,7 +67,6 @@ async function executarPesquisa(db, mostrarResultados = true) {
     try {
         let query = db.from('fiscal').select('*').order('matricula_fiscal', { ascending: true });
         if (nome) query = query.ilike('nome', `%${nome}%`);
-        if (cpf) query = query.eq('cpf', cpf.replace(/\D/g, ''));
         if (matricula) query = query.ilike('matricula_fiscal', `%${matricula}%`);
         if (cargo) query = query.eq('fk_cargo_id', cargo);
         if (setor) query = query.eq('fk_idsetor', setor);
@@ -78,7 +77,11 @@ async function executarPesquisa(db, mostrarResultados = true) {
 
         const { data, error } = await query;
         if (error) throw error;
-        renderizarTabela(data || []);
+        const cpfNumeros = somenteNumeros(cpf);
+        const fiscais = cpfNumeros
+            ? (data || []).filter(fiscal => somenteNumeros(fiscal.cpf).includes(cpfNumeros))
+            : (data || []);
+        renderizarTabela(fiscais);
         const container = document.querySelector('#resultado-pesquisa');
         if (container && mostrarResultados) container.hidden = false;
     } catch (error) {
@@ -104,8 +107,8 @@ function renderizarTabela(fiscais) {
         <tr>
             <td>${fiscal.matricula_fiscal || '-'}</td>
             <td class="is-strong">${fiscal.nome || '-'}</td>
-            <td>${fiscal.cpf || '-'}</td>
-            <td>${fiscal.fk_telefone_fiscal_telefone_fiscal_pk || '-'}</td>
+            <td>${formatarCpf(fiscal.cpf) || '-'}</td>
+            <td>${formatarTelefone(fiscal.fk_telefone_fiscal_telefone_fiscal_pk) || '-'}</td>
             <td>${fiscal.email || '-'}</td>
             <td>${fiscal.data_admissao ? new Date(`${fiscal.data_admissao}T00:00:00`).toLocaleDateString('pt-BR') : '-'}</td>
             <td class="is-centered"><a class="fiscal-button is-primary" href="editar-fiscal.html?matricula=${encodeURIComponent(fiscal.matricula_fiscal || '')}">Editar</a></td>

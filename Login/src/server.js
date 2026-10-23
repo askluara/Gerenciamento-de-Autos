@@ -97,7 +97,7 @@ app.post('/api/login', async(req, res) => {
         if (error) return res.status(500).json({ sucesso: false, mensagem: 'Não foi possível conectar ao banco de dados.' });
 
         if (credenciais && credenciais.length > 0) {
-            const usuario = credenciais[0];
+            const { senha_hash, ...usuario } = credenciais[0];
             req.session.usuarioLogado = true;
             req.session.usuario = usuario;
 
@@ -230,7 +230,23 @@ app.get('/api/niveis-acesso', protegerRota, async (req, res) => {
 // Rota para Cadastrar o Fiscal no Banco de Dados
 app.post('/api/fiscais/cadastrar', protegerRota, async (req, res) => {
     try {
-        const novoFiscal = req.body;
+        if (!req.session.usuario?.is_admin) {
+            return res.status(403).json({ sucesso: false, mensagem: 'Somente administradores podem cadastrar fiscais e credenciais.' });
+        }
+
+        const { credencial, ...novoFiscal } = req.body;
+        const matricula = String(novoFiscal.matricula_fiscal || '').trim();
+        const senha = String(credencial?.senha || '');
+        if (!matricula || senha.length < 6) {
+            return res.status(400).json({ sucesso: false, mensagem: 'Informe uma matrícula e uma senha com pelo menos 6 caracteres.' });
+        }
+
+        const { data: credenciaisExistentes, error: erroConsulta } = await supabase
+            .from('credencial').select('login').eq('login', matricula).limit(1);
+        if (erroConsulta) throw erroConsulta;
+        if (credenciaisExistentes?.length) {
+            return res.status(409).json({ sucesso: false, mensagem: 'Já existe uma credencial com essa matrícula.' });
+        }
         
         // Insere o fiscal na tabela 'fiscal' do Supabase
         const { data, error } = await supabase
@@ -239,10 +255,55 @@ app.post('/api/fiscais/cadastrar', protegerRota, async (req, res) => {
             .select();
 
         if (error) throw error;
+
+        const { error: erroCredencial } = await supabase.from('credencial').insert([{
+            login: matricula,
+            senha_hash: senha,
+            perfil: 'FISCAL',
+            matricula_fiscal: matricula,
+            matricula_coordenador: null,
+            ativo: true,
+            data_criacao: new Date().toISOString(),
+            is_admin: false
+        }]);
+        if (erroCredencial) {
+            await supabase.from('fiscal').delete().eq('matricula_fiscal', matricula);
+            throw erroCredencial;
+        }
         return res.status(201).json({ sucesso: true, fiscal: data[0] });
     } catch (err) {
         console.error("Erro no cadastro de fiscal:", err);
         return res.status(500).json({ sucesso: false, mensagem: 'Erro ao gravar fiscal no banco de dados.' });
+    }
+});
+
+app.patch('/api/fiscais/:matricula/senha', protegerRota, async (req, res) => {
+    if (!req.session.usuario?.is_admin) {
+        return res.status(403).json({ sucesso: false, mensagem: 'Somente administradores podem alterar senhas de fiscais.' });
+    }
+
+    const matricula = String(req.params.matricula || '').trim();
+    const senha = String(req.body.senha || '').trim();
+    if (!matricula || senha.length < 6) {
+        return res.status(400).json({ sucesso: false, mensagem: 'Informe uma senha com pelo menos 6 caracteres.' });
+    }
+
+    try {
+        const { data, error } = await supabase
+            .from('credencial')
+            .update({ senha_hash: senha })
+            .eq('login', matricula)
+            .eq('matricula_fiscal', matricula)
+            .select('login');
+
+        if (error) throw error;
+        if (!data?.length) {
+            return res.status(404).json({ sucesso: false, mensagem: 'Não foi encontrada uma credencial de fiscal para essa matrícula.' });
+        }
+        return res.json({ sucesso: true });
+    } catch (err) {
+        console.error('Erro ao atualizar senha do fiscal:', err);
+        return res.status(500).json({ sucesso: false, mensagem: 'Não foi possível atualizar a senha.' });
     }
 });
 

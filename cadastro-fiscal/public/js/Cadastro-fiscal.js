@@ -15,35 +15,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 });
 
-// Função para aplicar as máscaras em tempo real
-function aplicarMascaras() {
-    const cpfInput = document.getElementById('cpf');
-    const telInput = document.getElementById('telefone');
-
-    if (cpfInput) {
-        cpfInput.addEventListener('input', function(e) {
-            let valor = e.target.value.replace(/\D/g, ""); // Remove tudo o que não é número
-            valor = valor.substring(0, 11); // Limita a exatamente 11 números antes de formatar
-            
-            valor = valor.replace(/(\d{3})(\d)/, "$1.$2");
-            valor = valor.replace(/(\d{3})(\d)/, "$1.$2");
-            valor = valor.replace(/(\d{3})(\d{1,2})$/, "$1-$2");
-            e.target.value = valor;
-        });
-    }
-
-    if (telInput) {
-        telInput.addEventListener('input', function(e) {
-            let valor = e.target.value.replace(/\D/g, ""); // Remove tudo o que não é número
-            valor = valor.substring(0, 11); // Limita o telefone a 11 números (2 do DDD + 9 dígitos)
-            
-            valor = valor.replace(/^(\d{2})(\d)/g, "($1) $2");
-            valor = valor.replace(/(\d)(\d{4})$/, "$1-$2");
-            e.target.value = valor;
-        });
-    }
-}
-
 // Busca os dados na API e preenche os campos <select>
 async function carregarOpcoesSelects() {
     try {
@@ -89,20 +60,22 @@ async function carregarOpcoesSelects() {
 
 // Envia os dados do formulário para o back-end
 async function salvarFiscal() {
-    const matriculaGerada = 'FS' + Math.floor(Math.random() * 100000).toString().padStart(5, '0');
+    const matricula = document.getElementById('matricula').value.trim();
+    const senha = document.getElementById('senha').value;
 
     const novoFiscal = {
-        matricula_fiscal: matriculaGerada,
+        matricula_fiscal: matricula,
         nome: document.getElementById('nome').value,
-        cpf: document.getElementById('cpf').value,
+        cpf: somenteNumeros(document.getElementById('cpf').value),
         email: document.getElementById('email').value,
-        fk_telefone_fiscal_telefone_fiscal_pk: document.getElementById('telefone').value,
+        fk_telefone_fiscal_telefone_fiscal_pk: somenteNumeros(document.getElementById('telefone').value) || null,
         data_admissao: document.getElementById('data_admissao').value,
         fk_cargo_id: document.getElementById('cargo_id').value,
         fk_idsetor: document.getElementById('setor_id').value,
         fk_idnivelacesso: document.getElementById('nivel_acesso_id').value,
         observacao: document.getElementById('observacoes').value,
-        ativo: true
+        ativo: true,
+        credencial: { senha }
     };
 
     try {
@@ -113,14 +86,13 @@ async function salvarFiscal() {
         });
 
         if (res.ok) {
-            alert(`Fiscal cadastrado com sucesso! Matrícula: ${matriculaGerada}`);
-            document.getElementById('formCadastroFiscal').reset();
+            await concluirAcao(`Fiscal cadastrado com sucesso! Matrícula: ${matricula}`);
         } else {
             const erro = await res.json();
-            alert('Erro ao cadastrar: ' + (erro.mensagem || 'Verifique os dados informados.'));
+            abrirModal('Erro ao cadastrar: ' + (erro.mensagem || 'Verifique os dados informados.'));
         }
     } catch (erro) {
         console.error('Erro na requisição:', erro);
-        alert('Erro de conexão com o servidor.');
+        abrirModal('Erro de conexão com o servidor.');
     }
 }

@@ -11,7 +11,7 @@
 
 body {
     display: flex;
-    height: 100vh;
+    min-height: 100vh;
     background-color: #f7f9fc;
     color: #172033;
     overflow-x: hidden;
@@ -19,7 +19,10 @@ body {
 
 /* ==================== MENU LATERAL ==================== */
 .sidebar {
+    position: fixed;
+    inset: 0 auto 0 0;
     width: 260px;
+    height: 100vh;
     background-color: #1b3899;
     color: #ffffff;
     display: flex;
@@ -34,6 +37,7 @@ body {
 .sidebar::-webkit-scrollbar {
     display: none;
 }
+.sidebar-launcher { display: none; }
 
 .sidebar-header {
     height: 70px;
@@ -125,10 +129,18 @@ body {
 /* ==================== ÁREA PRINCIPAL E CABEÇALHO IDÊNTICO AO FISCAL ==================== */
 .main-content {
     flex: 1;
+    margin-left: 260px;
     display: flex;
     flex-direction: column;
     overflow-y: auto;
     background-color: #f7f9fc;
+}
+
+@media (max-width: 900px) {
+    .sidebar { left: -260px; }
+    .sidebar.active { left: 0; }
+    .main-content { margin-left: 0; }
+    .sidebar-launcher { display: grid; place-items: center; position: fixed; top: 14px; left: 14px; z-index: 999; width: 40px; height: 40px; color: #fff; background: #1b3899; border: 0; border-radius: 8px; }
 }
 
 .top-header {

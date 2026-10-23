@@ -76,7 +76,7 @@ async function carregarInfracoes() {
         renderizarTabela(infracoes);
     } catch (erro) {
         console.error('Erro ao buscar dados:', erro);
-        alert('Não foi possível conectar com o back-end.');
+        abrirModal('Não foi possível conectar com o back-end.');
     }
 }
 

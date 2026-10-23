@@ -32,13 +32,18 @@ body {
    -------------------------------------------------------------------------- */
 
 .sidebar {
+    position: fixed;
+    inset: 0 auto 0 0;
     width: 260px;
+    height: 100vh;
     background-color: #1b3899;
     color: #ffffff;
     display: flex;
     flex-direction: column;
     flex-shrink: 0;
     transition: all 0.3s ease;
+    overflow: hidden;
+    z-index: 1000;
 }
 
 .sidebar-header {
@@ -68,6 +73,8 @@ body {
     padding: 10px 15px;
     overflow-y: auto;
 }
+
+.sidebar-launcher { display: none; }
 
 .sidebar-section {
     margin-bottom: 25px;
@@ -126,6 +133,7 @@ body {
 
 .main-content {
     flex: 1;
+    margin-left: 260px;
     display: flex;
     flex-direction: column;
     background-color: #f8fafc;
@@ -395,11 +403,7 @@ body {
 
 @media (max-width: 900px) {
     .sidebar {
-        position: fixed;
         left: -260px;
-        top: 0;
-        bottom: 0;
-        z-index: 1000;
     }
     .sidebar.active {
         left: 0;
@@ -409,6 +413,21 @@ body {
     }
     .table-section {
         overflow-x: auto;
+    }
+    .main-content { margin-left: 0; }
+    .sidebar-launcher {
+        display: grid;
+        place-items: center;
+        position: fixed;
+        top: 14px;
+        left: 14px;
+        z-index: 999;
+        width: 40px;
+        height: 40px;
+        color: #fff;
+        background: #1b3899;
+        border: 0;
+        border-radius: 8px;
     }
 }
 
