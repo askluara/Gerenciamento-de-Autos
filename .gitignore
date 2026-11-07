@@ -17,3 +17,6 @@
 Thumbs.db
 *.swp
 *.swo
+
+# Interface compilada automaticamente pelo prestart
+Login/public/autos-ui/
