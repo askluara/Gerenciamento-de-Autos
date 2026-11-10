@@ -5,23 +5,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Pesquisar Infrações - SIGAI</title>
     
-    <!-- CSS Global (Sidebar e Header) -->
     <link rel="stylesheet" href="/css/home.css">
-    
-    <!-- CSS Padronizado do Sistema (Substitui o antigo style.css) -->
     <link rel="stylesheet" href="/cadastro-fiscal/css/Cadastro-fiscal.css">
-   
-    
-    <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body data-fiscal-page="pesquisar-infracao">
 
-    <!-- O script de layout procura esta div para injetar o menu lateral e o topo -->
     <div class="main-container">
         <div class="page-content">
             
-            <!-- CABEÇALHO PADRONIZADO (Igual ao de fiscais) -->
             <div class="fiscal-page-heading">
                 <div class="fiscal-heading-icon">
                     <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
@@ -35,7 +27,6 @@
                 </div>
             </div>
 
-            <!-- Cartão de Filtros -->
             <section class="fiscal-card">
                 <div class="fiscal-card-header">
                     <h3>Filtros de Busca</h3>
@@ -43,17 +34,22 @@
                 <div class="fiscal-card-body">
                     <form id="form-pesquisa">
                         <div class="fiscal-form-grid">
-                            <div class="fiscal-field">
-                                <label>Código</label>
-                                <input type="text" id="filtro_codigo" placeholder="Ex: INF-001">
-                            </div>
+                            <!-- Campo Código removido -->
                             <div class="fiscal-field">
                                 <label>Descrição</label>
                                 <input type="text" id="filtro_descricao" placeholder="Palavra-chave na descrição">
                             </div>
                             <div class="fiscal-field">
                                 <label>Categoria</label>
-                                <input type="text" id="filtro_categoria" placeholder="Todas as categorias">
+                                <!-- Transformado em Select -->
+                                <select id="filtro_categoria">
+                                    <option value="">Todas as categorias</option>
+                                    <option value="Sanitária">Sanitária</option>
+                                    <option value="Ambiental">Ambiental</option>
+                                    <option value="Posturas Municipais">Posturas Municipais</option>
+                                    <option value="Funcionamento Irregular">Funcionamento Irregular</option>
+                                    <option value="Outra">Outra</option>
+                                </select>
                             </div>
                         </div>
                         <div class="fiscal-form-actions" style="margin-top: 20px;">
@@ -68,18 +64,18 @@
                 </div>
             </section>
 
-            <!-- Cartão da Tabela de Resultados -->
             <section class="fiscal-card">
                 <div class="fiscal-card-body">
                     <div class="fiscal-table-wrap">
                         <table class="fiscal-table">
                             <thead>
                                 <tr>
-                                    <th>Código</th>
+                                    <!-- Coluna Código removida -->
                                     <th>Descrição</th>
                                     <th>Categoria</th>
                                     <th>Artigo</th>
-                                    <th>Valor Base (R$)</th>
+                                    <!-- Atualizado para UFMs para manter a coerência com o cadastro -->
+                                    <th>UFMs</th> 
                                 </tr>
                             </thead>
                             <tbody id="tabela-resultados">
@@ -93,14 +89,9 @@
         </div>
     </div>
 
-    <!-- 1. O script original que traz os estilos da barra lateral -->
     <script src="/js/sidebar.js"></script>
-    
-    <!-- 2. O nosso script que injeta o menu padronizado e o cabeçalho novo -->
     <script src="/cadastro-fiscal/js/fiscal-layout.js"></script>
-    
-    <!-- Restantes scripts da página -->
-    <script src="/cadastro-infracao/js/pesquisar.js"></script> <!-- ou pesquisar.js / editar_excluir.js -->
+    <script src="/cadastro-infracao/js/pesquisar.js"></script> 
     <script src="/js/formatadores.js"></script>
     <script src="/js/modal.js"></script>
 </body>

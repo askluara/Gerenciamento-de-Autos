@@ -15,7 +15,6 @@
 
     <!-- O script de layout procura esta div para injetar o menu lateral e o topo -->
     <div class="main-container">
-        <!-- CORREÇÃO: Trocado de 'page-content' para 'content-wrapper' para evitar duplicidade de CSS -->
         <div class="content-wrapper">
             <div class="fiscal-page-heading">
                 <div class="fiscal-heading-icon">
@@ -38,12 +37,15 @@
                     <div class="fiscal-card-body">
                         <div class="fiscal-form-grid">
                             <div class="fiscal-field">
-                                <label>Código da Infração <span class="required">*</span></label>
-                                <input type="text" id="id_infracao" placeholder="Gerando código..." readonly required style="background-color: #f1f5f9; cursor: not-allowed; color: #64748b; border-color: #e2e8f0;">
-                            </div>
-                            <div class="fiscal-field">
                                 <label>Categoria <span class="required">*</span></label>
-                                <input type="text" id="tipo" placeholder="Digite a categoria" required>
+                                <select id="tipo" required>
+                                    <option value="" disabled selected>Selecione a categoria</option>
+                                    <option value="Sanitária">Sanitária</option>
+                                    <option value="Ambiental">Ambiental</option>
+                                    <option value="Posturas Municipais">Posturas Municipais</option>
+                                    <option value="Funcionamento Irregular">Funcionamento Irregular</option>
+                                    <option value="Outra">Outra</option>
+                                </select>
                             </div>
                         </div>
                         <div class="fiscal-field is-full" style="margin-top: 13px;">
@@ -62,10 +64,14 @@
                             <label>Artigo / Lei de Referência <span class="required">*</span></label>
                             <input type="text" id="artigo" placeholder="Ex: Art. 45, §2º da Lei Municipal nº 1.234/2010" required>
                         </div>
-                        <div class="fiscal-form-grid">
+                        <div class="fiscal-form-grid" style="align-items: flex-end;">
                             <div class="fiscal-field">
-                                <label>Valor Base (R$) <span class="required">*</span></label>
-                                <input type="number" id="valor_base" placeholder="0,00" step="0.01" required>
+                                <label>Unidade Fiscal Municipal (UFMs) <span class="required">*</span></label>
+                                <input type="number" id="valor_base" placeholder="Ex: 15" step="1" min="1" required>
+                            </div>
+                            <div class="fiscal-field">
+                                <label>Valor Convertido (R$)</label>
+                                <input type="text" id="valor_calculado" value="R$ 0,00" readonly style="background-color: #f1f5f9; border-color: #e2e8f0; color: #0f172a; font-weight: 600; cursor: default;">
                             </div>
                         </div>
                     </div>
@@ -73,20 +79,17 @@
 
                 <div class="fiscal-form-actions">
                     <button type="submit" class="fiscal-button is-primary">💾 Cadastrar Infração</button>
-                    <button type="button" class="fiscal-button" onclick="document.getElementById('form-infracao').reset()">✖ Limpar</button>
+                    <!-- Limpa o formulário e reseta a calculadora para R$ 0,00 -->
+                    <button type="button" class="fiscal-button" onclick="document.getElementById('form-infracao').reset(); document.getElementById('valor_calculado').value='R$ 0,00';">✖ Limpar</button>
                 </div>
             </form>
         </div>
     </div>
 
-    <!-- 1. O script original que traz os estilos da barra lateral -->
+    <!-- Scripts da página -->
     <script src="/js/sidebar.js"></script>
-    
-    <!-- 2. O nosso script que injeta o menu padronizado e o cabeçalho novo -->
     <script src="/cadastro-fiscal/js/fiscal-layout.js"></script>
-    
-    <!-- Restantes scripts da página -->
-    <script src="/cadastro-infracao/js/script.js"></script> <!-- ou pesquisar.js / editar_excluir.js -->
+    <script src="/cadastro-infracao/js/script.js"></script> 
     <script src="/js/formatadores.js"></script>
     <script src="/js/modal.js"></script>
     <script src="/js/unsaved-changes.js"></script>
