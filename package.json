@@ -5,7 +5,9 @@
   "description": "Sistema web para gerenciamento de autos de infracao",
   "main": "Login/src/server.js",
   "scripts": {
-    "start": "cd Login && node src/server.js"
+    "start": "cd Login && node src/server.js",
+    "build:autos-ui": "npm --prefix autos-ui install && npm --prefix autos-ui run build",
+    "prestart": "npm run build:autos-ui"
   },
   "engines": {
     "node": ">=22"
