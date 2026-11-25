@@ -37,11 +37,12 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 // Rota relativa para a API
 const API_URL = '/infracoes';
+let infracaoSelecionada = null;
 
 // Função para buscar e desenhar a tabela
 async function carregarInfracoes() {
     try {
-        const resposta = await fetch(API_URL);
+        const resposta = await fetch(API_URL, { credentials: 'include' });
         if (!resposta.ok) throw new Error('Falha na resposta do servidor');
         
         const infracoes = await resposta.json();
@@ -50,9 +51,11 @@ async function carregarInfracoes() {
         if (!tbody) return;
         
         tbody.innerHTML = ''; 
+        infracaoSelecionada = null;
+        document.getElementById('acoes-infracao-selecionada').hidden = true;
 
         if (!infracoes || infracoes.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 20px;">Nenhuma infração registada.</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; padding: 20px;">Nenhuma infração registada.</td></tr>';
             return;
         }
 
@@ -65,20 +68,63 @@ async function carregarInfracoes() {
                 <td id="td-desc-${inf.id_infracao}">${inf.descricao || '-'}</td>
                 <td id="td-tipo-${inf.id_infracao}">${inf.tipo || '-'}</td>
                 <td id="td-artigo-${inf.id_infracao}">${inf.artigo || '-'}</td>
-                <td id="td-valor-${inf.id_infracao}">${Number(inf.valor_base || 0).toFixed(2)}</td>
-                <td id="td-acoes-${inf.id_infracao}" style="text-align: center;">
-                    <button onclick="habilitarEdicao('${inf.id_infracao}')" style="background: #f59e0b; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-weight: bold; margin-right: 5px;">✏️ Editar</button>
-                    <button onclick="excluirInfracao('${inf.id_infracao}')" style="background: #ef4444; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-weight: bold;">🗑️ Excluir</button>
-                </td>
+                <td id="td-valor-${inf.id_infracao}">${parseInt(inf.valor_base || 0)}</td>
             `;
+            tr.tabIndex = 0;
+            tr.dataset.infracaoId = inf.id_infracao;
+            tr.style.cursor = 'pointer';
+            tr.setAttribute('aria-label', `Selecionar infração ${inf.id_infracao}: ${inf.descricao || ''}`);
+            
+            // Clicar com o mouse
+            tr.addEventListener('click', (event) => {
+                // Se clicou dentro de um input/botão, não faz a seleção da linha inteira
+                if (event.target.tagName === 'INPUT' || event.target.tagName === 'SELECT' || event.target.tagName === 'BUTTON') return;
+                
+                if(!document.getElementById(`input-desc-${inf.id_infracao}`)) {
+                    selecionarInfracao(inf);
+                }
+            });
+            
+            // Teclado (Correção do bug do ESPAÇO)
+            tr.addEventListener('keydown', event => {
+                // Se o usuário estiver a escrever dentro de uma caixa de texto, ignora o comando de seleção!
+                if (event.target.tagName === 'INPUT' || event.target.tagName === 'SELECT' || event.target.tagName === 'BUTTON') {
+                    return; 
+                }
+
+                if (event.key === 'Enter' || event.key === ' ') {
+                    event.preventDefault(); // Só bloqueia o espaço se for para selecionar a linha
+                    if(!document.getElementById(`input-desc-${inf.id_infracao}`)) {
+                        selecionarInfracao(inf);
+                    }
+                }
+            });
             tbody.appendChild(tr);
         });
     } catch (erro) {
         console.error('Erro ao carregar:', erro);
         const tbody = document.getElementById('tabela-acoes');
-        if (tbody) tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: red;">Erro ao carregar os dados do servidor.</td></tr>';
+        if (tbody) tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: red;">Erro ao carregar os dados do servidor.</td></tr>';
     }
 }
+
+function selecionarInfracao(infracao) {
+    infracaoSelecionada = infracao;
+    document.querySelectorAll('#tabela-acoes tr[data-infracao-id]').forEach(linha => {
+        linha.classList.toggle('is-selected', linha.dataset.infracaoId === String(infracao.id_infracao));
+    });
+    document.getElementById('infracao-selecionada-label').textContent = `Selecionada: ${infracao.id_infracao} — ${infracao.descricao || ''}`;
+    document.getElementById('acoes-infracao-selecionada').hidden = false;
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    document.getElementById('btn-editar-infracao')?.addEventListener('click', () => {
+        if (infracaoSelecionada) habilitarEdicao(infracaoSelecionada.id_infracao);
+    });
+    document.getElementById('btn-excluir-infracao')?.addEventListener('click', () => {
+        if (infracaoSelecionada) excluirInfracao(infracaoSelecionada.id_infracao);
+    });
+});
 
 // Funções de CRUD
 async function excluirInfracao(id) {
@@ -92,6 +138,7 @@ async function excluirInfracao(id) {
         const resposta = await fetch(`${API_URL}/${id}`, { method: 'DELETE' });
 
         if (resposta.ok) {
+            window.limparAlteracoesPendentes?.();
             await concluirAcao('Infração excluída com sucesso.');
             carregarInfracoes(); // Recarrega a tabela
         } else {
@@ -107,7 +154,8 @@ function habilitarEdicao(id) {
     const tdTipo = document.getElementById(`td-tipo-${id}`);
     const tdArtigo = document.getElementById(`td-artigo-${id}`);
     const tdValor = document.getElementById(`td-valor-${id}`);
-    const tdAcoes = document.getElementById(`td-acoes-${id}`);
+    
+    document.getElementById('acoes-infracao-selecionada').hidden = true;
 
     const descAtual = tdDesc.innerText === '-' ? '' : tdDesc.innerText;
     const tipoAtual = tdTipo.innerText === '-' ? '' : tdTipo.innerText;
@@ -115,13 +163,24 @@ function habilitarEdicao(id) {
     const valorAtual = tdValor.innerText;
 
     tdDesc.innerHTML = `<input type="text" id="input-desc-${id}" value="${descAtual}" style="width: 100%; padding: 5px; border: 1px solid #ccc; border-radius: 4px;">`;
-    tdTipo.innerHTML = `<input type="text" id="input-tipo-${id}" value="${tipoAtual}" style="width: 100%; padding: 5px; border: 1px solid #ccc; border-radius: 4px;">`;
-    tdArtigo.innerHTML = `<input type="text" id="input-artigo-${id}" value="${artAtual}" style="width: 100%; padding: 5px; border: 1px solid #ccc; border-radius: 4px;">`;
-    tdValor.innerHTML = `<input type="number" step="0.01" id="input-valor-${id}" value="${valorAtual}" style="width: 80px; padding: 5px; border: 1px solid #ccc; border-radius: 4px;">`;
+    
+    const categorias = ["Sanitária", "Ambiental", "Posturas Municipais", "Funcionamento Irregular", "Outra"];
+    let selectHTML = `<select id="input-tipo-${id}" style="width: 100%; padding: 5px; border: 1px solid #ccc; border-radius: 4px;">`;
+    categorias.forEach(cat => {
+        const selecionado = (cat.toLowerCase() === tipoAtual.toLowerCase()) ? 'selected' : '';
+        selectHTML += `<option value="${cat}" ${selecionado}>${cat}</option>`;
+    });
+    selectHTML += `</select>`;
+    tdTipo.innerHTML = selectHTML;
 
-    tdAcoes.innerHTML = `
-        <button onclick="salvarEdicao('${id}')" style="background: #10b981; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-weight: bold; margin-right: 5px;">💾 Salvar</button>
-        <button onclick="carregarInfracoes()" style="background: #6b7280; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-weight: bold;">✖ Cancelar</button>
+    tdArtigo.innerHTML = `<input type="text" id="input-artigo-${id}" value="${artAtual}" style="width: 100%; padding: 5px; border: 1px solid #ccc; border-radius: 4px;">`;
+    
+    tdValor.innerHTML = `
+        <div style="display: flex; gap: 8px; align-items: center;">
+            <input type="number" step="1" min="1" id="input-valor-${id}" value="${valorAtual}" style="width: 70px; padding: 5px; border: 1px solid #ccc; border-radius: 4px;">
+            <button onclick="salvarEdicao('${id}')" style="background: #10b981; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-weight: bold; white-space: nowrap;"><i class="fa-solid fa-floppy-disk"></i> Salvar</button>
+            <button onclick="carregarInfracoes()" style="background: #6b7280; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; font-weight: bold; white-space: nowrap;"><i class="fa-solid fa-xmark"></i> Cancelar</button>
+        </div>
     `;
 }
 
@@ -135,7 +194,7 @@ async function salvarEdicao(id) {
         descricao: novaDescricao,
         tipo: novoTipo,
         artigo: novoArtigo,
-        valor_base: Number(novoValor)
+        valor_base: parseInt(novoValor)
     };
 
     try {
@@ -146,6 +205,7 @@ async function salvarEdicao(id) {
         });
 
         if (resposta.ok) {
+            window.limparAlteracoesPendentes?.();
             await concluirAcao('Infração atualizada com sucesso.');
             carregarInfracoes(); // Recarrega a tabela atualizada
         } else {

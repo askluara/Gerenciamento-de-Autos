@@ -1,4 +1,4 @@
-document.addEventListener('DOMContentLoaded', () => {
+(() => {
     const pageContent = document.querySelector('.main-container');
     if (!pageContent) return;
 
@@ -73,4 +73,4 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         })
         .catch(err => console.error("Erro ao carregar sessão:", err));
-});
+})();

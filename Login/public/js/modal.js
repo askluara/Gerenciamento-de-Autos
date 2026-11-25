@@ -59,6 +59,7 @@
     window.confirmarModal = (mensagem, opcoes = {}) => abrirModal(mensagem, { ...opcoes, confirmar: true, titulo: opcoes.titulo || 'Confirmação' });
     window.concluirAcao = async mensagem => {
         await abrirModal(mensagem, { titulo: 'Ação concluída' });
+        window.limparAlteracoesPendentes?.();
         window.location.assign('/home');
     };
 })();

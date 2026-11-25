@@ -1,5 +1,5 @@
 // =========================================================
-// VALIDAÇÃO DE SESSÃO, ATUALIZAÇÃO DO PERFIL E CÓDIGO AUTOMÁTICO
+// VALIDAÇÃO DE SESSÃO E ATUALIZAÇÃO DO PERFIL
 // =========================================================
 document.addEventListener('DOMContentLoaded', async () => {
     // 1. Validação de Sessão
@@ -29,28 +29,28 @@ document.addEventListener('DOMContentLoaded', async () => {
         console.error("Erro na sessão:", error.message);
         window.location.href = '/';
     }
-
-    // 2. Geração do Código da Infração Visual (Auto-incremento)
-    const campoCodigo = document.getElementById('id_infracao');
-    if (campoCodigo) {
-        try {
-            const respostaInfracoes = await fetch('/infracoes');
-            if (respostaInfracoes.ok) {
-                const infracoes = await respostaInfracoes.json();
-                const proximoNumero = infracoes.length + 1;
-                campoCodigo.value = `INF-${String(proximoNumero).padStart(3, '0')}`;
-            } else {
-                campoCodigo.value = 'Erro ao gerar';
-            }
-        } catch (erro) {
-            console.error('Erro ao buscar o próximo código:', erro);
-            campoCodigo.placeholder = 'Falha ao carregar';
-        }
-    }
 });
 // =========================================================
 
-const API_URL = '/infracoes'; // Uso de rota relativa para evitar problemas caso mude de porta
+// ==========================================
+// CALCULADORA DINÂMICA DE UFMs
+// ==========================================
+const campoUFM = document.getElementById('valor_base');
+const campoCalculado = document.getElementById('valor_calculado');
+const VALOR_UFM_REAIS = 29.00; // Valor fixo de 1 UFM (em Reais)
+
+if (campoUFM && campoCalculado) {
+    campoUFM.addEventListener('input', () => {
+        // Pega o valor digitado (garante que é inteiro). Se apagar o número, assume 0.
+        const qtdUFMs = parseInt(campoUFM.value) || 0; 
+        const totalReais = qtdUFMs * VALOR_UFM_REAIS;
+        
+        // Formata o resultado automaticamente para o padrão moeda do Brasil (R$ 0,00)
+        campoCalculado.value = totalReais.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+    });
+}
+
+const API_URL = '/infracoes'; 
 
 // ==========================================
 // [POST] Função para Cadastrar Nova Infração
@@ -68,12 +68,12 @@ if (formInfracao) {
             const artigo = document.getElementById('artigo').value;
             const valor_base = document.getElementById('valor_base').value;
 
-            // O id_infracao não precisa ser enviado, o server.js já o cria automaticamente!
+            // O id_infracao não precisa ser enviado, o server.js/banco o cria automaticamente!
             const novaInfracao = {
                 descricao: descricao,
                 tipo: tipo,
                 artigo: artigo,
-                valor_base: Number(valor_base)
+                valor_base: parseInt(valor_base) // Garantindo o número inteiro de UFMs
             };
 
             const resposta = await fetch(API_URL, {
@@ -87,15 +87,9 @@ if (formInfracao) {
             if (resposta.ok) {
                 await concluirAcao('Infração cadastrada com sucesso.');
                 
-                // Atualiza o visual do código para o próximo número após o cadastro
-                const campoCodigo = document.getElementById('id_infracao');
-                if (campoCodigo) {
-                    const partes = campoCodigo.value.split('-');
-                    if(partes.length === 2) {
-                        const prox = parseInt(partes[1]) + 1;
-                        campoCodigo.value = `INF-${String(prox).padStart(3, '0')}`;
-                    }
-                }
+                // Limpa o formulário e zera a calculadora de Reais após cadastrar
+                formInfracao.reset();
+                if (campoCalculado) campoCalculado.value = 'R$ 0,00';
             } else {
                 abrirModal('❌ Erro ao tentar cadastrar no banco de dados. Verifique o terminal do Node.js.');
             }

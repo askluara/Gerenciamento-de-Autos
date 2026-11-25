@@ -1,0 +1,22 @@
+{
+  "name": "sigai-autos-ui",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "build": "vite build"
+  },
+  "dependencies": {
+    "@tailwindcss/vite": "4.1.12",
+    "@vitejs/plugin-react": "4.7.0",
+    "lucide-react": "0.487.0",
+    "react": "18.3.1",
+    "react-dom": "18.3.1",
+    "tailwindcss": "4.1.12",
+    "vite": "6.3.5"
+  },
+  "devDependencies": {
+    "@types/react": "^18.3.18",
+    "@types/react-dom": "^18.3.5"
+  }
+}

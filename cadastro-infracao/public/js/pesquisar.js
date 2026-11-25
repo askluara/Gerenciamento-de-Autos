@@ -38,7 +38,8 @@ const API_URL = '/infracoes';
 // Função para buscar e mostrar os dados na tabela
 async function carregarInfracoes() {
     try {
-        const resposta = await fetch(API_URL);
+        // Envia os cookies de sessão para o servidor validar o perfil
+        const resposta = await fetch(API_URL, { credentials: 'include' });
         if (!resposta.ok) throw new Error('Falha na resposta do servidor');
         
         const infracoes = await resposta.json();
@@ -46,7 +47,8 @@ async function carregarInfracoes() {
     } catch (erro) {
         console.error('Erro ao buscar dados:', erro);
         const tbody = document.getElementById('tabela-resultados');
-        if(tbody) tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: red;">Erro ao carregar os dados do servidor.</td></tr>';
+        // Colspan alterado para 4 pois removemos a coluna do código
+        if(tbody) tbody.innerHTML = '<tr><td colspan="4" style="text-align: center; color: red;">Erro ao carregar os dados do servidor.</td></tr>';
     }
 }
 
@@ -58,18 +60,19 @@ function renderizarTabela(infracoes) {
     tbody.innerHTML = ''; // Limpa a tabela antes de preencher
 
     if (!infracoes || infracoes.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; padding: 20px;">Nenhuma infração encontrada.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="4" style="text-align: center; padding: 20px;">Nenhuma infração encontrada.</td></tr>';
         return;
     }
 
     infracoes.forEach(infracao => {
         const tr = document.createElement('tr');
         tr.innerHTML = `
-            <td><strong>${infracao.id_infracao || '-'}</strong></td>
+            <!-- Coluna de Código removida -->
             <td>${infracao.descricao || '-'}</td>
             <td>${infracao.tipo || '-'}</td>
             <td>${infracao.artigo || '-'}</td>
-            <td>${Number(infracao.valor_base || 0).toFixed(2)}</td>
+            <!-- Renderiza o Valor Base como número inteiro (UFMs) -->
+            <td>${parseInt(infracao.valor_base || 0)}</td>
         `;
         tbody.appendChild(tr);
     });
@@ -81,24 +84,23 @@ if (formPesquisa) {
     formPesquisa.addEventListener('submit', async (evento) => {
         evento.preventDefault();
         
-        const filtroCodigo = document.getElementById('filtro_codigo')?.value.toLowerCase().trim() || '';
+        // Filtro de código removido
         const filtroDescricao = document.getElementById('filtro_descricao')?.value.toLowerCase().trim() || '';
         const filtroCategoria = document.getElementById('filtro_categoria')?.value.toLowerCase().trim() || '';
 
         try {
-            const resposta = await fetch(API_URL);
+            const resposta = await fetch(API_URL, { credentials: 'include' });
             const todasInfracoes = await resposta.json();
 
             const infraFiltradas = todasInfracoes.filter(inf => {
-                const codigo = (inf.id_infracao || '').toLowerCase();
                 const descricao = (inf.descricao || '').toLowerCase();
                 const categoria = (inf.tipo || '').toLowerCase();
                 
-                const bateCodigo = codigo.includes(filtroCodigo);
                 const bateDescricao = descricao.includes(filtroDescricao);
                 const bateCategoria = categoria.includes(filtroCategoria);
                 
-                return bateCodigo && bateDescricao && bateCategoria;
+                // Agora retorna apenas a validação da descrição e categoria
+                return bateDescricao && bateCategoria;
             });
 
             renderizarTabela(infraFiltradas);

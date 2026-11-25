@@ -1,14 +1,15 @@
-# login
-repositorio da tela de login do sistema de gerenciamento de autos de infração
+# Servidor principal
 
-## Perfis de acesso
+Este diretorio contem o servidor Express principal em `src/server.js`, o cliente Supabase em `src/supabase.js` e as paginas de login e painel em `public/`.
 
-O perfil da credencial controla os módulos exibidos na navegação e o acesso direto às páginas e APIs:
+A configuracao npm e compartilhada com a raiz do repositorio. Consulte o [README principal](../README.md) para instalar dependencias, configurar `Login/.env` e iniciar a aplicacao com `npm start` na raiz.
 
-| Perfil | Acesso |
+## Perfis
+
+| Perfil | Acesso previsto |
 | --- | --- |
-| Fiscal | Dashboard e CRUD de infrações |
-| Coordenador | Dashboard e CRUD de fiscais |
-| Administrador | Dashboard e ambos os CRUDs |
+| Fiscal | Painel e modulo de infracoes. |
+| Coordenador | Painel e modulo de fiscais. |
+| Administrador | Painel e ambos os modulos. |
 
-As credenciais devem usar `perfil` como `FISCAL`, `COORDENADOR` ou `ADMINISTRADOR`. A flag `is_admin` ou uma matrícula `matricula_admin` também identifica o administrador. A permissão de administrador não é inferida para perfis desconhecidos.
+O servidor aplica os controles de acesso nas paginas e nas rotas de API. As regras atuais estao em `src/server.js`.
