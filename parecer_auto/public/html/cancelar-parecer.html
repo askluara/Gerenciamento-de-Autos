@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>Cancelar Parecer | SIGAI</title><link rel="stylesheet" href="/css/home.css"><link rel="stylesheet" href="/cadastro-fiscal/css/Cadastro-fiscal.css"><link rel="stylesheet" href="/parecer_auto/css/parecer.css"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"></head>
+<body data-fiscal-page="cancelar-parecer"><main class="main-container"><div class="content-wrapper">
+    <div class="fiscal-page-heading"><span class="fiscal-heading-icon is-danger" aria-hidden="true"><i class="fa-solid fa-ban"></i></span><div><h2>Cancelar Parecer</h2><p>Realize o cancelamento lógico sem excluir o registro</p></div></div>
+    <section class="fiscal-card"><div class="fiscal-card-body"><form id="form-buscar-cancelamento"><div class="fiscal-inline-search"><div class="fiscal-field"><label for="busca-cancelamento">Número do Auto ou do Parecer</label><input id="busca-cancelamento" placeholder="Ex.: PAR-2026-041"></div><button class="fiscal-button is-primary" type="submit"><i class="fa-solid fa-magnifying-glass"></i> Buscar</button><button class="fiscal-button" type="button" id="limpar-busca-cancelamento">Mostrar todos</button></div></form></div></section>
+    <section class="fiscal-card" id="painel-cancelamento" hidden>
+        <div class="parecer-alert"><strong><i class="fa-solid fa-triangle-exclamation"></i> Deseja realmente cancelar este parecer?</strong><p>O parecer terá status <b>Cancelado</b> e o auto retornará para <b>Aguardando Parecer</b>.</p></div>
+        <div class="fiscal-card-body"><div class="fiscal-form-divider">Resumo do Parecer</div><div class="fiscal-form-grid is-three-column">
+            <div class="fiscal-field"><label>Parecer</label><input id="cancel-parecer" readonly></div><div class="fiscal-field"><label>Número do Auto</label><input id="cancel-auto" readonly></div><div class="fiscal-field"><label>Contribuinte</label><input id="cancel-contribuinte" readonly></div><div class="fiscal-field"><label>Decisão atual</label><input id="cancel-decisao" readonly></div>
+        </div></div>
+        <form id="form-cancelar-parecer" class="parecer-cancel-form">
+            <div class="fiscal-field"><label for="justificativa-cancelamento">Justificativa do Cancelamento <span class="required">*</span></label><textarea id="justificativa-cancelamento" required placeholder="Informe o motivo do cancelamento."></textarea><span class="fiscal-field-hint">A justificativa é obrigatória. O parecer será cancelado, sem exclusão definitiva do registro.</span></div>
+            <p class="parecer-restricao"><i class="fa-solid fa-circle-info"></i> Não é possível cancelar um parecer que já possui multa emitida. Cancele a multa primeiro.</p>
+            <div class="fiscal-form-actions"><button class="fiscal-button is-danger" type="submit"><i class="fa-solid fa-ban"></i> Confirmar Cancelamento</button><button class="fiscal-button" type="button" id="voltar-cancelamento">Voltar</button></div>
+        </form>
+    </section>
+    <section class="fiscal-card"><div class="fiscal-card-header"><h3>Pareceres cadastrados</h3></div><div class="fiscal-card-body"><p id="mensagem-cancelar-parecer" class="parecer-rule" role="status"></p><div class="fiscal-table-wrap"><table class="fiscal-table"><thead><tr><th>Parecer</th><th>Número do Auto</th><th>Contribuinte</th><th>Decisão</th><th>Data</th></tr></thead><tbody id="lista-cancelar-parecer"></tbody></table></div></div></section>
+</div></main>
+<script src="/js/sidebar.js"></script><script src="/cadastro-fiscal/js/fiscal-layout.js"></script><script src="/parecer_auto/js/cancelar-parecer.js"></script><script src="/js/modal.js"></script><script src="/js/unsaved-changes.js"></script></body></html>

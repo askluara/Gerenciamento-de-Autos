@@ -13,28 +13,43 @@
             ['/cadastro-infracao/cadastrar_infracao.html', 'Cadastrar Infração', 'fa-triangle-exclamation', 'cadastrar-infracao'],
             ['/cadastro-infracao/pesquisar_infracao.html', 'Pesquisar Infrações', 'fa-shield-halved', 'pesquisar-infracao'],
             ['/cadastro-infracao/editar_excluir_infracao.html', 'Editar / Excluir', 'fa-regular fa-pen-to-square', 'editar-infracao']
+        ]],
+        ['Pareceres', 'pareceres', [
+            ['/cadastro-parecer/cadastrar-parecer.html', 'Cadastrar Parecer', 'fa-file-circle-plus', 'cadastrar-parecer', ['COORDENADOR', 'ADMINISTRADOR']],
+            ['/cadastro-parecer/pesquisar-pareceres.html', 'Pesquisar Pareceres', 'fa-file-lines', 'pesquisar-parecer'],
+            ['/cadastro-parecer/editar-parecer.html', 'Editar Parecer', 'fa-pen-to-square', 'editar-parecer', ['COORDENADOR', 'ADMINISTRADOR']],
+            ['/cadastro-parecer/cancelar-parecer.html', 'Cancelar Parecer', 'fa-ban', 'cancelar-parecer', ['COORDENADOR', 'ADMINISTRADOR']]
         ]]
     ];
+
+    let perfilEmCache = '';
 
     function lerPermissoesEmCache() {
         try {
             const cache = JSON.parse(sessionStorage.getItem(CACHE_KEY) || 'null');
             const permissoes = cache?.permissoes;
-            if (typeof permissoes?.fiscais === 'boolean' && typeof permissoes?.infracoes === 'boolean') {
+            if (typeof permissoes?.fiscais === 'boolean' && typeof permissoes?.infracoes === 'boolean' && typeof permissoes?.pareceres === 'boolean') {
+                perfilEmCache = cache?.perfil || '';
                 return permissoes;
             }
         } catch (error) {
             try { sessionStorage.removeItem(CACHE_KEY); } catch {}
         }
-        return { fiscais: false, infracoes: false };
+        return { fiscais: false, infracoes: false, pareceres: false };
     }
 
     function renderizarMenu(aside, page, permissoes) {
         const gruposPermitidos = grupos.filter(([, permissao]) => !permissao || permissoes[permissao]);
         aside.querySelector('.sidebar-nav').innerHTML = gruposPermitidos.map(([titulo, , links]) => {
-            const lista = `<ul class="sidebar-menu">${links.map(([url, nome, icone, chave]) =>
-                `<li><a href="${url}" ${page === chave ? 'class="active" aria-current="page"' : ''}><span class="sidebar-icon"><i class="${icone.includes(' ') ? icone : `fa-solid ${icone}`}" aria-hidden="true"></i></span>${nome}</a></li>`
-            ).join('')}</ul>`;
+            const linksVisiveis = links.filter(([, , , , perfilPermitido]) => {
+                if (!perfilPermitido) return true;
+                return Array.isArray(perfilPermitido) ? perfilPermitido.includes(perfilEmCache) : perfilPermitido === perfilEmCache;
+            });
+            const lista = `<ul class="sidebar-menu">${linksVisiveis.map(([url, nome, icone, chave]) => {
+                const classeIcone = icone.includes(' ') ? icone : 'fa-solid ' + icone;
+                const classeAtiva = page === chave ? 'class="active" aria-current="page"' : '';
+                return '<li><a href="' + url + '" ' + classeAtiva + '><span class="sidebar-icon"><i class="' + classeIcone + '" aria-hidden="true"></i></span>' + nome + '</a></li>';
+            }).join('')}</ul>`;
 
             if (titulo === 'Fiscais') {
                 const aberto = links.some(([, , , chave]) => chave === page);
@@ -83,12 +98,13 @@
                     try { sessionStorage.removeItem(CACHE_KEY); } catch {}
                     return;
                 }
-                const permissoes = sessao.permissoes || { fiscais: false, infracoes: false };
-                try { sessionStorage.setItem(CACHE_KEY, JSON.stringify({ permissoes })); } catch {}
-                if (permissoes.fiscais !== permissoesAtuais.fiscais || permissoes.infracoes !== permissoesAtuais.infracoes) {
+                const permissoes = sessao.permissoes || { fiscais: false, infracoes: false, pareceres: false };
+                perfilEmCache = sessao.usuario?.perfil || '';
+                try { sessionStorage.setItem(CACHE_KEY, JSON.stringify({ permissoes, perfil: perfilEmCache })); } catch {}
+                if (permissoes.fiscais !== permissoesAtuais.fiscais || permissoes.infracoes !== permissoesAtuais.infracoes || permissoes.pareceres !== permissoesAtuais.pareceres) {
                     permissoesAtuais = permissoes;
-                    renderizarMenu(aside, page, permissoesAtuais);
                 }
+                renderizarMenu(aside, page, permissoesAtuais);
             })
             .catch(error => console.error('Não foi possível atualizar as permissões do menu:', error));
 

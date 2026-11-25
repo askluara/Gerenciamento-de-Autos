@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cadastrar Parecer | SIGAI</title>
+    <link rel="stylesheet" href="/css/home.css">
+    <link rel="stylesheet" href="/cadastro-fiscal/css/Cadastro-fiscal.css">
+    <link rel="stylesheet" href="/parecer_auto/css/parecer.css">
+</head>
+<body data-fiscal-page="cadastrar-parecer">
+    <main class="main-container">
+        <div class="content-wrapper">
+            <div class="fiscal-page-heading">
+                <span class="fiscal-heading-icon" aria-hidden="true"><i class="fa-solid fa-file-circle-plus"></i></span>
+                <div><h2>Cadastrar Parecer</h2><p>Vincule uma decisão técnica a um auto aguardando julgamento</p></div>
+            </div>
+
+            <section class="fiscal-card" aria-label="Buscar auto">
+                <div class="fiscal-card-header"><h3>Localizar Auto de Infração</h3></div>
+                <div class="fiscal-card-body">
+                    <form id="form-buscar-auto">
+                        <div class="fiscal-inline-search">
+                            <div class="fiscal-field">
+                                <label for="numero-auto">Número do Auto <span class="required">*</span></label>
+                                <input id="numero-auto" name="numero-auto" required placeholder="Ex.: AL-2026-001238">
+                            </div>
+                            <button class="fiscal-button is-primary" type="submit"><i class="fa-solid fa-magnifying-glass"></i> Buscar</button>
+                        </div>
+                    </form>
+                </div>
+            </section>
+
+            <section class="fiscal-card" id="card-resumo-auto" hidden aria-label="Resumo do auto">
+                <div class="fiscal-card-header"><h3>Dados do Auto</h3></div>
+                <div class="fiscal-card-body">
+                    <div class="fiscal-form-grid">
+                        <div class="fiscal-field"><label for="resumo-contribuinte">Contribuinte</label><input id="resumo-contribuinte" readonly></div>
+                        <div class="fiscal-field"><label for="resumo-documento">CPF/CNPJ</label><input id="resumo-documento" readonly></div>
+                        <div class="fiscal-field"><label for="resumo-infracao">Infração</label><input id="resumo-infracao" readonly></div>
+                        <div class="fiscal-field"><span class="fiscal-field-label" aria-hidden="true">Status do auto</span><div class="parecer-badge parecer-badge-pendente">Aguardando Parecer</div></div>
+                    </div>
+                </div>
+            </section>
+
+            <form id="form-cadastrar-parecer">
+                <section class="fiscal-card">
+                    <div class="fiscal-card-header"><h3>Decisão do Parecer</h3></div>
+                    <div class="fiscal-card-body">
+                        <div class="fiscal-form-grid">
+                            <div class="fiscal-field">
+                                <label for="decisao">Decisão / Status <span class="required">*</span></label>
+                                <select id="decisao" required>
+                                    <option value="">Selecione a decisão</option>
+                                    <option value="Deferido">Deferido</option>
+                                    <option value="Indeferido">Indeferido</option>
+                                </select>
+                                <span class="fiscal-field-hint">Decisões disponíveis: Deferido ou Indeferido.</span>
+                            </div>
+                            <div class="fiscal-field is-full">
+                                <label for="fundamentacao">Fundamentação / Observação <span class="required">*</span></label>
+                                <textarea id="fundamentacao" required placeholder="Descreva a fundamentação técnica e os motivos da decisão."></textarea>
+                            </div>
+                        </div>
+                        <p class="parecer-rule"><span class="required">*</span> Campos obrigatórios. Apenas autos aguardando parecer e sem parecer já cadastrado podem ser vinculados.</p>
+                    </div>
+                </section>
+                <div class="fiscal-form-actions"><button type="submit" class="fiscal-button is-primary"><i class="fa-solid fa-floppy-disk"></i> Gravar</button><button type="button" class="fiscal-button" id="cancelar-cadastro">Cancelar</button></div>
+            </form>
+        </div>
+    </main>
+
+    <script src="/js/sidebar.js"></script>
+    <script src="/cadastro-fiscal/js/fiscal-layout.js"></script>
+    <script src="/parecer_auto/js/cadastrar-parecer.js"></script>
+    <script src="/js/formatadores.js"></script>
+    <script src="/js/modal.js"></script>
+    <script src="/js/notificacoes.js"></script>
+    <script src="/js/unsaved-changes.js"></script>
+</body>
+</html>

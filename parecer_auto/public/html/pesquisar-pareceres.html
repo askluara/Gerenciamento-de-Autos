@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pesquisar Pareceres | SIGAI</title>
+    <link rel="stylesheet" href="/css/home.css"><link rel="stylesheet" href="/cadastro-fiscal/css/Cadastro-fiscal.css"><link rel="stylesheet" href="/parecer_auto/css/parecer.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body data-fiscal-page="pesquisar-parecer">
+    <main class="main-container"><div class="content-wrapper">
+        <div class="fiscal-page-heading"><span class="fiscal-heading-icon" aria-hidden="true"><i class="fa-solid fa-file-lines"></i></span><div><h2>Pesquisar Pareceres</h2><p>Consulte pareceres registrados e autos aguardando julgamento</p></div></div>
+        <section class="fiscal-card"><div class="fiscal-card-body">
+            <form id="form-filtros-parecer">
+                <div class="fiscal-form-grid is-three-column">
+                    <div class="fiscal-field"><label for="filtro-auto">Número do Auto</label><input id="filtro-auto" placeholder="Ex.: AL-2026-001234"></div>
+                    <div class="fiscal-field"><label for="filtro-documento">CPF/CNPJ do Contribuinte</label><input id="filtro-documento" data-mask="cpf-cnpj" placeholder="000.000.000-00"></div>
+                    <div class="fiscal-field"><label for="filtro-status">Status da Decisão</label><select id="filtro-status"><option value="">Todos os status</option><option value="Deferido">Deferido</option><option value="Indeferido">Indeferido</option><option value="Cancelado">Cancelado</option><option value="Aguardando Parecer">Aguardando Parecer</option></select></div>
+                </div>
+                <div class="fiscal-search-actions"><button class="fiscal-button is-primary" type="submit"><i class="fa-solid fa-magnifying-glass"></i> Pesquisar</button><button class="fiscal-button" type="reset">Limpar Filtros</button></div>
+            </form>
+        </div></section>
+
+        <section class="fiscal-card"><div class="fiscal-card-body">
+            <div class="parecer-results-header"><div><strong id="parecer-contador">0 registros</strong><p>Pareceres registrados e autos aguardando julgamento.</p></div><button id="novo-parecer" type="button" class="fiscal-button is-primary"><i class="fa-solid fa-plus"></i> Novo Parecer</button></div>
+            <div class="fiscal-table-wrap"><table class="fiscal-table"><thead><tr><th>Número do Auto</th><th>Parecer</th><th>Contribuinte</th><th>Decisão / Status</th><th>Data</th><th>Ações</th></tr></thead><tbody id="tabela-pareceres"></tbody></table></div>
+        </div></section>
+    </div></main>
+    <script src="/js/sidebar.js"></script><script src="/cadastro-fiscal/js/fiscal-layout.js"></script><script src="/parecer_auto/js/pesquisar-pareceres.js"></script><script src="/js/formatadores.js"></script><script src="/js/modal.js"></script>
+</body>
+</html>

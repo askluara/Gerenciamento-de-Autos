@@ -4,9 +4,23 @@
     function formatarCpf(valor) {
         const numeros = somenteNumeros(valor).slice(0, 11);
         return numeros
-            .replace(/^(\d{3})(\d)/, '$1.$2')
-            .replace(/^(\d{3})\.(\d{3})(\d)/, '$1.$2.$3')
+            .replace(/^([\d]{3})([\d])/, '$1.$2')
+            .replace(/^([\d]{3})\.([\d]{3})([\d])/, '$1.$2.$3')
             .replace(/(\.\d{3})(\d{1,2})$/, '$1-$2');
+    }
+
+    function formatarCnpj(valor) {
+        const numeros = somenteNumeros(valor).slice(0, 14);
+        return numeros
+            .replace(/^(\d{2})(\d)/, '$1.$2')
+            .replace(/^(\d{2})\.(\d{3})(\d)/, '$1.$2.$3')
+            .replace(/(\d{3})\.(\d{3})(\d)/, '$1.$2/$3')
+            .replace(/(\d{4})(\d{2})$/, '$1-$2');
+    }
+
+    function formatarCpfCnpj(valor) {
+        const numeros = somenteNumeros(valor);
+        return numeros.length <= 11 ? formatarCpf(numeros) : formatarCnpj(numeros);
     }
 
     function formatarTelefone(valor) {
@@ -20,9 +34,13 @@
     }
 
     function aplicarMascaras(raiz = document) {
-        raiz.querySelectorAll('[data-mask="cpf"], [data-mask="telefone"]').forEach(input => {
+        raiz.querySelectorAll('[data-mask="cpf"], [data-mask="cpf-cnpj"], [data-mask="telefone"]').forEach(input => {
             if (input.dataset.maskReady === 'true') return;
-            const formatar = input.dataset.mask === 'cpf' ? formatarCpf : formatarTelefone;
+            const formatar = input.dataset.mask === 'cpf'
+                ? formatarCpf
+                : input.dataset.mask === 'cpf-cnpj'
+                    ? formatarCpfCnpj
+                    : formatarTelefone;
             input.addEventListener('input', () => {
                 input.value = formatar(input.value);
             });
@@ -33,6 +51,8 @@
 
     window.somenteNumeros = somenteNumeros;
     window.formatarCpf = formatarCpf;
+    window.formatarCnpj = formatarCnpj;
+    window.formatarCpfCnpj = formatarCpfCnpj;
     window.formatarTelefone = formatarTelefone;
     window.aplicarMascaras = aplicarMascaras;
     document.addEventListener('DOMContentLoaded', () => aplicarMascaras());

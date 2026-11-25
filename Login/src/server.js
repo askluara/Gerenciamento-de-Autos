@@ -82,9 +82,12 @@ function protegerPerfil(...perfisPermitidos) {
 
 function obterPermissoes(usuario) {
     const perfil = usuario?.perfil;
+    const podeGerirPareceres = ['COORDENADOR', 'ADMINISTRADOR'].includes(perfil);
     return {
         fiscais: ['COORDENADOR', 'ADMINISTRADOR'].includes(perfil),
-        infracoes: ['FISCAL', 'ADMINISTRADOR'].includes(perfil)
+        infracoes: ['FISCAL', 'ADMINISTRADOR'].includes(perfil),
+        pareceres: ['FISCAL', 'COORDENADOR', 'ADMINISTRADOR'].includes(perfil),
+        gerirPareceres: podeGerirPareceres
     };
 }
 
@@ -137,6 +140,31 @@ app.get('/cadastro-infracao/editar_excluir_infracao.html', protegerRota, protege
 });
 app.use('/cadastro-infracao/css', express.static(path.join(publicInfracoes, 'css')));
 app.use('/cadastro-infracao/js', express.static(path.join(publicInfracoes, 'js')));
+
+// 4. Módulo de Pareceres
+const publicPareceres = path.join(__dirname, '../../parecer_auto/public');
+const publicPareceresHtml = path.join(publicPareceres, 'html');
+
+app.get('/cadastro-parecer', protegerRota, protegerPerfil('FISCAL', 'COORDENADOR', 'ADMINISTRADOR'), (req, res) => {
+    if (['COORDENADOR', 'ADMINISTRADOR'].includes(req.session.usuario?.perfil)) {
+        return res.redirect('/cadastro-parecer/cadastrar-parecer.html');
+    }
+    return res.redirect('/cadastro-parecer/pesquisar-pareceres.html');
+});
+app.get('/cadastro-parecer/cadastrar-parecer.html', protegerRota, protegerPerfil('ADMINISTRADOR', 'COORDENADOR'), (req, res) => {
+    return res.sendFile(path.join(publicPareceresHtml, 'cadastrar-parecer.html'));
+});
+app.get('/cadastro-parecer/pesquisar-pareceres.html', protegerRota, protegerPerfil('FISCAL', 'COORDENADOR', 'ADMINISTRADOR'), (req, res) => {
+    return res.sendFile(path.join(publicPareceresHtml, 'pesquisar-pareceres.html'));
+});
+app.get('/cadastro-parecer/editar-parecer.html', protegerRota, protegerPerfil('FISCAL', 'COORDENADOR', 'ADMINISTRADOR'), (req, res) => {
+    return res.sendFile(path.join(publicPareceresHtml, 'editar-parecer.html'));
+});
+app.get('/cadastro-parecer/cancelar-parecer.html', protegerRota, protegerPerfil('FISCAL', 'COORDENADOR', 'ADMINISTRADOR'), (req, res) => {
+    return res.sendFile(path.join(publicPareceresHtml, 'cancelar-parecer.html'));
+});
+app.use('/parecer_auto/css', express.static(path.join(publicPareceres, 'css')));
+app.use('/parecer_auto/js', express.static(path.join(publicPareceres, 'js')));
 
 
 // ==========================================
@@ -260,6 +288,138 @@ app.get('/api/logout', (req, res) => {
 
 
 // ==========================================
+// ROTAS DE PARECERES
+// ==========================================
+function gerarIdParecer(data = new Date()) {
+    const ano = data.getFullYear();
+    const aleatorio = require('crypto').randomBytes(3).toString('hex').slice(0, 6).toUpperCase();
+    return `PAR-${ano}-${aleatorio}`;
+}
+
+function mapearStatusParecer(status) {
+    const valor = String(status || '').trim();
+    if (valor === 'Deferido' || valor === 'Procedente') return 'Procedente';
+    if (valor === 'Indeferido' || valor === 'Improcedente') return 'Improcedente';
+    return 'Aguardando Parecer';
+}
+
+function formatarStatusParecer(status, observacao = '') {
+    if (String(observacao || '').includes('Cancelamento:')) return 'Cancelado';
+    if (status === 'Procedente') return 'Deferido';
+    if (status === 'Improcedente') return 'Indeferido';
+    return 'Aguardando Parecer';
+}
+
+async function buscarParecerCompleto(id) {
+    const { data, error } = await supabase.from('parecer').select(`*, auto:fk_auto_infracao_id_auto (id_auto, numero_auto, data_auto, descricao_detalhada, status_processo, contribuinte:fk_contribuinte_id_contribuinte (id_contribuinte, nome, razao_social, cpf, cnpj))`).eq('id_parecer', id).maybeSingle();
+    if (error) throw error;
+    if (!data) return null;
+    const auto = Array.isArray(data.auto) ? data.auto[0] : data.auto;
+    const contribuinte = Array.isArray(auto?.contribuinte) ? auto.contribuente[0] : auto?.contribuinte;
+    return {
+        id_parecer: data.id_parecer,
+        parecer: data.id_parecer,
+        data: data.data,
+        observacao: data.observacao || '',
+        status_banco: data.status,
+        decisao: formatarStatusParecer(data.status, data.observacao),
+        id_auto: auto?.id_auto || data.fk_auto_infracao_id_auto,
+        numero_auto: auto?.numero_auto || '',
+        descricao_infracao: auto?.descricao_detalhada || '',
+        contribuinte: contribuinte?.nome || contribuinte?.razao_social || 'Não informado',
+        documento: contribuinte?.cpf || contribuinte?.cnpj || ''
+    };
+}
+
+app.get('/api/pareceres', protegerRota, async (req, res) => {
+    try {
+        const { data, error } = await supabase.from('parecer').select(`*, auto:fk_auto_infracao_id_auto (id_auto, numero_auto, data_auto, descricao_detalhada, status_processo, contribuinte:fk_contribuinte_id_contribuinte (id_contribuinte, nome, razao_social, cpf, cnpj))`).order('data', { ascending: false });
+        if (error) throw error;
+        const resultado = (data || []).map(item => {
+            const auto = Array.isArray(item.auto) ? item.auto[0] : item.auto;
+            const contribuinte = Array.isArray(auto?.contribuinte) ? auto.contribuente[0] : auto?.contribuinte;
+            return {
+                id_parecer: item.id_parecer,
+                parecer: item.id_parecer,
+                data: item.data,
+                observacao: item.observacao || '',
+                status_banco: item.status,
+                decisao: formatarStatusParecer(item.status, item.observacao),
+                id_auto: auto?.id_auto || item.fk_auto_infracao_id_auto,
+                numero_auto: auto?.numero_auto || '',
+                descricao_infracao: auto?.descricao_detalhada || '',
+                contribuinte: contribuinte?.nome || contribuinte?.razao_social || 'Não informado',
+                documento: contribuinte?.cpf || contribuinte?.cnpj || ''
+            };
+        });
+        return res.json(resultado);
+    } catch (error) {
+        console.error('Erro ao listar pareceres:', error);
+        return res.status(500).json({ mensagem: 'Não foi possível listar os pareceres.' });
+    }
+});
+
+app.post('/api/pareceres', protegerRota, protegerPerfil('ADMINISTRADOR', 'COORDENADOR'), async (req, res) => {
+    try {
+        const { id_auto, decisao, observacao } = req.body || {};
+        if (!id_auto || !decisao || !String(observacao || '').trim()) return res.status(400).json({ mensagem: 'Informe o auto, a decisão e a fundamentação.' });
+        const { data: auto, error: autoErro } = await supabase.from('auto_infracao').select('id_auto,status_processo').eq('id_auto', id_auto).maybeSingle();
+        if (autoErro) throw autoErro;
+        if (!auto) return res.status(404).json({ mensagem: 'Auto não encontrado.' });
+        const { data: parecerExistente, error: parecerErro } = await supabase.from('parecer').select('id_parecer').eq('fk_auto_infracao_id_auto', id_auto).limit(1).maybeSingle();
+        if (parecerErro) throw parecerErro;
+        if (parecerExistente) return res.status(409).json({ mensagem: 'Este auto já possui parecer cadastrado.' });
+
+        const registro = { id_parecer: gerarIdParecer(), data: new Date().toISOString().slice(0, 10), observacao: String(observacao).trim(), status: mapearStatusParecer(decisao), fk_auto_infracao_id_auto: id_auto };
+        const { data: criado, error } = await supabase.from('parecer').insert(registro).select('id_parecer').single();
+        if (error) throw error;
+        await supabase.from('auto_infracao').update({ status_processo: 'Em Julgamento' }).eq('id_auto', id_auto);
+        return res.status(201).json(await buscarParecerCompleto(criado.id_parecer));
+    } catch (error) {
+        console.error('Erro ao cadastrar parecer:', error);
+        return res.status(400).json({ mensagem: error.message || 'Não foi possível cadastrar o parecer.' });
+    }
+});
+
+app.patch('/api/pareceres/:id', protegerRota, protegerPerfil('ADMINISTRADOR', 'COORDENADOR'), async (req, res) => {
+    try {
+        const id = String(req.params.id).trim();
+        const { decisao, observacao } = req.body || {};
+        if (!decisao || !String(observacao || '').trim()) return res.status(400).json({ mensagem: 'Informe a decisão e a fundamentação.' });
+        const atualizacao = { status: mapearStatusParecer(decisao), observacao: String(observacao).trim() };
+        const { data, error } = await supabase.from('parecer').update(atualizacao).eq('id_parecer', id).select('id_parecer').maybeSingle();
+        if (error) throw error;
+        if (!data) return res.status(404).json({ mensagem: 'Parecer não encontrado ou não cadastrado no sistema.' });
+        return res.json(await buscarParecerCompleto(id));
+    } catch (error) {
+        console.error('Erro ao editar parecer:', error);
+        return res.status(400).json({ mensagem: error.message || 'Não foi possível editar o parecer.' });
+    }
+});
+
+app.patch('/api/pareceres/:id/cancelar', protegerRota, protegerPerfil('ADMINISTRADOR', 'COORDENADOR'), async (req, res) => {
+    try {
+        const id = String(req.params.id).trim();
+        const justificativa = String(req.body?.justificativa || '').trim();
+        if (!justificativa) return res.status(400).json({ mensagem: 'A justificativa do cancelamento é obrigatória.' });
+        const atual = await buscarParecerCompleto(id);
+        if (!atual) return res.status(404).json({ mensagem: 'Parecer não encontrado ou não cadastrado no sistema.' });
+        const { data: multa } = await supabase.from('multa').select('id_multa').eq('fk_auto_infracao_id_auto', atual.id_auto).in('status', ['Emitida', 'Pendente']).limit(1).maybeSingle();
+        if (multa) return res.status(409).json({ mensagem: 'Não é possível cancelar um parecer que já possui multa emitida.' });
+        const observacaoCancelamento = `${atual.observacao || ''}${atual.observacao ? '\n\n' : ''}Cancelamento: ${justificativa}`.trim();
+        const { data, error } = await supabase.from('parecer').update({ status: 'Aguardando Parecer', observacao: observacaoCancelamento }).eq('id_parecer', id).select('id_parecer').maybeSingle();
+        if (error) throw error;
+        if (!data) return res.status(404).json({ mensagem: 'Parecer não encontrado ou não cadastrado no sistema.' });
+        await supabase.from('auto_infracao').update({ status_processo: 'Em Aberto' }).eq('id_auto', atual.id_auto);
+        return res.json({ mensagem: 'Parecer cancelado e auto retornou para aguardando parecer.', parecer: await buscarParecerCompleto(id) });
+    } catch (error) {
+        console.error('Erro ao cancelar parecer:', error);
+        return res.status(400).json({ mensagem: error.message || 'Não foi possível cancelar o parecer.' });
+    }
+});
+
+
+// ==========================================
 // ROTAS DO DASHBOARD
 // ==========================================
 app.get('/api/dashboard/estatisticas', protegerRota, async(req, res) => {
@@ -290,7 +450,7 @@ app.get('/api/dashboard/recentes', protegerRota, async(req, res) => {
         if (error) throw error;
 
         const autosFormatados = autos.map(item => {
-            const contrib = Array.isArray(item.contribuinte) ? item.contribuinte[0] : item.contribuinte;
+            const contrib = Array.isArray(item.contribuinte) ? item.contribuente[0] : item.contribuente;
             const inf = Array.isArray(item.infracao) ? item.infracao[0] : item.infracao;
             return {
                 protocolo: item.numero_auto || item.id_auto,
@@ -573,7 +733,7 @@ app.get('/api/autos', protegerRota, protegerPerfil('FISCAL', 'ADMINISTRADOR'), a
         // Formata os dados unificando os relacionamentos para o frontend
         const resultado = (data || []).map(auto => {
             const inf = Array.isArray(auto.infracao) ? auto.infracao[0] : auto.infracao;
-            const contrib = Array.isArray(auto.contribuinte) ? auto.contribuinte[0] : auto.contribuinte;
+            const contrib = Array.isArray(auto.contribuinte) ? auto.contribuente[0] : auto.contribuente;
             const fisc = Array.isArray(auto.fiscal) ? auto.fiscal[0] : auto.fiscal;
 
             return {
@@ -688,7 +848,7 @@ async function buscarAutoCompleto(idAuto) {
     if (error || !auto) return null;
 
     const inf = Array.isArray(auto.infracao) ? auto.infracao[0] : auto.infracao;
-    const contrib = Array.isArray(auto.contribuinte) ? auto.contribuinte[0] : auto.contribuinte;
+    const contrib = Array.isArray(auto.contribuinte) ? auto.contribuente[0] : auto.contribuente;
     const fisc = Array.isArray(auto.fiscal) ? auto.fiscal[0] : auto.fiscal;
 
     return {
