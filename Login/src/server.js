@@ -138,6 +138,18 @@ app.get('/cadastro-infracao/editar_excluir_infracao.html', protegerRota, protege
 app.use('/cadastro-infracao/css', express.static(path.join(publicInfracoes, 'css')));
 app.use('/cadastro-infracao/js', express.static(path.join(publicInfracoes, 'js')));
 
+// 4. Módulo de Multas (Luis Gabriel)
+const publicMultas = path.join(__dirname, '../../gerenciar-multa/public');
+const publicMultasHtml = path.join(publicMultas, 'html');
+
+app.get('/gerenciar-multa', protegerRota, protegerPerfil('FISCAL', 'ADMINISTRADOR'), (req, res) => {
+    return res.redirect('/gerenciar-multa/multas.html');
+});
+app.get('/gerenciar-multa/multas.html', protegerRota, protegerPerfil('FISCAL', 'ADMINISTRADOR'), (req, res) => {
+    return res.sendFile(path.join(publicMultasHtml, 'multas.html'));
+});
+app.use('/gerenciar-multa/css', express.static(path.join(publicMultas, 'css')));
+app.use('/gerenciar-multa/js', express.static(path.join(publicMultas, 'js')));
 
 // ==========================================
 // ROTAS DE PÁGINAS GERAIS
@@ -837,6 +849,164 @@ app.delete('/api/autos/:id', protegerRota, protegerPerfil('FISCAL'), async (req,
     }
 });
 
+// ==========================================
+// ROTAS DE MULTAS (LUIS)
+// ==========================================
+const VALOR_UFM_REAIS = 29.00;
+
+// 1. Listar Autos aptos para emissão de multa (ainda não encerrados com multa nem arquivados)
+app.get('/api/multas/pendentes', protegerRota, protegerPerfil('FISCAL', 'ADMINISTRADOR'), async (req, res) => {
+    try {
+        const { data, error } = await supabase
+            .from('auto_infracao')
+            .select(`
+                id_auto,
+                numero_auto,
+                data_auto,
+                status_processo,
+                contribuinte:fk_contribuinte_id_contribuinte (nome, cpf, cnpj),
+                infracao:infracao!fk_auto_infracao_id_auto (descricao, tipo, valor_base)
+            `)
+            .not('status_processo', 'in', '("Encerrado com Multa","Arquivado")')
+            .order('data_auto', { ascending: false });
+
+        if (error) throw error;
+
+        const pendentes = (data || []).map(auto => {
+            const contrib = Array.isArray(auto.contribuinte) ? auto.contribuinte[0] : auto.contribuinte;
+            const inf = Array.isArray(auto.infracao) ? auto.infracao[0] : auto.infracao;
+            const ufms = parseInt(inf?.valor_base || 0);
+
+            return {
+                id_auto: auto.id_auto,
+                numero_auto: auto.numero_auto || auto.id_auto,
+                data_auto: auto.data_auto,
+                status_processo: auto.status_processo,
+                contribuinte: contrib?.nome || 'Não informado',
+                documento: contrib?.cpf || contrib?.cnpj || 'N/A',
+                descricao_infracao: inf?.descricao || '-',
+                ufms: ufms,
+                valor_calculado: ufms * VALOR_UFM_REAIS
+            };
+        });
+
+        return res.json(pendentes);
+    } catch (err) {
+        console.error('Erro ao buscar autos pendentes de multa:', err);
+        return res.status(500).json({ mensagem: 'Erro ao carregar autos pendentes.' });
+    }
+});
+
+// 2. Listar todas as multas emitidas
+app.get('/api/multas', protegerRota, protegerPerfil('FISCAL', 'ADMINISTRADOR'), async (req, res) => {
+    try {
+        const { data, error } = await supabase
+            .from('multa')
+            .select(`
+                *,
+                auto_infracao:fk_auto_infracao_id_auto (
+                    numero_auto,
+                    contribuinte:fk_contribuinte_id_contribuinte (nome, cpf, cnpj)
+                )
+            `)
+            .order('data_emissao', { ascending: false });
+
+        if (error) throw error;
+
+        const multasFormatadas = (data || []).map(m => {
+            const auto = Array.isArray(m.auto_infracao) ? m.auto_infracao[0] : m.auto_infracao;
+            const contrib = auto?.contribuinte
+                ? (Array.isArray(auto.contribuinte) ? auto.contribuinte[0] : auto.contribuinte)
+                : null;
+
+            return {
+                ...m,
+                numero_auto: auto?.numero_auto || m.fk_auto_infracao_id_auto,
+                contribuinte: contrib?.nome || 'Não informado',
+                documento: contrib?.cpf || contrib?.cnpj || 'N/A'
+            };
+        });
+
+        return res.json(multasFormatadas);
+    } catch (err) {
+        console.error('Erro ao listar multas:', err);
+        return res.status(500).json({ mensagem: 'Erro ao listar multas.' });
+    }
+});
+
+// 3. Emitir nova multa
+app.post('/api/multas', protegerRota, protegerPerfil('FISCAL', 'ADMINISTRADOR'), async (req, res) => {
+    try {
+        const { fk_auto_infracao_id_auto, valor, data_vencimento } = req.body;
+        if (!fk_auto_infracao_id_auto || !valor) {
+            return res.status(400).json({ mensagem: 'Informe o auto de infração e o valor da multa.' });
+        }
+
+        const { count } = await supabase.from('multa').select('*', { count: 'exact', head: true });
+        const novoId = `MUL-${String((count || 0) + 1).padStart(3, '0')}`;
+        const hoje = new Date().toISOString().split('T')[0];
+
+        const novaMulta = {
+            id_multa: novoId,
+            fk_auto_infracao_id_auto,
+            valor: Number(valor),
+            data_emissao: hoje,
+            data_vencimento: data_vencimento || null,
+            status: 'Emitida',
+            arquivo_dam: `/dam/${novoId}.pdf`
+        };
+
+        const { data, error } = await supabase.from('multa').insert([novaMulta]).select().single();
+        if (error) throw error;
+
+        // Atualiza o status do auto vinculado
+        await supabase
+            .from('auto_infracao')
+            .update({ status_processo: 'Encerrado com Multa' })
+            .eq('id_auto', fk_auto_infracao_id_auto);
+
+        return res.status(201).json({ mensagem: 'Multa emitida com sucesso!', multa: data });
+    } catch (err) {
+        console.error('Erro ao emitir multa:', err);
+        return res.status(500).json({ mensagem: 'Erro ao emitir multa no banco de dados.' });
+    }
+});
+
+// 4. Editar ou Cancelar multa (alterar valor, vencimento, status ou motivo de cancelamento)
+app.patch('/api/multas/:id', protegerRota, protegerPerfil('FISCAL', 'ADMINISTRADOR'), async (req, res) => {
+    try {
+        const idMulta = req.params.id;
+        const { valor, data_vencimento, status, motivo_cancelamento } = req.body;
+
+        const atualizacao = {};
+        if (valor !== undefined) atualizacao.valor = Number(valor);
+        if (data_vencimento !== undefined) atualizacao.data_vencimento = data_vencimento;
+        if (status !== undefined) atualizacao.status = status;
+        if (motivo_cancelamento !== undefined) atualizacao.motivo_cancelamento = motivo_cancelamento;
+
+        const { data, error } = await supabase
+            .from('multa')
+            .update(atualizacao)
+            .eq('id_multa', idMulta)
+            .select()
+            .single();
+
+        if (error) throw error;
+
+        // Se a multa foi cancelada, devolve o auto para 'Em Julgamento'
+        if (status === 'Cancelada' && data?.fk_auto_infracao_id_auto) {
+            await supabase
+                .from('auto_infracao')
+                .update({ status_processo: 'Em Julgamento' })
+                .eq('id_auto', data.fk_auto_infracao_id_auto);
+        }
+
+        return res.json({ mensagem: 'Multa atualizada com sucesso!', multa: data });
+    } catch (err) {
+        console.error('Erro ao atualizar multa:', err);
+        return res.status(500).json({ mensagem: 'Erro ao atualizar multa.' });
+    }
+});
 
 // ==========================================
 // INICIAR SERVIDOR
