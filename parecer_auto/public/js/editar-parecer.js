@@ -59,8 +59,9 @@
             if (headingIcon) headingIcon.innerHTML = '<i class="fa-solid fa-magnifying-glass"></i>';
             document.title = 'Pesquisar Parecer | SIGAI';
 
-            form.querySelectorAll('input, select, textarea, button').forEach(campo => { campo.disabled = true; });
-            form.querySelectorAll('.fiscal-form-actions').forEach(acoes => { acoes.hidden = true; });
+            form.querySelectorAll('input, select, textarea, button').forEach(campo => { campo.disabled = true; campo.readOnly = true; });
+            form.querySelectorAll('.fiscal-form-actions').forEach(acoes => acoes.remove());
+            document.getElementById('secao-dados-editaveis')?.remove();
             mensagem.textContent = 'Você pode visualizar os pareceres, mas não pode alterá-los.';
         }
     }

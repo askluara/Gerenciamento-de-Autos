@@ -67,7 +67,8 @@
         perfil = sessao.usuario?.perfil || '';
         const podeGerir = ['COORDENADOR', 'ADMINISTRADOR'].includes(perfil);
 
-        document.getElementById('novo-parecer').hidden = !podeGerir;
+        const novoParecer = document.getElementById('novo-parecer');
+        if (!podeGerir && novoParecer) novoParecer.remove();
 
         void carregarSugestoesAutos();
 
@@ -94,10 +95,6 @@
             render(dados);
             renderAutos(autos);
         }, 0);
-    });
-
-    document.getElementById('novo-parecer')?.addEventListener('click', () => {
-        location.assign('cadastrar-parecer.html');
     });
 
     document.getElementById('filtro-auto')?.addEventListener('input', event => {
