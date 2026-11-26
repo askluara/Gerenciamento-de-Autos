@@ -17,6 +17,9 @@
         document.getElementById('edit-fundamentacao').value = parecer.observacao || '';
         form.dataset.parecerId = parecer.parecer || parecer.id_parecer;
         form.hidden = false;
+
+        document.getElementById('view-decisao').value = parecer.decisao || parecer.status_banco || '-';
+        document.getElementById('view-fundamentacao').value = parecer.observacao || 'Não informado';
     }
 
     function render(lista) {
@@ -62,6 +65,8 @@
             form.querySelectorAll('input, select, textarea, button').forEach(campo => { campo.disabled = true; campo.readOnly = true; });
             form.querySelectorAll('.fiscal-form-actions').forEach(acoes => acoes.remove());
             document.getElementById('secao-dados-editaveis')?.remove();
+            const secaoVisualizacao = document.getElementById('secao-visualizacao-parecer');
+            if (secaoVisualizacao) secaoVisualizacao.hidden = false;
             mensagem.textContent = 'Você pode visualizar os pareceres, mas não pode alterá-los.';
         }
     }

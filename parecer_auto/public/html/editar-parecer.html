@@ -12,5 +12,12 @@
         <section class="fiscal-card" id="secao-dados-editaveis"><div class="fiscal-card-header"><h3>Dados Editáveis</h3></div><div class="fiscal-card-body"><div class="fiscal-form-grid"><div class="fiscal-field"><label for="edit-decisao">Decisão / Status <span class="required">*</span></label><select id="edit-decisao" required><option value="Procedente">Procedente</option><option value="Improcedente">Improcedente</option></select></div><div class="fiscal-field is-full"><label for="edit-fundamentacao">Fundamentação / Observação <span class="required">*</span></label><textarea id="edit-fundamentacao" required></textarea></div></div><p class="parecer-rule">* Campos obrigatórios. Somente a decisão e a fundamentação podem ser alteradas.</p></div></section>
         <div class="fiscal-form-actions"><button class="fiscal-button is-primary" type="submit"><i class="fa-solid fa-floppy-disk"></i> Gravar</button><button class="fiscal-button" type="button" id="cancelar-edicao">Cancelar</button></div>
     </form>
+    <section class="fiscal-card" id="secao-visualizacao-parecer" hidden>
+            <div class="fiscal-card-header"><h3>Descrição do Parecer</h3></div>
+            <div class="fiscal-card-body"><div class="fiscal-form-grid">
+                <div class="fiscal-field"><label for="view-decisao">Decisão / Status</label><input id="view-decisao" readonly></div>
+                <div class="fiscal-field is-full"><label for="view-fundamentacao">Descrição / Fundamentação</label><textarea id="view-fundamentacao" readonly></textarea></div>
+            </div></div>
+        </section>
 </div></main>
 <script src="/js/sidebar.js"></script><script src="/cadastro-fiscal/js/fiscal-layout.js"></script><script src="/parecer_auto/js/editar-parecer.js"></script><script src="/js/modal.js"></script><script src="/js/unsaved-changes.js"></script></body></html>
