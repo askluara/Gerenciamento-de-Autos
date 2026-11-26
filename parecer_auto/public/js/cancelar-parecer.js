@@ -88,4 +88,13 @@
 
     document.getElementById('voltar-cancelamento')?.addEventListener('click', () => location.assign('pesquisar-pareceres.html'));
     carregar().catch(error => { mensagem.textContent = error.message; });
+
+    document.getElementById('busca-cancelamento')?.addEventListener('input', event => {
+        const busca = event.target.value.trim().toLowerCase();
+        if (!busca) return render(pareceres);
+        render(pareceres.filter(item =>
+            String(item.parecer || item.id_parecer).toLowerCase().includes(busca) ||
+            String(item.numero_auto || item.id_auto || '').toLowerCase().includes(busca)
+        ));
+    });
 })();

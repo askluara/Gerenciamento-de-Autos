@@ -160,7 +160,7 @@ app.get('/cadastro-parecer/pesquisar-pareceres.html', protegerRota, protegerPerf
 app.get('/cadastro-parecer/editar-parecer.html', protegerRota, protegerPerfil('FISCAL', 'COORDENADOR', 'ADMINISTRADOR'), (req, res) => {
     return res.sendFile(path.join(publicPareceresHtml, 'editar-parecer.html'));
 });
-app.get('/cadastro-parecer/cancelar-parecer.html', protegerRota, protegerPerfil('FISCAL', 'COORDENADOR', 'ADMINISTRADOR'), (req, res) => {
+app.get('/cadastro-parecer/cancelar-parecer.html', protegerRota, protegerPerfil('ADMINISTRADOR', 'COORDENADOR'), (req, res) => {
     return res.sendFile(path.join(publicPareceresHtml, 'cancelar-parecer.html'));
 });
 app.use('/parecer_auto/css', express.static(path.join(publicPareceres, 'css')));
@@ -305,8 +305,9 @@ function mapearStatusParecer(status) {
 
 function formatarStatusParecer(status, observacao = '') {
     if (String(observacao || '').includes('Cancelamento:')) return 'Cancelado';
-    if (status === 'Procedente') return 'Deferido';
-    if (status === 'Improcedente') return 'Indeferido';
+    const valor = String(status || '').trim();
+    if (valor === 'Procedente' || valor === 'Deferido') return 'Procedente';
+    if (valor === 'Improcedente' || valor === 'Indeferido') return 'Improcedente';
     return 'Aguardando Parecer';
 }
 
@@ -450,7 +451,7 @@ app.get('/api/dashboard/recentes', protegerRota, async(req, res) => {
         if (error) throw error;
 
         const autosFormatados = autos.map(item => {
-            const contrib = Array.isArray(item.contribuinte) ? item.contribuente[0] : item.contribuente;
+            const contrib = Array.isArray(item.contribuente) ? item.contribuente[0] : item.contribuente;
             const inf = Array.isArray(item.infracao) ? item.infracao[0] : item.infracao;
             return {
                 protocolo: item.numero_auto || item.id_auto,

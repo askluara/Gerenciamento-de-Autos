@@ -14,10 +14,15 @@
                 <div class="fiscal-form-grid is-three-column">
                     <div class="fiscal-field"><label for="filtro-auto">Número do Auto</label><input id="filtro-auto" list="lista-autos" autocomplete="off" placeholder="Ex.: AL-2026-001234"><datalist id="lista-autos"></datalist></div>
                     <div class="fiscal-field"><label for="filtro-documento">CPF/CNPJ do Contribuinte</label><input id="filtro-documento" data-mask="cpf-cnpj" placeholder="000.000.000-00"></div>
-                    <div class="fiscal-field"><label for="filtro-status">Status da Decisão</label><select id="filtro-status"><option value="">Todos os status</option><option value="Deferido">Deferido</option><option value="Indeferido">Indeferido</option><option value="Cancelado">Cancelado</option><option value="Aguardando Parecer">Aguardando Parecer</option></select></div>
+                    <div class="fiscal-field"><label for="filtro-status">Status da Decisão</label><select id="filtro-status"><option value="">Todos os status</option><option value="Procedente">Procedente</option><option value="Improcedente">Improcedente</option><option value="Cancelado">Cancelado</option><option value="Aguardando Parecer">Aguardando Parecer</option></select></div>
                 </div>
                 <div class="fiscal-search-actions"><button class="fiscal-button is-primary" type="submit"><i class="fa-solid fa-magnifying-glass"></i> Pesquisar</button><button class="fiscal-button" type="reset">Limpar Filtros</button></div>
             </form>
+        </div></section>
+
+        <section class="fiscal-card"><div class="fiscal-card-header"><h3>Autos disponíveis para consulta</h3></div><div class="fiscal-card-body">
+            <p id="parecer-autos-contador" class="parecer-rule">0 autos encontrados.</p>
+            <div class="fiscal-table-wrap"><table class="fiscal-table"><thead><tr><th>Número do Auto</th><th>Contribuinte</th><th>Infração</th><th>Status do Processo</th><th>Data</th></tr></thead><tbody id="tabela-autos-pesquisa"></tbody></table></div>
         </div></section>
 
         <section class="fiscal-card"><div class="fiscal-card-body">

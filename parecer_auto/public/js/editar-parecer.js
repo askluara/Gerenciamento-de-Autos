@@ -13,7 +13,7 @@
         document.getElementById('edit-contribuinte').value = parecer.contribuinte || 'Não informado';
         document.getElementById('edit-documento').value = parecer.documento || 'Não informado';
         document.getElementById('edit-data').value = parecer.data ? new Date(parecer.data + 'T12:00:00').toLocaleDateString('pt-BR') : '-';
-        document.getElementById('edit-decisao').value = parecer.decisao === 'Indeferido' ? 'Indeferido' : 'Deferido';
+        document.getElementById('edit-decisao').value = parecer.decisao === 'Improcedente' ? 'Improcedente' : 'Procedente';
         document.getElementById('edit-fundamentacao').value = parecer.observacao || '';
         form.dataset.parecerId = parecer.parecer || parecer.id_parecer;
         form.hidden = false;
@@ -51,7 +51,16 @@
         }
 
         if (!['COORDENADOR', 'ADMINISTRADOR'].includes(perfil)) {
-            form.querySelectorAll('input, select, textarea, button').forEach(campo => { if (campo.type !== 'button') campo.disabled = true; });
+            const heading = document.querySelector('.fiscal-page-heading h2');
+            const description = document.querySelector('.fiscal-page-heading p');
+            const headingIcon = document.querySelector('.fiscal-page-heading .fiscal-heading-icon');
+            if (heading) heading.textContent = 'Pesquisar Parecer';
+            if (description) description.textContent = 'Consulte os pareceres cadastrados e visualize os dados registrados.';
+            if (headingIcon) headingIcon.innerHTML = '<i class="fa-solid fa-magnifying-glass"></i>';
+            document.title = 'Pesquisar Parecer | SIGAI';
+
+            form.querySelectorAll('input, select, textarea, button').forEach(campo => { campo.disabled = true; });
+            form.querySelectorAll('.fiscal-form-actions').forEach(acoes => { acoes.hidden = true; });
             mensagem.textContent = 'Você pode visualizar os pareceres, mas não pode alterá-los.';
         }
     }
@@ -93,4 +102,13 @@
 
     document.getElementById('cancelar-edicao')?.addEventListener('click', () => location.assign('pesquisar-pareceres.html'));
     carregar().catch(error => { mensagem.textContent = error.message; });
+
+    document.getElementById('busca-parecer')?.addEventListener('input', event => {
+        const busca = event.target.value.trim().toLowerCase();
+        if (!busca) return render(pareceres);
+        render(pareceres.filter(item =>
+            String(item.parecer || item.id_parecer).toLowerCase().includes(busca) ||
+            String(item.numero_auto || item.id_auto || '').toLowerCase().includes(busca)
+        ));
+    });
 })();

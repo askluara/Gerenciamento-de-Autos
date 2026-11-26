@@ -2,6 +2,57 @@
     const formBusca = document.getElementById('form-buscar-auto');
     const form = document.getElementById('form-cadastrar-parecer');
     const resumo = document.getElementById('card-resumo-auto');
+    let autosCadastro = [];
+
+    function possuiParecer(autoId, pareceres) {
+        return pareceres.some(item => String(item.id_auto) === String(autoId));
+    }
+
+    async function renderizarListaCadastro(lista) {
+        const tbody = document.getElementById('lista-autos-cadastro');
+        document.getElementById('cadastro-autos-contador').textContent = `${lista.length} ${lista.length === 1 ? 'auto encontrado' : 'autos encontrados'}.`;
+        if (!lista.length) {
+            tbody.innerHTML = '<tr><td class="parecer-empty" colspan="5">Nenhum auto encontrado.</td></tr>';
+            return;
+        }
+        const pareceres = await fetch('/api/pareceres', { credentials: 'include' }).then(resposta => resposta.ok ? resposta.json() : []);
+        tbody.innerHTML = lista.map(auto => {
+            const data = auto.data_auto ? new Date(auto.data_auto + 'T12:00:00').toLocaleDateString('pt-BR') : '-';
+            const jaPossui = possuiParecer(auto.id_auto, pareceres);
+            return `<tr data-auto-id="${auto.id_auto}" class="${jaPossui ? 'parecer-auto-ja-vinculado' : ''}" tabindex="0"><td class="parecer-table-code">${auto.numero_auto || auto.id_auto || '-'}</td><td>${auto.nome_contribuinte || '-'}</td><td>${auto.tipo_infracao || auto.descricao_infracao || '-'}</td><td>${jaPossui ? 'Com parecer' : (auto.status_processo || '-')}</td><td>${data}</td></tr>`;
+        }).join('');
+        tbody.querySelectorAll('tr[data-auto-id]').forEach(linha => {
+            const abrir = () => {
+                const auto = autosCadastro.find(item => String(item.id_auto) === linha.dataset.autoId);
+                if (!auto) return;
+                if (possuiParecer(auto.id_auto, pareceres)) {
+                    if (window.abrirModal) window.abrirModal('Este auto já possui um parecer cadastrado.', { titulo: 'Parecer já cadastrado' });
+                    resumo.hidden = true;
+                    return;
+                }
+                document.getElementById('numero-auto').value = auto.numero_auto || auto.id_auto || '';
+                document.getElementById('resumo-contribuinte').value = auto.nome_contribuinte || 'Não informado';
+                document.getElementById('resumo-documento').value = auto.cpf || auto.cnpj || 'Não informado';
+                document.getElementById('resumo-infracao').value = auto.descricao_infracao || auto.tipo_infracao || 'Não informada';
+                resumo.hidden = false;
+                form.dataset.autoId = auto.id_auto;
+                document.getElementById('decisao').focus();
+            };
+            linha.addEventListener('click', abrir);
+            linha.addEventListener('keydown', evento => { if (evento.key === 'Enter') abrir(); });
+        });
+    }
+
+    async function carregarListaCadastro() {
+        try {
+            const resposta = await fetch('/api/autos', { credentials: 'include' });
+            if (!resposta.ok) throw new Error('Não foi possível carregar os autos.');
+            autosCadastro = await resposta.json();
+            await renderizarListaCadastro(autosCadastro.slice(0, 100));
+        } catch (error) {
+            document.getElementById('lista-autos-cadastro').innerHTML = `<tr><td class="parecer-empty" colspan="5">${error.message}</td></tr>`;
+        }
+    }
 
     fetch('/api/verificar-sessao', { credentials: 'include' })
         .then(resposta => resposta.json())
@@ -72,5 +123,14 @@
 
     document.getElementById('cancelar-cadastro')?.addEventListener('click', () => {
         window.location.assign('/cadastro-parecer/pesquisar-pareceres.html');
+    });
+
+    void carregarListaCadastro();
+
+    document.getElementById('numero-auto')?.addEventListener('input', event => {
+        const termo = event.target.value.trim().toLowerCase();
+        void renderizarListaCadastro((autosCadastro || []).filter(auto =>
+            !termo || String(auto.numero_auto || auto.id_auto || '').toLowerCase().includes(termo)
+        ).slice(0, 100));
     });
 })();

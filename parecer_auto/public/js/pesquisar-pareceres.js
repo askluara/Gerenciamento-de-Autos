@@ -1,9 +1,10 @@
 (() => {
     let dados = [];
+    let autos = [];
     let perfil = '';
 
     function badge(status) {
-        const classes = {Deferido:'badge-deferido', Indeferido:'badge-indeferido', Cancelado:'badge-cancelado', 'Aguardando Parecer':'parecer-badge-pendente'};
+        const classes = {Procedente:'badge-deferido', Improcedente:'badge-indeferido', Cancelado:'badge-cancelado', 'Aguardando Parecer':'parecer-badge-pendente'};
         return `<span class="${classes[status] || 'badge-cancelado'} parecer-badge">${status}</span>`;
     }
 
@@ -30,11 +31,25 @@
         }).join('');
     }
 
+    function renderAutos(lista) {
+        const tbody = document.getElementById('tabela-autos-pesquisa');
+        document.getElementById('parecer-autos-contador').textContent = `${lista.length} ${lista.length === 1 ? 'auto encontrado' : 'autos encontrados'}.`;
+        if (!lista.length) {
+            tbody.innerHTML = '<tr><td class="parecer-empty" colspan="5">Nenhum auto encontrado.</td></tr>';
+            return;
+        }
+        tbody.innerHTML = lista.map(auto => {
+            const data = auto.data_auto ? new Date(auto.data_auto + 'T12:00:00').toLocaleDateString('pt-BR') : '-';
+            return `<tr><td class="parecer-table-code">${auto.numero_auto || auto.id_auto || '-'}</td><td>${auto.nome_contribuinte || '-'}</td><td>${auto.tipo_infracao || auto.descricao_infracao || '-'}</td><td>${auto.status_processo || '-'}</td><td>${data}</td></tr>`;
+        }).join('');
+    }
+
     async function carregarSugestoesAutos() {
         try {
             const resposta = await fetch('/api/autos', { credentials: 'include' });
             if (!resposta.ok) return;
             const autos = await resposta.json();
+            renderAutos(autos);
             const numeros = [...new Set((autos || [])
                 .map(auto => String(auto.numero_auto || '').trim())
                 .filter(Boolean))].sort((a, b) => b.localeCompare(a, 'pt-BR', { numeric: true }));
@@ -75,11 +90,21 @@
     });
 
     document.querySelector('#form-filtros-parecer button[type="reset"]')?.addEventListener('click', () => {
-        setTimeout(() => render(dados), 0);
+        setTimeout(() => {
+            render(dados);
+            renderAutos(autos);
+        }, 0);
     });
 
     document.getElementById('novo-parecer')?.addEventListener('click', () => {
         location.assign('cadastrar-parecer.html');
+    });
+
+    document.getElementById('filtro-auto')?.addEventListener('input', event => {
+        const termo = event.target.value.trim().toLowerCase();
+        renderAutos((autos || []).filter(auto =>
+            !termo || String(auto.numero_auto || auto.id_auto || '').toLowerCase().includes(termo)
+        ).slice(0, 100));
     });
 
     carregar().catch(error => {
