@@ -12,7 +12,7 @@
         <section class="fiscal-card"><div class="fiscal-card-body">
             <form id="form-filtros-parecer">
                 <div class="fiscal-form-grid is-three-column">
-                    <div class="fiscal-field"><label for="filtro-auto">Número do Auto</label><input id="filtro-auto" placeholder="Ex.: AL-2026-001234"></div>
+                    <div class="fiscal-field"><label for="filtro-auto">Número do Auto</label><input id="filtro-auto" list="lista-autos" autocomplete="off" placeholder="Ex.: AL-2026-001234"><datalist id="lista-autos"></datalist></div>
                     <div class="fiscal-field"><label for="filtro-documento">CPF/CNPJ do Contribuinte</label><input id="filtro-documento" data-mask="cpf-cnpj" placeholder="000.000.000-00"></div>
                     <div class="fiscal-field"><label for="filtro-status">Status da Decisão</label><select id="filtro-status"><option value="">Todos os status</option><option value="Deferido">Deferido</option><option value="Indeferido">Indeferido</option><option value="Cancelado">Cancelado</option><option value="Aguardando Parecer">Aguardando Parecer</option></select></div>
                 </div>

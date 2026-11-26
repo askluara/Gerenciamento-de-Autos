@@ -715,7 +715,7 @@ app.get('/api/autos/opcoes', protegerRota, protegerPerfil('FISCAL', 'ADMINISTRAD
     }
 });
 
-app.get('/api/autos', protegerRota, protegerPerfil('FISCAL', 'ADMINISTRADOR'), async (req, res) => {
+app.get('/api/autos', protegerRota, protegerPerfil('FISCAL', 'COORDENADOR', 'ADMINISTRADOR'), async (req, res) => {
     try {
         let consulta = supabase.from('auto_infracao').select(`
             *,

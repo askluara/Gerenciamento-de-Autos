@@ -30,12 +30,31 @@
         }).join('');
     }
 
+    async function carregarSugestoesAutos() {
+        try {
+            const resposta = await fetch('/api/autos', { credentials: 'include' });
+            if (!resposta.ok) return;
+            const autos = await resposta.json();
+            const numeros = [...new Set((autos || [])
+                .map(auto => String(auto.numero_auto || '').trim())
+                .filter(Boolean))].sort((a, b) => b.localeCompare(a, 'pt-BR', { numeric: true }));
+
+            document.getElementById('lista-autos').innerHTML = numeros
+                .map(numero => `<option value="${numero.replaceAll('"', '&quot;')}"></option>`)
+                .join('');
+        } catch (error) {
+            console.error('Não foi possível carregar sugestões de autos:', error);
+        }
+    }
+
     async function carregar() {
         const sessao = await fetch('/api/verificar-sessao', { credentials:'include' }).then(r => r.json());
         perfil = sessao.usuario?.perfil || '';
         const podeGerir = ['COORDENADOR', 'ADMINISTRADOR'].includes(perfil);
 
         document.getElementById('novo-parecer').hidden = !podeGerir;
+
+        void carregarSugestoesAutos();
 
         const resposta = await fetch('/api/pareceres', { credentials:'include' });
         if (!resposta.ok) throw new Error('Não foi possível carregar os pareceres cadastrados.');
