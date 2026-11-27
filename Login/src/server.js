@@ -87,7 +87,8 @@ function obterPermissoes(usuario) {
         fiscais: ['COORDENADOR', 'ADMINISTRADOR'].includes(perfil),
         infracoes: ['FISCAL', 'ADMINISTRADOR'].includes(perfil),
         pareceres: ['FISCAL', 'COORDENADOR', 'ADMINISTRADOR'].includes(perfil),
-        gerirPareceres: podeGerirPareceres
+        gerirPareceres: podeGerirPareceres,
+        multas: ['FISCAL', 'ADMINISTRADOR'].includes(perfil)
     };
 }
 
@@ -746,7 +747,7 @@ app.get('/api/autos', protegerRota, protegerPerfil('FISCAL', 'COORDENADOR', 'ADM
         // Formata os dados unificando os relacionamentos para o frontend
         const resultado = (data || []).map(auto => {
             const inf = Array.isArray(auto.infracao) ? auto.infracao[0] : auto.infracao;
-            const contrib = Array.isArray(auto.contribuinte) ? auto.contribuente[0] : auto.contribuente;
+            const contrib = Array.isArray(auto.contribuente) ? auto.contribuente[0] : auto.contribuente;
             const fisc = Array.isArray(auto.fiscal) ? auto.fiscal[0] : auto.fiscal;
 
             return {
@@ -861,7 +862,7 @@ async function buscarAutoCompleto(idAuto) {
     if (error || !auto) return null;
 
     const inf = Array.isArray(auto.infracao) ? auto.infracao[0] : auto.infracao;
-    const contrib = Array.isArray(auto.contribuinte) ? auto.contribuente[0] : auto.contribuente;
+    const contrib = Array.isArray(auto.contribuente) ? auto.contribuente[0] : auto.contribuente;
     const fisc = Array.isArray(auto.fiscal) ? auto.fiscal[0] : auto.fiscal;
 
     return {
@@ -1034,7 +1035,7 @@ app.get('/api/multas/pendentes', protegerRota, protegerPerfil('FISCAL', 'ADMINIS
         if (error) throw error;
 
         const pendentes = (data || []).map(auto => {
-            const contrib = Array.isArray(auto.contribuinte) ? auto.contribuinte[0] : auto.contribuinte;
+            const contrib = Array.isArray(auto.contribuente) ? auto.contribuente[0] : auto.contribuente;
             const inf = Array.isArray(auto.infracao) ? auto.infracao[0] : auto.infracao;
             const ufms = parseInt(inf?.valor_base || 0);
 
@@ -1077,7 +1078,7 @@ app.get('/api/multas', protegerRota, protegerPerfil('FISCAL', 'ADMINISTRADOR'), 
         const multasFormatadas = (data || []).map(m => {
             const auto = Array.isArray(m.auto_infracao) ? m.auto_infracao[0] : m.auto_infracao;
             const contrib = auto?.contribuinte
-                ? (Array.isArray(auto.contribuinte) ? auto.contribuinte[0] : auto.contribuinte)
+                ? (Array.isArray(auto.contribuente) ? auto.contribuente[0] : auto.contribuente)
                 : null;
 
             return {

@@ -13,6 +13,15 @@
             ['/cadastro-infracao/cadastrar_infracao.html', 'Cadastrar Infração', 'fa-triangle-exclamation', 'cadastrar-infracao'],
             ['/cadastro-infracao/pesquisar_infracao.html', 'Pesquisar Infrações', 'fa-shield-halved', 'pesquisar-infracao'],
             ['/cadastro-infracao/editar_excluir_infracao.html', 'Editar / Excluir', 'fa-regular fa-pen-to-square', 'editar-infracao']
+        ]],
+        ['Pareceres', 'pareceres', [
+            ['/cadastro-parecer/pesquisar-pareceres.html', 'Pesquisar Pareceres', 'fa-file-lines', 'pesquisar-parecer'],
+            ['/cadastro-parecer/cadastrar-parecer.html', 'Cadastrar Parecer', 'fa-file-circle-plus', 'cadastrar-parecer', ['COORDENADOR', 'ADMINISTRADOR']],
+            ['/cadastro-parecer/editar-parecer.html', 'Editar Parecer', 'fa-pen-to-square', 'editar-parecer', ['COORDENADOR', 'ADMINISTRADOR']],
+            ['/cadastro-parecer/cancelar-parecer.html', 'Cancelar Parecer', 'fa-ban', 'cancelar-parecer', ['COORDENADOR', 'ADMINISTRADOR']]
+        ]],
+        ['Multas', 'multas', [
+            ['/gerenciar-multa/multas.html', 'Gerenciar Multas', 'fa-dollar-sign', 'gerenciar-multa']
         ]]
     ];
 
@@ -29,7 +38,7 @@
         } catch (error) {
             try { sessionStorage.removeItem(CACHE_KEY); } catch {}
         }
-        return { fiscais: false, infracoes: false, pareceres: false };
+        return { fiscais: false, infracoes: false, pareceres: false, multas: false };
     }
 
     function renderizarMenu(aside, page, permissoes) {
@@ -93,10 +102,10 @@
                     try { sessionStorage.removeItem(CACHE_KEY); } catch {}
                     return;
                 }
-                const permissoes = sessao.permissoes || { fiscais: false, infracoes: false, pareceres: false };
+                const permissoes = sessao.permissoes || { fiscais: false, infracoes: false, pareceres: false, multas: false };
                 perfilEmCache = sessao.usuario?.perfil || '';
                 try { sessionStorage.setItem(CACHE_KEY, JSON.stringify({ permissoes, perfil: perfilEmCache })); } catch {}
-                if (permissoes.fiscais !== permissoesAtuais.fiscais || permissoes.infracoes !== permissoesAtuais.infracoes || permissoes.pareceres !== permissoesAtuais.pareceres) {
+                if (permissoes.fiscais !== permissoesAtuais.fiscais || permissoes.infracoes !== permissoesAtuais.infracoes || permissoes.pareceres !== permissoesAtuais.pareceres || permissoes.multas !== permissoesAtuais.multas) {
                     permissoesAtuais = permissoes;
                 }
                 renderizarMenu(aside, page, permissoesAtuais);
