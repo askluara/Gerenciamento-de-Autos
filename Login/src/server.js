@@ -142,7 +142,6 @@ app.get('/cadastro-infracao/editar_excluir_infracao.html', protegerRota, protege
 app.use('/cadastro-infracao/css', express.static(path.join(publicInfracoes, 'css')));
 app.use('/cadastro-infracao/js', express.static(path.join(publicInfracoes, 'js')));
 
-<<<<<<< HEAD
 // 4. Módulo de Pareceres
 const publicPareceres = path.join(__dirname, '../../parecer_auto/public');
 const publicPareceresHtml = path.join(publicPareceres, 'html');
@@ -168,7 +167,7 @@ app.get('/cadastro-parecer/cancelar-parecer.html', protegerRota, protegerPerfil(
 app.use('/parecer_auto/css', express.static(path.join(publicPareceres, 'css')));
 app.use('/parecer_auto/js', express.static(path.join(publicPareceres, 'js')));
 
-// 4. Módulo de Multas (Luis Gabriel)
+// 5. Módulo de Multas
 const publicMultas = path.join(__dirname, '../../gerenciar-multa/public');
 const publicMultasHtml = path.join(publicMultas, 'html');
 
@@ -180,8 +179,6 @@ app.get('/gerenciar-multa/multas.html', protegerRota, protegerPerfil('FISCAL', '
 });
 app.use('/gerenciar-multa/css', express.static(path.join(publicMultas, 'css')));
 app.use('/gerenciar-multa/js', express.static(path.join(publicMultas, 'js')));
-=======
->>>>>>> origin/main
 
 // ==========================================
 // ROTAS DE PÁGINAS GERAIS
@@ -328,11 +325,17 @@ function formatarStatusParecer(status, observacao = '') {
 }
 
 async function buscarParecerCompleto(id) {
-    const { data, error } = await supabase.from('parecer').select(`*, auto:fk_auto_infracao_id_auto (id_auto, numero_auto, data_auto, descricao_detalhada, status_processo, contribuinte:fk_contribuinte_id_contribuinte (id_contribuinte, nome, razao_social, cpf, cnpj))`).eq('id_parecer', id).maybeSingle();
+    const { data, error } = await supabase
+        .from('parecer')
+        .select(`*, auto:fk_auto_infracao_id_auto (id_auto, numero_auto, data_auto, descricao_detalhada, status_processo, contribuinte:fk_contribuinte_id_contribuinte (id_contribuinte, nome, razao_social, cpf, cnpj))`)
+        .eq('id_parecer', id)
+        .maybeSingle();
     if (error) throw error;
     if (!data) return null;
+
     const auto = Array.isArray(data.auto) ? data.auto[0] : data.auto;
-    const contribuinte = Array.isArray(auto?.contribuinte) ? auto.contribuente[0] : auto?.contribuinte;
+    const contribuinte = Array.isArray(auto?.contribuente) ? auto.contribuente[0] : auto?.contribuente;
+
     return {
         id_parecer: data.id_parecer,
         parecer: data.id_parecer,
@@ -350,11 +353,16 @@ async function buscarParecerCompleto(id) {
 
 app.get('/api/pareceres', protegerRota, async (req, res) => {
     try {
-        const { data, error } = await supabase.from('parecer').select(`*, auto:fk_auto_infracao_id_auto (id_auto, numero_auto, data_auto, descricao_detalhada, status_processo, contribuinte:fk_contribuinte_id_contribuinte (id_contribuinte, nome, razao_social, cpf, cnpj))`).order('data', { ascending: false });
+        const { data, error } = await supabase
+            .from('parecer')
+            .select(`*, auto:fk_auto_infracao_id_auto (id_auto, numero_auto, data_auto, descricao_detalhada, status_processo, contribuinte:fk_contribuinte_id_contribuinte (id_contribuinte, nome, razao_social, cpf, cnpj))`)
+            .order('data', { ascending: false });
         if (error) throw error;
+
         const resultado = (data || []).map(item => {
             const auto = Array.isArray(item.auto) ? item.auto[0] : item.auto;
-            const contribuinte = Array.isArray(auto?.contribuinte) ? auto.contribuente[0] : auto?.contribuinte;
+            const contribuinte = Array.isArray(auto?.contribuente) ? auto.contribuente[0] : auto?.contribuente;
+
             return {
                 id_parecer: item.id_parecer,
                 parecer: item.id_parecer,
@@ -369,6 +377,7 @@ app.get('/api/pareceres', protegerRota, async (req, res) => {
                 documento: contribuinte?.cpf || contribuinte?.cnpj || ''
             };
         });
+
         return res.json(resultado);
     } catch (error) {
         console.error('Erro ao listar pareceres:', error);
@@ -1014,7 +1023,6 @@ app.delete('/api/autos/:id', protegerRota, protegerPerfil('FISCAL'), async (req,
     }
 });
 
-<<<<<<< HEAD
 // ==========================================
 // ROTAS DE MULTAS (LUIS)
 // ==========================================
@@ -1173,8 +1181,6 @@ app.patch('/api/multas/:id', protegerRota, protegerPerfil('FISCAL', 'ADMINISTRAD
         return res.status(500).json({ mensagem: 'Erro ao atualizar multa.' });
     }
 });
-=======
->>>>>>> origin/main
 
 // ==========================================
 // INICIAR SERVIDOR
