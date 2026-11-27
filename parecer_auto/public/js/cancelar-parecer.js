@@ -7,6 +7,22 @@
     let pareceres = [];
     let perfil = '';
 
+    async function verificarMultaParecer(parecer) {
+        if (!parecer?.id_auto) return false;
+        try {
+            const resposta = await fetch('/api/multas', { credentials: 'include' });
+            if (!resposta.ok) return false;
+            const multas = await resposta.json();
+            return (multas || []).some(multa =>
+                String(multa.fk_auto_infracao_id_auto) === String(parecer.id_auto)
+                && ['Emitida', 'Pendente'].includes(String(multa.status || ''))
+            );
+        } catch (error) {
+            console.error('Não foi possível verificar multas do parecer:', error);
+            return false;
+        }
+    }
+
     function preencher(parecer) {
         if (!parecer) return;
         document.getElementById('cancel-parecer').value = parecer.parecer || parecer.id_parecer;
@@ -14,7 +30,28 @@
         document.getElementById('cancel-contribuinte').value = parecer.contribuinte || 'Não informado';
         document.getElementById('cancel-decisao').value = parecer.decisao || parecer.status_banco || '-';
         formCancelamento.dataset.parecerId = parecer.parecer || parecer.id_parecer;
+        formCancelamento.dataset.temMulta = 'false';
         painel.hidden = false;
+
+        verificarMultaParecer(parecer).then(temMulta => {
+            formCancelamento.dataset.temMulta = String(temMulta);
+            const botaoConfirmar = formCancelamento.querySelector('button[type="submit"]');
+            if (botaoConfirmar) botaoConfirmar.disabled = temMulta;
+
+            const alerta = painel.querySelector('.parecer-alert');
+            if (!temMulta && alerta) {
+                alerta.innerHTML = '<strong><i class="fa-solid fa-triangle-exclamation"></i> Deseja realmente cancelar este parecer?</strong><p>O parecer terá status <b>Cancelado</b> e o auto retornará para <b>Aguardando Parecer</b>.</p>';
+            }
+
+            if (temMulta) {
+                if (alerta) {
+                    alerta.innerHTML = '<strong><i class="fa-solid fa-triangle-exclamation"></i> Este parecer não pode ser cancelado.</strong><p>O auto selecionado já possui uma multa emitida. Cancele a multa primeiro.</p>';
+                }
+                if (window.abrirModal) window.abrirModal('Não é possível cancelar um parecer que já possui multa emitida.', { titulo: 'Cancelamento bloqueado' });
+            }
+        }).catch(error => {
+            console.error('Erro ao verificar multa:', error);
+        });
     }
 
     function render(lista) {
@@ -70,6 +107,10 @@
         }
         const justificativa = document.getElementById('justificativa-cancelamento').value.trim();
         if (!justificativa) return;
+        if (formCancelamento.dataset.temMulta === 'true') {
+            if (window.abrirModal) await window.abrirModal('Não é possível cancelar um parecer que já possui multa emitida.', { titulo: 'Cancelamento bloqueado' });
+            return;
+        }
         const confirmado = window.confirmarModal ? await window.confirmarModal('O parecer será cancelado e o auto retornará para Aguardando Parecer.', {titulo:'Confirmar cancelamento', tipo:'danger'}) : confirm('Confirmar cancelamento?');
         if (!confirmado) return;
         const id = formCancelamento.dataset.parecerId;

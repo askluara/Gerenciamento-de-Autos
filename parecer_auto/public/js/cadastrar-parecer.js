@@ -10,13 +10,14 @@
 
     async function renderizarListaCadastro(lista) {
         const tbody = document.getElementById('lista-autos-cadastro');
-        document.getElementById('cadastro-autos-contador').textContent = `${lista.length} ${lista.length === 1 ? 'auto encontrado' : 'autos encontrados'}.`;
-        if (!lista.length) {
-            tbody.innerHTML = '<tr><td class="parecer-empty" colspan="5">Nenhum auto encontrado.</td></tr>';
+        const pareceres = await fetch('/api/pareceres', { credentials: 'include' }).then(resposta => resposta.ok ? resposta.json() : []);
+        const listaElegivel = (lista || []).filter(auto => !possuiParecer(auto.id_auto, pareceres));
+        document.getElementById('cadastro-autos-contador').textContent = `${listaElegivel.length} ${listaElegivel.length === 1 ? 'auto encontrado' : 'autos encontrados'}.`;
+        if (!listaElegivel.length) {
+            tbody.innerHTML = '<tr><td class="parecer-empty" colspan="5">Nenhum auto disponível para cadastro de parecer.</td></tr>'; 
             return;
         }
-        const pareceres = await fetch('/api/pareceres', { credentials: 'include' }).then(resposta => resposta.ok ? resposta.json() : []);
-        tbody.innerHTML = lista.map(auto => {
+        tbody.innerHTML = listaElegivel.map(auto => {
             const data = auto.data_auto ? new Date(auto.data_auto + 'T12:00:00').toLocaleDateString('pt-BR') : '-';
             const jaPossui = possuiParecer(auto.id_auto, pareceres);
             return `<tr data-auto-id="${auto.id_auto}" class="${jaPossui ? 'parecer-auto-ja-vinculado' : ''}" tabindex="0"><td class="parecer-table-code">${auto.numero_auto || auto.id_auto || '-'}</td><td>${auto.nome_contribuinte || '-'}</td><td>${auto.tipo_infracao || auto.descricao_infracao || '-'}</td><td>${jaPossui ? 'Com parecer' : (auto.status_processo || '-')}</td><td>${data}</td></tr>`;

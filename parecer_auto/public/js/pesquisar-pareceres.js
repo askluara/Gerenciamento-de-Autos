@@ -48,7 +48,7 @@
         try {
             const resposta = await fetch('/api/autos', { credentials: 'include' });
             if (!resposta.ok) return;
-            const autos = await resposta.json();
+            autos = await resposta.json();
             renderAutos(autos);
             const numeros = [...new Set((autos || [])
                 .map(auto => String(auto.numero_auto || '').trim())
@@ -92,8 +92,11 @@
 
     document.querySelector('#form-filtros-parecer button[type="reset"]')?.addEventListener('click', () => {
         setTimeout(() => {
+            document.getElementById('filtro-auto').value = '';
+            document.getElementById('filtro-documento').value = '';
+            document.getElementById('filtro-status').value = '';
             render(dados);
-            renderAutos(autos);
+            void carregarSugestoesAutos();
         }, 0);
     });
 
