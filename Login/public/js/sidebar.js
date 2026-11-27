@@ -13,9 +13,6 @@
             ['/cadastro-infracao/cadastrar_infracao.html', 'Cadastrar Infração', 'fa-triangle-exclamation', 'cadastrar-infracao'],
             ['/cadastro-infracao/pesquisar_infracao.html', 'Pesquisar Infrações', 'fa-shield-halved', 'pesquisar-infracao'],
             ['/cadastro-infracao/editar_excluir_infracao.html', 'Editar / Excluir', 'fa-regular fa-pen-to-square', 'editar-infracao']
-        ]],
-        ['Multas', 'infracoes', [
-            ['/gerenciar-multa/multas.html', 'Gestão de Multas', 'fa-file-invoice-dollar', 'gerenciar-multa']
         ]]
     ];
 
@@ -47,7 +44,6 @@
             return `<div class="sidebar-section"><div class="sidebar-section-title">${titulo}</div>${lista}</div>`;
         }).join('');
     }
-
     function mount(target, page) {
         if (!target) return;
 
