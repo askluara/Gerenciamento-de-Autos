@@ -10,7 +10,7 @@
             <div class="fiscal-field"><label>Parecer</label><input id="cancel-parecer" readonly></div><div class="fiscal-field"><label>Número do Auto</label><input id="cancel-auto" readonly></div><div class="fiscal-field"><label>Contribuinte</label><input id="cancel-contribuinte" readonly></div><div class="fiscal-field"><label>Decisão atual</label><input id="cancel-decisao" readonly></div>
         </div></div>
         <form id="form-cancelar-parecer" class="parecer-cancel-form">
-            <div class="fiscal-field"><label for="justificativa-cancelamento">Justificativa do Cancelamento <span class="required">*</span></label><textarea id="justificativa-cancelamento" required placeholder="Informe o motivo do cancelamento."></textarea><span class="fiscal-field-hint">A justificativa é obrigatória. O parecer será cancelado, sem exclusão definitiva do registro.</span></div>
+            <div class="fiscal-field" id="campo-justificativa-cancelamento"><label for="justificativa-cancelamento">Justificativa do Cancelamento <span class="required">*</span></label><textarea id="justificativa-cancelamento" required placeholder="Informe o motivo do cancelamento."></textarea><span class="fiscal-field-hint">A justificativa é obrigatória. O parecer será cancelado, sem exclusão definitiva do registro.</span></div>
             <p class="parecer-restricao"><i class="fa-solid fa-circle-info"></i> Não é possível cancelar um parecer que já possui multa emitida. Cancele a multa primeiro.</p>
             <div class="fiscal-form-actions"><button class="fiscal-button is-danger" type="submit"><i class="fa-solid fa-ban"></i> Confirmar Cancelamento</button><button class="fiscal-button" type="button" id="voltar-cancelamento">Voltar</button></div>
         </form>
