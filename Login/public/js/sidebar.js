@@ -13,6 +13,7 @@
             ['/cadastro-infracao/cadastrar_infracao.html', 'Cadastrar Infração', 'fa-triangle-exclamation', 'cadastrar-infracao'],
             ['/cadastro-infracao/pesquisar_infracao.html', 'Pesquisar Infrações', 'fa-shield-halved', 'pesquisar-infracao'],
             ['/cadastro-infracao/editar_excluir_infracao.html', 'Editar / Excluir', 'fa-regular fa-pen-to-square', 'editar-infracao']
+<<<<<<< HEAD
         ]],
         ['Pareceres', 'pareceres', [
             ['/cadastro-parecer/pesquisar-pareceres.html', 'Pesquisar Pareceres', 'fa-file-lines', 'pesquisar-parecer'],
@@ -22,6 +23,8 @@
         ]],
         ['Multas', 'multas', [
             ['/gerenciar-multa/multas.html', 'Gerenciar Multas', 'fa-dollar-sign', 'gerenciar-multa']
+=======
+>>>>>>> origin/main
         ]]
     ];
 
@@ -62,7 +65,6 @@
             return `<div class="sidebar-section"><div class="sidebar-section-title">${titulo}</div>${lista}</div>`;
         }).join('');
     }
-
     function mount(target, page) {
         if (!target) return;
 

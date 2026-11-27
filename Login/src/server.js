@@ -142,6 +142,7 @@ app.get('/cadastro-infracao/editar_excluir_infracao.html', protegerRota, protege
 app.use('/cadastro-infracao/css', express.static(path.join(publicInfracoes, 'css')));
 app.use('/cadastro-infracao/js', express.static(path.join(publicInfracoes, 'js')));
 
+<<<<<<< HEAD
 // 4. Módulo de Pareceres
 const publicPareceres = path.join(__dirname, '../../parecer_auto/public');
 const publicPareceresHtml = path.join(publicPareceres, 'html');
@@ -179,6 +180,8 @@ app.get('/gerenciar-multa/multas.html', protegerRota, protegerPerfil('FISCAL', '
 });
 app.use('/gerenciar-multa/css', express.static(path.join(publicMultas, 'css')));
 app.use('/gerenciar-multa/js', express.static(path.join(publicMultas, 'js')));
+=======
+>>>>>>> origin/main
 
 // ==========================================
 // ROTAS DE PÁGINAS GERAIS
@@ -1011,6 +1014,7 @@ app.delete('/api/autos/:id', protegerRota, protegerPerfil('FISCAL'), async (req,
     }
 });
 
+<<<<<<< HEAD
 // ==========================================
 // ROTAS DE MULTAS (LUIS)
 // ==========================================
@@ -1169,6 +1173,8 @@ app.patch('/api/multas/:id', protegerRota, protegerPerfil('FISCAL', 'ADMINISTRAD
         return res.status(500).json({ mensagem: 'Erro ao atualizar multa.' });
     }
 });
+=======
+>>>>>>> origin/main
 
 // ==========================================
 // INICIAR SERVIDOR
