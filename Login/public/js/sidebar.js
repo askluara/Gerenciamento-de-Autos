@@ -13,12 +13,6 @@
             ['/cadastro-infracao/cadastrar_infracao.html', 'Cadastrar Infração', 'fa-triangle-exclamation', 'cadastrar-infracao'],
             ['/cadastro-infracao/pesquisar_infracao.html', 'Pesquisar Infrações', 'fa-shield-halved', 'pesquisar-infracao'],
             ['/cadastro-infracao/editar_excluir_infracao.html', 'Editar / Excluir', 'fa-regular fa-pen-to-square', 'editar-infracao']
-        ]],
-        ['Pareceres', 'pareceres', [
-            ['/cadastro-parecer/cadastrar-parecer.html', 'Cadastrar Parecer', 'fa-file-circle-plus', 'cadastrar-parecer', ['COORDENADOR', 'ADMINISTRADOR']],
-            ['/cadastro-parecer/pesquisar-pareceres.html', 'Pesquisar Pareceres', 'fa-file-lines', 'pesquisar-parecer'],
-            ['/cadastro-parecer/editar-parecer.html', 'Editar Parecer', 'fa-pen-to-square', 'editar-parecer', ['COORDENADOR', 'ADMINISTRADOR']],
-            ['/cadastro-parecer/cancelar-parecer.html', 'Cancelar Parecer', 'fa-ban', 'cancelar-parecer', ['COORDENADOR', 'ADMINISTRADOR']]
         ]]
     ];
 
@@ -59,6 +53,7 @@
             return `<div class="sidebar-section"><div class="sidebar-section-title">${titulo}</div>${lista}</div>`;
         }).join('');
     }
+
     function mount(target, page) {
         if (!target) return;
 
