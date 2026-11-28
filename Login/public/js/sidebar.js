@@ -13,6 +13,10 @@
             ['/cadastro-infracao/cadastrar_infracao.html', 'Cadastrar Infração', 'fa-triangle-exclamation', 'cadastrar-infracao'],
             ['/cadastro-infracao/pesquisar_infracao.html', 'Pesquisar Infrações', 'fa-shield-halved', 'pesquisar-infracao'],
             ['/cadastro-infracao/editar_excluir_infracao.html', 'Editar / Excluir', 'fa-regular fa-pen-to-square', 'editar-infracao']
+        ]],
+        ['Gerenciar Defesa', 'defesas', [
+            ['/cadastro-defesa/registrar', 'Registrar Defesa', 'fa-file-circle-plus', 'registrar-defesa'],
+            ['/cadastro-defesa/gerenciar', 'Gerenciar Defesas', 'fa-folder-open', 'gerenciar-defesas']
         ]]
     ];
 
@@ -85,7 +89,7 @@
                 }
                 const permissoes = sessao.permissoes || { fiscais: false, infracoes: false };
                 try { sessionStorage.setItem(CACHE_KEY, JSON.stringify({ permissoes })); } catch {}
-                if (permissoes.fiscais !== permissoesAtuais.fiscais || permissoes.infracoes !== permissoesAtuais.infracoes) {
+                if (permissoes.fiscais !== permissoesAtuais.fiscais || permissoes.infracoes !== permissoesAtuais.infracoes || permissoes.defesas !== permissoesAtuais.defesas) {
                     permissoesAtuais = permissoes;
                     renderizarMenu(aside, page, permissoesAtuais);
                 }

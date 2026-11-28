@@ -13,8 +13,6 @@ const session = require('express-session');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-app.use(express.json({ limit: '20mb' }));
-app.use(express.urlencoded({ extended: true }));
 
 // Configurações Legadas do Supabase para o CRUD de Infrações (via fetch)
 const SUPABASE_URL_INFRACOES = `${process.env.SUPABASE_URL}/rest/v1/infracao`;
@@ -60,6 +58,7 @@ function normalizarPerfil(usuario) {
         .trim()
         .toUpperCase();
     if (perfil.includes('ADMIN')) return 'ADMINISTRADOR';
+    if (perfil.includes('ANALISTA') || usuario?.matricula_analista) return 'ANALISTA';
     if (perfil.includes('COORDENADOR')) return 'COORDENADOR';
     if (perfil.includes('FISCAL')) return 'FISCAL';
     if (usuario?.matricula_admin) return 'ADMINISTRADOR';
@@ -80,11 +79,16 @@ function protegerPerfil(...perfisPermitidos) {
     };
 }
 
+app.use('/api/defesas', require('../../cadastro-defesa/Index')(supabase, protegerPerfil));
+app.use(express.json({ limit: '20mb' }));
+app.use(express.urlencoded({ extended: true }));
+
 function obterPermissoes(usuario) {
     const perfil = usuario?.perfil;
     return {
         fiscais: ['COORDENADOR', 'ADMINISTRADOR'].includes(perfil),
-        infracoes: ['FISCAL', 'ADMINISTRADOR'].includes(perfil)
+        infracoes: ['FISCAL', 'ADMINISTRADOR'].includes(perfil),
+        defesas: ['ANALISTA', 'ADMINISTRADOR'].includes(perfil)
     };
 }
 
@@ -137,6 +141,14 @@ app.get('/cadastro-infracao/editar_excluir_infracao.html', protegerRota, protege
 });
 app.use('/cadastro-infracao/css', express.static(path.join(publicInfracoes, 'css')));
 app.use('/cadastro-infracao/js', express.static(path.join(publicInfracoes, 'js')));
+
+const publicDefesas = path.join(__dirname, '../../cadastro-defesa/public');
+app.get(['/cadastro-defesa/registrar', '/cadastro-defesa/gerenciar'],
+    protegerRota, protegerPerfil('ANALISTA', 'ADMINISTRADOR'), (req, res) => {
+        res.sendFile(path.join(publicDefesas, 'index.html'));
+    });
+app.use('/cadastro-defesa/assets', express.static(path.join(publicDefesas, 'assets')));
+
 
 
 // ==========================================
@@ -207,6 +219,11 @@ app.post('/api/login', async(req, res) => {
         }
 
         const credenciais = respostas.flatMap(r => r.data || []);
+        if (!credenciais.length) {
+            const { data, error } = await buscar('matricula_analista');
+            if (error && error.code !== '42703') throw error;
+            credenciais.push(...(data || []));
+        }
 
         if (credenciais.length > 0) {
             // Não envia o hash/senha para a sessão nem para o front

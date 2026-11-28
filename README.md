@@ -71,3 +71,47 @@ As paginas e APIs podem ter exigencias de autenticacao e perfil. Consulte os mid
 ## Desenvolvimento
 
 O comando `npm start` inicia o servidor sem reinicio automatico. Reinicie o processo depois de alterar arquivos do backend. Os arquivos HTML, CSS e JavaScript dos modulos ficam em seus respectivos diretorios `public/`.
+
+## API de defesas (RF017–RF020)
+
+Aplique `cadastro-defesa/sql/001_gerenciar_defesas.sql` em uma base que ainda não tenha o módulo.
+Na sequência, aplique `cadastro-defesa/sql/002_situacao_defesa.sql` para habilitar a alteração de situação.
+As telas são servidas pelo Express em `/cadastro-defesa/registrar` e `/cadastro-defesa/gerenciar`.
+A migração pressupõe `auto_infracao.id_auto`, `defesa.data_envio` e a coluna
+`fk_auto_infracao_id_auto` em `defesa` e `parecer`. A função de cadastro gera
+um UUID de 36 caracteres para `defesa.id_defesa`. Os vínculos com o auto
+devem usar chaves estrangeiras, inclusive em `parecer`, para que a gravação de um
+parecer concorra com o bloqueio do auto na transação. O backend deve usar a chave
+`service_role` em `SUPABASE_KEY`, acessível apenas ao servidor. Cadastre os analistas
+com perfil `ANALISTA` ou com `matricula_analista` em `credencial`.
+
+| Método e rota | Operação |
+| --- | --- |
+| `GET /api/defesas/autos` | Busca o auto por `numero_auto` ou `cpf_cnpj`. Sem filtros, lista a fila de autos aguardando defesa, sem defesa registrada e sem parecer. |
+| `GET /api/defesas` | Lista defesas. Aceita `numero_auto`, `cpf_cnpj`, `nome_contribuinte`, `data_inicio`, `data_fim` e `pagina`. Cada página retorna até 50 registros. |
+| `GET /api/defesas/:id` | Consulta os dados de uma defesa. |
+| `GET /api/defesas/:id/documento` | Baixa o anexo. |
+| `POST /api/defesas` | Registra a defesa. |
+| `PATCH /api/defesas/:id` | Atualiza `data_envio`, `observacoes` e/ou `documento`. |
+| `PATCH /api/defesas/:id/situacao` | Recebe `{"ativa": false}` para inativar ou `{"ativa": true}` para reativar. Disponível apenas para administradores e em processos sem parecer. |
+
+As rotas exigem sessão de analista ou administrador. Envie o cadastro como JSON com
+`id_auto`, `data_envio` (AAAA-MM-DD), `documento` (objeto com `nome` e
+`conteudo_base64`, até 10 MiB de arquivo) e `observacoes` opcional.
+Para confirmar um protocolo fora do prazo após receber HTTP 409 com o código
+`DEFESA_FORA_PRAZO`, reenvie a operação com `confirmar_fora_prazo: true`.
+
+O prazo usa `auto_infracao.prazo_defesa_ate`. Se ele estiver vazio, o cálculo usa
+dez dias corridos a partir de `data_auto`. O campo `prazo_cobranca_suspenso` registra
+a suspensão. Uma rotina de cobrança deve consultar esse campo para interromper a
+contagem. Os anexos legados com endereço em `url_defesa` podem ser mantidos ou substituídos na edição.
+
+Para testar o cadastro fora do estado `Aguardando Defesa`, aplique
+`cadastro-defesa/sql/003_cadastro_defesa_modo_teste.sql` e inicie com
+`DEFESA_MODO_TESTE=true PORT=3017 npm start`. Para voltar à regra normal, reinicie
+sem `DEFESA_MODO_TESTE`. Autos julgados, com parecer ou com defesa registrada
+continuam bloqueados durante os testes.
+
+Na base SIGAI, aplique também `cadastro-defesa/sql/004_status_reais_auto.sql` depois
+da migração 003. O enum de autos usa `Em Aberto` e `Defesa Apresentada` para as
+etapas exibidas no módulo como `Aguardando Defesa` e `Em Análise`.

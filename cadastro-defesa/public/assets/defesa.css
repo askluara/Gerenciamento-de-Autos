@@ -1,0 +1,110 @@
+.defesa-page {
+    --df-ink: #14213a;
+    --df-muted: #50617b;
+    --df-line: #dbe3ef;
+    --df-accent: #4030d4;
+    --df-surface: #f5f7fb;
+    color: var(--df-ink);
+}
+.defesa-page .main-content { background: var(--df-surface); }
+.defesa-page [hidden] { display: none !important; }
+.defesa-conteudo { width: min(100%, 1220px); margin: 0 auto; padding: 30px clamp(16px, 4vw, 56px) 52px; }
+.defesa-page[data-current-page="registrar-defesa"] .defesa-conteudo { max-width: 1100px; }
+.defesa-titulo { display: flex; align-items: center; gap: 14px; margin-bottom: 24px; }
+.defesa-titulo h2 { font-size: clamp(24px, 4vw, 32px); line-height: 1.2; margin: 4px 0; letter-spacing: -.03em; }
+.defesa-titulo p, .defesa-painel-header p { margin: 0; color: var(--df-muted); font-size: .875rem; line-height: 1.5; }
+.defesa-titulo .defesa-contexto { color: var(--df-accent); text-transform: uppercase; letter-spacing: .12em; font-weight: 700; font-size: .75rem; }
+.defesa-icone { display: grid; place-items: center; width: 46px; height: 46px; flex: 0 0 46px; color: white; background: var(--df-accent); border-radius: 10px; }
+.defesa-painel { background: #fff; border: 1px solid var(--df-line); border-radius: 10px; box-shadow: 0 2px 5px #18294b0b; overflow: hidden; margin-bottom: 20px; }
+.defesa-painel-header { padding: 17px 20px; border-bottom: 1px solid var(--df-line); background: #f8faff; }
+.defesa-painel-header h3 { margin: 0 0 4px; font-size: 1rem; }
+.defesa-corpo { padding: 20px; }
+.defesa-busca-auto, .defesa-grade { display: grid; gap: 14px; align-items: end; }
+.defesa-busca-auto { grid-template-columns: minmax(0, 1fr) auto; }
+.defesa-grade { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.defesa-form { display: grid; gap: 15px; }
+.defesa-form label:first-child { max-width: 260px; }
+.defesa-page label { display: block; min-width: 0; color: #273953; font-weight: 600; font-size: .875rem; }
+.defesa-page input, .defesa-page textarea { display: block; width: 100%; min-width: 0; margin-top: 6px; border: 1px solid #bac8dc; border-radius: 6px; color: var(--df-ink); padding: 9px 10px; background: #fff; font: inherit; font-weight: 400; min-height: 40px; }
+.defesa-page textarea { resize: vertical; }
+.defesa-page input[type="file"]::file-selector-button { border: 0; border-radius: 4px; background: #e9e7ff; color: #382ab4; font: inherit; font-weight: 600; padding: 5px 9px; margin-right: 9px; cursor: pointer; }
+.defesa-page :is(input, textarea, button, a):focus-visible { outline: 2px solid #6657e8; outline-offset: 2px; }
+.defesa-page [aria-invalid="true"] { border-color: #b42318; box-shadow: 0 0 0 1px #b42318; }
+.defesa-obrigatorio { color: #b42318; }
+.defesa-rodape { display: flex; justify-content: flex-end; gap: 8px; padding: 12px 20px; background: #f8faff; border-top: 1px solid var(--df-line); }
+.defesa-btn { min-height: 40px; display: inline-flex; align-items: center; justify-content: center; gap: 7px; padding: 7px 13px; color: #253855; border: 1px solid #bbc9dc; border-radius: 6px; background: #fff; font: inherit; font-size: .875rem; font-weight: 600; cursor: pointer; white-space: nowrap; }
+.defesa-btn.principal { color: #fff; background: var(--df-accent); border-color: var(--df-accent); }
+.defesa-btn.discreto { color: #4030ba; background: #f7f6ff; border-color: #d3cff8; }
+.defesa-btn.inativar { color: #8c302b; }
+.defesa-btn:disabled { opacity: .55; cursor: default; }
+.defesa-btn:not(:disabled):hover { filter: brightness(.94); }
+.defesa-tabela-wrap { overflow-x: auto; }
+.defesa-tabela { width: 100%; border-collapse: collapse; font-size: .875rem; text-align: left; }
+.defesa-tabela th { background: #f2f5fa; color: #435774; font-weight: 700; }
+.defesa-tabela :is(td, th) { padding: 12px 16px; vertical-align: middle; }
+.defesa-tabela td { border-top: 1px solid #e7edf6; }
+.defesa-tabela td small { display: block; margin-top: 4px; }
+.defesa-tabela td small, #anexo-ajuda { color: var(--df-muted); font-size: .8125rem; overflow-wrap: anywhere; }
+.defesa-codigo { color: #4030ba; font-weight: 700; overflow-wrap: anywhere; }
+.defesa-acoes { display: flex; flex-wrap: wrap; gap: 6px; }
+.defesa-acoes .defesa-btn { min-height: 35px; }
+.defesa-tag { display: inline-block; padding: 4px 8px; border-radius: 999px; color: #342a99; background: #e9e7ff; font-weight: 600; font-size: .8125rem; }
+.defesa-tag.aviso { color: #775000; background: #fff1c6; }
+.defesa-tag.neutra { color: #41516b; background: #e9edf4; }
+.defesa-tag.erro { color: #8c2922; background: #fde7e4; }
+.defesa-mensagem { margin: 0 0 16px; padding: 12px 14px; border: 1px solid #c2ddcf; border-radius: 6px; background: #ecf9f2; color: #175c3c; font-size: .9rem; }
+.defesa-mensagem.erro { color: #8c2922; border-color: #efc6c2; background: #fff1ef; }
+.defesa-mensagem.aviso { color: #775000; border-color: #eed89d; background: #fff7df; }
+.defesa-form .defesa-mensagem { margin: 0; }
+.defesa-vazio { padding: 18px 20px; color: var(--df-muted); }
+.defesa-anexo { color: #4030ba; font-weight: 600; overflow-wrap: anywhere; }
+@media (max-width: 1100px) { .defesa-grade { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (max-width: 550px) {
+    .defesa-page .header { min-height: 74px; height: auto; padding: 12px 12px 12px 64px; }
+    .defesa-page .header-left h1 { font-size: .875rem; }
+    .defesa-page .user-info { display: none; }
+    .defesa-grade, .defesa-busca-auto { grid-template-columns: minmax(0, 1fr); }
+    .defesa-tabela { min-width: 560px; }
+}
+.defesa-auto-selecionado { border-color: #c9d2ff; }
+.defesa-auto-selecionado .defesa-painel-header { background: #f3f5ff; }
+.defesa-auto-selecionado dl { grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); align-items: start; margin: 0; }
+.defesa-auto-selecionado dt { color: var(--df-muted); font-size: .8125rem; }
+.defesa-auto-selecionado dd { margin: 5px 0 0; font-size: .875rem; font-weight: 600; overflow-wrap: anywhere; }
+.defesa-protocolo { display: grid; grid-template-columns: minmax(0, 2fr) minmax(0, 3fr); gap: 16px; }
+.defesa-protocolo label:first-child { max-width: none; }
+.defesa-protocolo .defesa-mensagem { margin-top: 8px; }
+#upload-defesa { position: relative; }
+#upload-defesa input { position: absolute; opacity: 0; inset: 22px 0 0; margin: 0; width: 100%; height: calc(100% - 22px); cursor: pointer; }
+.defesa-upload { display: grid; justify-items: center; gap: 8px; padding: 22px 16px; margin-top: 6px; border: 1px dashed #a7b7d9; border-radius: 7px; background: #fafbff; text-align: center; overflow-wrap: anywhere; }
+.defesa-upload i { color: var(--df-accent); font-size: 1.25rem; }
+#upload-defesa input:focus-visible + .defesa-upload { outline: 2px solid var(--df-accent); outline-offset: 2px; }
+#upload-defesa input[aria-invalid="true"] + .defesa-upload { border-color: #b42318; }
+.defesa-situacoes { display: grid; gap: 5px; justify-items: start; }
+@media (max-width: 550px) { .defesa-protocolo { grid-template-columns: 1fr; } }
+.defesa-btn.defesa-link { display: inline; min-height: 0; padding: 0; border: 0; color: #4030ba; background: transparent; text-align: left; text-decoration: underline; text-underline-offset: 3px; white-space: normal; overflow-wrap: anywhere; }
+.defesa-auto-selecionado { scroll-margin-top: 16px; }
+.defesa-etapa { display: flex; align-items: center; gap: 11px; }
+.defesa-etapa-numero { display: none; }
+.defesa-page[data-current-page="registrar-defesa"] .defesa-etapa-numero { display: grid; place-items: center; flex: 0 0 26px; height: 26px; border-radius: 50%; background: #302192; color: #fff; font-size: .8125rem; font-weight: 700; }
+.defesa-auto-selecionado .defesa-painel-header .defesa-codigo { color: #4030ba; }
+#auto-status { margin-left: auto; }
+#auto-bloqueio { margin: 0 20px 16px; }
+.defesa-contador { display: block; margin-top: 5px; text-align: right; color: var(--df-muted); font-size: .75rem; font-weight: 400; }
+.defesa-edicao-modal { position: fixed; inset: 0; width: min(540px, calc(100% - 32px)); max-height: calc(100dvh - 32px); margin: auto; padding: 0; border: 1px solid var(--df-line); border-radius: 8px; background: #fff; color: var(--df-ink); box-shadow: 0 24px 72px #14213a44; overflow: auto; }
+.defesa-edicao-modal::backdrop { background: #18203999; backdrop-filter: blur(2px); }
+.defesa-edicao-cabecalho { position: relative; padding: 20px 52px 16px 20px; border-bottom: 1px solid var(--df-line); }
+.defesa-edicao-cabecalho h3 { margin: 5px 0; font-size: 1.125rem; overflow-wrap: anywhere; }
+.defesa-edicao-cabecalho p { margin: 0; color: var(--df-muted); font-size: .8125rem; }
+.defesa-edicao-cabecalho .defesa-contexto { color: var(--df-accent); text-transform: uppercase; font-weight: 700; letter-spacing: .07em; }
+#editar-fechar { position: absolute; top: 12px; right: 12px; min-width: 38px; min-height: 38px; padding: 0; border: 0; font-size: 1.25rem; }
+.defesa-edicao-contribuinte { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin: 18px 20px 0; padding: 12px; background: #f5f7fb; border: 1px solid var(--df-line); border-radius: 6px; font-size: .875rem; overflow-wrap: anywhere; }
+.defesa-edicao-contribuinte span { display: block; margin-bottom: 5px; color: var(--df-muted); font-size: .75rem; }
+.defesa-edicao-modal .defesa-protocolo { grid-template-columns: 1fr; }
+.defesa-edicao-modal .defesa-form label:first-child { max-width: none; }
+.defesa-edicao-modal .defesa-contador:empty { display: none; }
+.defesa-anexo-edicao { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; padding: 11px; background: #f5f7fb; border: 1px solid var(--df-line); border-radius: 6px; font-size: .875rem; }
+.defesa-anexo-edicao #anexo-label, .defesa-anexo-edicao #anexo-ajuda, .defesa-anexo-edicao .defesa-upload i { display: none; }
+.defesa-anexo-edicao .defesa-upload { min-height: 34px; margin: 0; padding: 7px 10px; border: 1px solid #bbc9dc; background: white; }
+.defesa-anexo-edicao #upload-defesa input { inset: 0; height: 100%; }
+.defesa-anexo-legenda { display: block; margin-top: 4px; color: var(--df-muted); font-size: .75rem; }

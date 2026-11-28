@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Defesas | SIGAI</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="/css/home.css">
+    <link rel="stylesheet" href="/cadastro-defesa/assets/defesa.css">
+    <script defer src="/js/modal.js"></script>
+    <script defer src="/cadastro-defesa/assets/defesa.js"></script>
+    <script defer src="/js/sidebar.js"></script>
+</head>
+<body class="defesa-page">
+    <div class="container-main">
+        <div class="main-content">
+            <header class="header">
+                <div class="header-left">
+                    <h1>Sistema de Gerenciamento de Autos de Infração</h1>
+                    <p>Prefeitura Municipal • Gerência de Posturas</p>
+                </div>
+                <div class="header-right">
+                    <div class="user-info">
+                        <div class="name" id="usuario"></div>
+                        <div class="role" id="perfil"></div>
+                    </div>
+                    <div class="user-avatar" id="avatar" aria-hidden="true"></div>
+                </div>
+            </header>
+            <main class="defesa-conteudo">
+                <div class="defesa-titulo">
+                    <span class="defesa-icone" aria-hidden="true"><i class="fa-solid fa-folder-open"></i></span>
+                    <div>
+                        <p class="defesa-contexto">Processos</p>
+                        <h2 id="titulo"></h2>
+                        <p id="descricao"></p>
+                    </div>
+                </div>
+                <div id="mensagem" class="defesa-mensagem" role="status" tabindex="-1" hidden></div>
+                <p id="modo-teste-defesa" class="defesa-mensagem aviso" role="status" hidden></p>
+                <section class="defesa-painel" id="registrar" hidden>
+                    <header class="defesa-painel-header">
+                        <div class="defesa-etapa">
+                            <span class="defesa-etapa-numero" aria-hidden="true">1</span>
+                            <div><h3>Localizar Auto de Infração</h3>
+                                <p>Pesquise por número ou CPF/CNPJ. Deixe em branco para ver os autos disponíveis.</p></div>
+                        </div>
+                    </header>
+                    <form id="busca-auto" class="defesa-corpo defesa-busca-auto" novalidate>
+                        <label>Número do Auto ou CPF/CNPJ do contribuinte
+                            <input name="consulta" maxlength="100" placeholder="Digite o número do auto ou CPF/CNPJ">
+                        </label>
+                        <button class="defesa-btn principal" type="submit"><i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i> Pesquisar</button>
+                    </form>
+                    <p id="fila-titulo" class="defesa-vazio" role="status" hidden></p>
+                    <div id="autos"></div>
+                    <div class="defesa-rodape" id="paginacao-autos" hidden>
+                        <button type="button" class="defesa-btn" id="auto-anterior">Anterior</button>
+                        <button type="button" class="defesa-btn" id="auto-proxima">Próxima</button>
+                    </div>
+                </section>
+                <section class="defesa-painel" id="filtros" hidden>
+                    <header class="defesa-painel-header">
+                        <h3>Critérios de pesquisa</h3>
+                        <p>Informe um ou mais filtros para refinar a consulta.</p>
+                    </header>
+                    <form id="busca-defesas">
+                        <div class="defesa-corpo defesa-grade">
+                            <label>Número do Auto<input name="numero_auto" maxlength="100" placeholder="AI-2026-000000"></label>
+                            <label>CPF/CNPJ do contribuinte<input name="cpf_cnpj" maxlength="30" placeholder="000.000.000-00"></label>
+                            <label>Nome do contribuinte<input name="nome_contribuinte" maxlength="200"></label>
+                            <label>Protocolo — data inicial<input name="data_inicio" type="date"></label>
+                            <label>Protocolo — data final<input name="data_fim" type="date"></label>
+                        </div>
+                        <div class="defesa-rodape">
+                            <button class="defesa-btn" type="reset">Limpar filtros</button>
+                            <button class="defesa-btn principal" type="submit"><i class="fa-solid fa-magnifying-glass" aria-hidden="true"></i> Pesquisar</button>
+                        </div>
+                    </form>
+                </section>
+                <section class="defesa-painel defesa-auto-selecionado" id="resumo-auto" tabindex="-1" aria-labelledby="auto-titulo" hidden>
+                    <header class="defesa-painel-header">
+                        <div class="defesa-etapa">
+                            <span class="defesa-etapa-numero" aria-hidden="true">2</span>
+                            <div><h3 id="auto-titulo">Auto selecionado</h3>
+                                <p id="auto-selecionado" class="defesa-codigo"></p></div>
+                            <span id="auto-status" class="defesa-tag neutra"></span>
+                        </div>
+                    </header>
+                    <dl id="auto-detalhes" class="defesa-corpo defesa-grade"></dl>
+                    <p id="auto-bloqueio" class="defesa-mensagem aviso" role="status" hidden></p>
+                </section>
+                <section class="defesa-painel" id="formulario" hidden>
+                    <header class="defesa-painel-header">
+                        <div class="defesa-etapa">
+                            <span class="defesa-etapa-numero" aria-hidden="true">3</span>
+                            <div><h3 id="form-titulo"></h3>
+                                <p>Campos marcados com * são obrigatórios.</p></div>
+                        </div>
+                    </header>
+                    <form id="dados-defesa" novalidate>
+                        <div class="defesa-corpo defesa-form">
+                            <div class="defesa-protocolo">
+                                <div>
+                                    <label>Data de envio/protocolo <span class="defesa-obrigatorio">*</span>
+                                        <input name="data_envio" type="date" required>
+                                    </label>
+                                    <p id="prazo-alerta" class="defesa-mensagem aviso" role="status" hidden></p>
+                                </div>
+                                <label>Observações (opcional)<textarea name="observacoes" maxlength="10000" rows="3" placeholder="Registre informações complementares sobre o protocolo"></textarea><span id="observacoes-contador" class="defesa-contador"></span></label>
+                            </div>
+                            <label id="upload-defesa"><span id="anexo-label">Documento digitalizado da defesa</span>
+                                <input name="documento" type="file" accept=".pdf,.png,.jpg,.jpeg" aria-describedby="anexo-ajuda nome-arquivo">
+                                <span class="defesa-upload">
+                                    <i class="fa-solid fa-cloud-arrow-up" aria-hidden="true"></i>
+                                    <strong id="nome-arquivo">Selecionar documento</strong>
+                                    <span id="anexo-ajuda">PDF, PNG ou JPG · até 10 MiB</span>
+                                </span>
+                            </label>
+                            <div id="anexo-atual"></div>
+                            <p id="form-erro" class="defesa-mensagem erro" role="alert" hidden></p>
+                        </div>
+                        <div class="defesa-rodape">
+                            <button class="defesa-btn" id="cancelar-edicao" type="button">Cancelar</button>
+                            <button class="defesa-btn principal" type="submit">Gravar defesa</button>
+                        </div>
+                    </form>
+                </section>
+                <section class="defesa-painel" id="listagem" hidden>
+                    <header class="defesa-painel-header">
+                        <h3>Defesas registradas</h3>
+                        <p id="total" aria-live="polite"></p>
+                    </header>
+                    <div id="resultados"></div>
+                    <div class="defesa-rodape" id="paginacao" hidden>
+                        <button type="button" class="defesa-btn" id="anterior">Anterior</button>
+                        <button type="button" class="defesa-btn" id="proxima">Próxima</button>
+                    </div>
+                </section>
+                <dialog id="editar-modal" class="defesa-edicao-modal" aria-labelledby="editar-titulo">
+                    <header class="defesa-edicao-cabecalho">
+                        <p class="defesa-contexto">Editar Defesa</p>
+                        <h3 id="editar-titulo"></h3>
+                        <p id="editar-auto"></p>
+                        <button type="button" id="editar-fechar" class="defesa-btn" aria-label="Fechar edição">×</button>
+                    </header>
+                    <div id="editar-contribuinte" class="defesa-edicao-contribuinte"></div>
+                </dialog>
+            </main>
+        </div>
+    </div>
+</body>
+</html>
